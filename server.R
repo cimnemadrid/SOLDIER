@@ -7,18 +7,6 @@
 options(shiny.maxRequestSize = 50 * 1024^2)
 
 shiny::shinyServer(function(input, output, session) {
-  appversion <- 1 # 0 free web, 1 master web, 2 VERBUND, 3 legacy
-
-  # Limitations of the version
-  if (appversion == 0) {
-    showModal(
-      modalDialog(
-        title = "Warning",
-        "To download result files ask for a free account at
-        cimnemadrid@cimne.upc.edu",
-        size = c("s")))
-  }
-
   timeSoldier <- file.exists("timeSoldier.R")
 
   # Start reactive variables
@@ -65,54 +53,13 @@ shiny::shinyServer(function(input, output, session) {
   #---------------------TabItem 1: Select files and images---------------------#
   #----------------------------------------------------------------------------#
 
-  # Load new data file
-  output$i_data_type <- renderUI({
-    if (appversion <= 2) {
-      return(NULL)
-    }
-    if (timeMacinger) {
-      time_file <- 1
-      source("timeMacinger.R", local = TRUE)$value
-    } else {
-      radioButtons(
-        inputId  = "data_type",
-        label    = NULL,
-        choices  = list("Generic data" = 2),
-        selected = 2
-      )
-    }
-  })
-
   output$i_load <- renderUI({
-    if (timeSoldier && appversion > 2) {
-      radioButtons(
-        inputId = "data_origin",
-        label = NULL,
-        choices = list(
-          "Load data for a new model" = 1,
-          "Load a previously fitted model and new data file" = 2,
-          "Load a previously fitted model and custom data" = 3
-        ),
-        selected = character(0)
-      )
-    } else if (timeSoldier && appversion > 1) {
-      radioButtons(
-        inputId = "data_origin",
-        label = NULL,
-        choices = list(
-          "Load data for a new model" = 1,
-          "Load a previously fitted model and new data file" = 2
-        ),
-        selected = character(0)
-      )
-    } else {
       radioButtons(
         inputId = "data_origin",
         label = NULL,
         choices = list("Load data for a new model" = 1),
         selected = character(0)
       )
-    }
   })
 
   output$i_data_type <- renderUI({
@@ -1135,11 +1082,11 @@ shiny::shinyServer(function(input, output, session) {
     if (is.null(datum) || is.null(input$plotType)) {
       return(NULL)
     } # Check if there is any data
-    if (appversion < 3) { # Limitations of the version
-      if (input$plotType == 2) {
-        return(NULL)
-      }
+
+    if (input$plotType == 2) {
+      return(NULL)
     }
+
     items <- c(sort(names(datum)))
     if (sum(results$residual[!is.na(results$residual)]) != 0) {
       items <- c(items, "Residual")
@@ -1277,37 +1224,6 @@ shiny::shinyServer(function(input, output, session) {
     title
   })
 
-  output$yearsTitle2 <- renderPrint({
-    if (appversion < 3) {
-      return(HTML(""))
-    }
-    if (input$data_origin == 3) {
-      return(HTML(""))
-    }
-    title <- HTML("<b>Prediction period: </b>")
-    title
-  })
-
-  output$loadTraYear <- renderPrint({
-    if (appversion < 3) {
-      return(HTML(""))
-    }
-    if ((!is.null(input$data_type) && input$data_type == 2)) {
-      return(HTML(""))
-    }
-    if (is.null(input$fileSaved)) {
-      return(HTML(""))
-    } # "fileSaved": file with previous model
-    HTML(
-      paste(
-        as.Date(model_data()$train_y[1], origin = lubridate::origin),
-        "to",
-        as.Date(model_data()$train_y[2], origin = lubridate::origin),
-        sep = " "
-      )
-    )
-  })
-
   output$loadTesYear <- renderPrint({
     # Check if there is any data
     if (is.null(input$fileSaved)) {
@@ -1348,273 +1264,6 @@ shiny::shinyServer(function(input, output, session) {
       )
     } else {
       HTML(model_data()$test_perc)
-    }
-  })
-
-  output$iVar1 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[1]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var1", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar2 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 2) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[2]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var2", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar3 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 3) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[3]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var3", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar4 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 4) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[4]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var4", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar5 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 5) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[5]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var5", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar6 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 6) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[6]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var6", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar7 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 7) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[7]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var7", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar8 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 8) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[8]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var8", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar9 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 9) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[9]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var9", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar10 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 10) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[10]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var10", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar11 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 11) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[11]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var11", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar12 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 12) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[12]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var12", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar13 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 13) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[13]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var13", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar14 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 14) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[14]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var14", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
-    }
-  })
-
-  output$iVar15 <- renderUI({
-    if (input$info1) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (timeSoldier) {
-      if (length(model_data()$model$var.names) < 15) {
-        return(NULL)
-      }
-      dat <- model_data()$data_in
-      varia <- model_data()$model$var.names[15]
-      max_v <- max(dat[, match(varia, names(dat))])
-      min_v <- min(dat[, match(varia, names(dat))])
-      numericInput("var15", label = varia, value = (max_v + min_v) / 2)
-    } else {
-      return(NULL)
     }
   })
 
@@ -1684,23 +1333,6 @@ shiny::shinyServer(function(input, output, session) {
       selected = sele,
       multiple = TRUE
     )
-  })
-
-  output$iIgnore <- renderUI({
-    if (!timeSoldier) {
-      return(NULL)
-    }
-    if (appversion > 2) { # Limitations of the version
-      checkboxInput(
-        "ignore",
-        "Ignore less important predictors from previous calculation",
-        value = FALSE
-      )
-    }
-  })
-
-  observeEvent(input$ignore, {
-    values$ignore <- input$ignore
   })
 
   # Menu for choosing test/train periods for the new model
@@ -1903,148 +1535,8 @@ shiny::shinyServer(function(input, output, session) {
   #-----------------------------TabItem 2: Predict-----------------------------#
   #----------------------------------------------------------------------------#
 
-  # Let select what to do with previus model
-  output$iCopy <- renderUI({
-    if (!timeSoldier) {
-      return(NULL)
-    }
-
-    if (!is.null(input$data_origin) && (input$data_origin != 2)) {
-      return(NULL)
-    }
-
-    # Adapt options to the user choices
-    if (input$info2) {
-      return(NULL)
-    }
-
-    # Limitations of the version
-    if (appversion > 1) {
-      choose_prev_model <- list(
-        "Check previous model" = 1,
-        "Modification of previous model" = 2
-      )
-
-      radioButtons(
-        inputId = "prev_model",
-        label = NULL,
-        choices = choose_prev_model,
-        selected = 1
-      )
-    }
-  })
-
-  # Let start model prediction
-  output$iPredi <- renderUI({
-    if (appversion < 3) {
-      return(NULL)
-    }
-
-    if (!is.null(input$data_origin) && (input$data_origin != 2) || (input$prev_model == 2)) {
-      return(NULL)
-    }
-
-    # Adapt options to the user choices
-    if (input$info2) {
-      return(NULL)
-    }
-
-    actionButton("predi", label = "Predict", icon = icon("cog"))
-  })
-
   model_predict <- eventReactive(input$predi, {
     refresh <- TRUE
-  })
-
-  output$i_prediction_box <- shiny::renderUI({
-    if (appversion < 3 ||
-        (!is.null(input$data_type) && input$data_type == 2) ||
-        input$data_origin == 1 ||
-        input$info2) {
-      return(div())
-    }
-
-    refresh <- model_predict()
-
-    isolate({
-      old_model <- model_data()$model
-      new_dat <- matrix(0, 1, 15)
-
-      if (!is.null(input$var1)) {
-        new_dat[1, 1] <- input$var1
-      }
-
-      if (!is.null(input$var2)) {
-        new_dat[1, 2] <- input$var2
-      }
-
-      if (!is.null(input$var3)) {
-        new_dat[1, 3] <- input$var3
-      }
-
-      if (!is.null(input$var4)) {
-        new_dat[1, 4] <- input$var4
-      }
-
-      if (!is.null(input$var5)) {
-        new_dat[1, 5] <- input$var5
-      }
-
-      if (!is.null(input$var6)) {
-        new_dat[1, 6] <- input$var6
-      }
-
-      if (!is.null(input$var7)) {
-        new_dat[1, 7] <- input$var7
-      }
-
-      if (!is.null(input$var8)) {
-        new_dat[1, 8] <- input$var8
-      }
-
-      if (!is.null(input$var9)) {
-        new_dat[1, 9] <- input$var9
-      }
-
-      if (!is.null(input$var10)) {
-        new_dat[1, 10] <- input$var10
-      }
-
-      if (!is.null(input$var11)) {
-        new_dat[1, 11] <- input$var11
-      }
-
-      if (!is.null(input$var12)) {
-        new_dat[1, 12] <- input$var12
-      }
-
-      if (!is.null(input$var13)) {
-        new_dat[1, 13] <- input$var13
-      }
-
-      if (!is.null(input$var14)) {
-        new_dat[1, 14] <- input$var14
-      }
-
-      if (!is.null(input$var15)) {
-        new_dat[1, 15] <- input$var15
-      }
-
-      new_dat <- as.data.frame(new_dat)
-      names(new_dat)[seq_along(old_model$var.names)] <- old_model$var.names
-      prediction <- predict(
-        old_model,
-        newdata = new_dat,
-        n.trees = old_model$n.trees
-      )
-    })
-
-    shinydashboard::valueBox(
-      round(prediction, digits = 4),
-      "Prediction",
-      icon("chart-line"),
-      "blue"
-    )
   })
 
   output$fitGraphNew <- renderPlotly({
@@ -2085,33 +1577,6 @@ shiny::shinyServer(function(input, output, session) {
 
       fit_graph
     })
-  })
-
-  # Save the prediction
-  output$iDownload0 <- renderUI({
-    if (appversion < 3) {
-      return(NULL)
-    }
-
-    datum <- values$dat
-    if (!is.null(input$data_origin) && (input$data_origin != 2) || (input$prev_model == 2)) {
-      return(NULL)
-    }
-
-    # Adapt options to the date based data
-    if (!timeSoldier) {
-      return(NULL)
-    }
-
-    # Check if there is any data
-    if (is.null(datum)) {
-      return(NULL)
-    }
-
-    # Adapt options to the user choices
-    if (input$info2) {
-      return(NULL)
-    }
   })
 
   output$fitPlotNew <- renderPlot({
@@ -2156,26 +1621,6 @@ shiny::shinyServer(function(input, output, session) {
     return(sca_plot)
   })
 
-  # Save the prediction
-  output$iDownload0 <- renderUI({
-    if (appversion < 3) {
-      return(NULL)
-    }
-    datum <- values$dat
-    if (!is.null(input$data_origin) && (input$data_origin != 2) || (input$prev_model == 2)) {
-      return(NULL)
-    }
-    if (!timeSoldier) {
-      return(NULL)
-    } # Adapt options to the date based data
-    if (is.null(datum)) {
-      return(NULL)
-    } # Check if there is any data
-    if (appversion > 0) { # Limitations of the version
-      downloadButton("download0", "Download Prediction")
-    }
-  })
-
   output$download0 <- downloadHandler(
     filename = "Prediciton.xlsx",
     content = function(file) {
@@ -2203,60 +1648,15 @@ shiny::shinyServer(function(input, output, session) {
   output$buildTitle <- renderPrint({
     HTML("<b>Number of models</b>")
   })
-  output$iNModel <- renderUI({
-    if (is.null(input$info2)) {
-      return(NULL)
-    }
-    if (input$info2) {
-      return(NULL)
-    } # Adapt options to the user choices
-    if (appversion > 2) { # Limitations of the version
-      numericInput(
-        inputId = "n_model",
-        label = NULL,
-        min = 1,
-        max = 100,
-        value = 1,
-        step = 1
-      )
-    }
-  })
+
   output$iBuild <- renderUI({
     if (!is.null(input$data_origin) && (input$data_origin != 1) && (input$prev_model == 1)) {
       return(NULL)
     }
 
     models$num <- 1
-    # Limitations of the version
-    if (appversion > 2) {
-      models$num <- input$n_model
-    }
+
     actionButton("build", label = "Calculate", icon = icon("cog"))
-  })
-
-  output$iText2 <- renderUI({
-    if (is.null(input$info2)) {
-      return(NULL)
-    }
-
-    if (!input$info2) {
-      return(NULL)
-    } # Adapt options to the user choices
-
-    HTML(
-      "The training algorithm features a random component. Several models can be
-      trained with the same training parameters to assess the effect of this
-      randomness in the results. See the manual for further details."
-    )
-  })
-  output$iInfo2 <- renderUI({
-    if (appversion < 3) {
-      return(NULL)
-    }
-    if (!is.null(input$data_origin) && (input$data_origin != 1)) {
-      return(NULL)
-    }
-    checkboxInput(inputId = "info2", label = "Help", value = FALSE)
   })
 
   # Build model
@@ -2605,10 +2005,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    # Limitations of the version
-    if (appversion > 0) {
-      downloadButton("download1", "Download RDS")
-    }
+    downloadButton("download1", "Download RDS")
   })
 
   observeEvent(input$download1, {
@@ -3002,9 +2399,7 @@ shiny::shinyServer(function(input, output, session) {
     if (is.null(datum)) {
       return(NULL)
     } # Check if there is any data
-    if (appversion > 0) { # Limitations of the version
-      downloadButton("download6", "Download CSV")
-    }
+    downloadButton("download6", "Download CSV")
   })
   output$download6 <- downloadHandler(
     filename = "name.csv",

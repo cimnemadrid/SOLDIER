@@ -498,21 +498,6 @@ dashboardPage(
               width = NULL,
               solidHeader = TRUE,
               status = "primary",
-              uiOutput("iVar1"),
-              uiOutput("iVar2"),
-              uiOutput("iVar3"),
-              uiOutput("iVar4"),
-              uiOutput("iVar5"),
-              uiOutput("iVar6"),
-              uiOutput("iVar7"),
-              uiOutput("iVar8"),
-              uiOutput("iVar9"),
-              uiOutput("iVar10"),
-              uiOutput("iVar11"),
-              uiOutput("iVar12"),
-              uiOutput("iVar13"),
-              uiOutput("iVar14"),
-              uiOutput("iVar15"),
               htmlOutput(outputId = "yearsTitle2", container = tags$h5),
               htmlOutput(outputId = "loadPredYear", container = tags$h5)
             )
@@ -527,8 +512,7 @@ dashboardPage(
               solidHeader = TRUE,
               status = "primary",
               uiOutput("targetVar"),
-              uiOutput("inputVars"),
-              uiOutput("iIgnore")
+              uiOutput("inputVars")
             )
           ),
 
@@ -567,31 +551,25 @@ dashboardPage(
               height = 215,
               status = "primary",
               solidHeader = TRUE,
-              uiOutput("iCopy"),
               div(
                 style = "display:inline-block;
                          vertical-align:top;
                          width: 55px;",
-                uiOutput("iBuild"),
-                uiOutput("iPredi")
+                uiOutput("iBuild")
               ),
               htmlOutput(outputId = NULL, container = tags$h5),
               div(
                 style = "display:inline-block;
                          vertical-align:top;
                          width: 55px;",
-                uiOutput("iDownload1"),
-                uiOutput("iDownload0")
+                uiOutput("iDownload1")
               ),
               valueBoxOutput(outputId = "i_prediction_box", width = 12),
-              uiOutput("iText2"),
               div(
                 style = "display:inline-block;
                          vertical-align:top;
-                         width: 73px;",
-                uiOutput("iNModel")
-              ),
-              uiOutput("iInfo2")
+                         width: 73px;"
+              )
             ),
 
             # Box for errors

@@ -64,17 +64,8 @@ column(
     option <- list(
       "Show scatterplot" = 2,
       "Show scatterplot 4D" = 3,
-      "Show dynamic scatterplot" = 4,
       "Show time series plot" = 1
     )
-
-    if (appversion < 3) { # Limitations of the version
-      option <- list(
-        "Show scatterplot" = 2,
-        "Show scatterplot 4D" = 3,
-        "Show time series plot" = 1
-      )
-    }
 
     radioButtons(
       inputId = "plotType",
