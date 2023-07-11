@@ -707,41 +707,22 @@ bars_new_fun <- function(influmean) {
 
 # Function to calculate PDP 1D plot
 pdp1d_fun <- function(
-  data_origin,
   model_res_fit,
-  model_data,
   data_type,
   points_pd2,
   x_dp3,
   x_dp2,
-  target,
-  prev_model
+  target
 ) {
-  # Store base data, "data_origin": new model/previous one
-  if (
-    data_origin == 1 || (
-      data_origin >= 2 && !is.null(prev_model) && (prev_model == 2)
-    )
-  ) {
-    brt_model <- model_res_fit$model
-    min_train <- model_res_fit$train_y[1]
-    max_train <- model_res_fit$train_y[2]
-    base_data <- model_res_fit$data_in
-    if ((is.null(data_type) || data_type != 2)) {
-      train_data <- base_data[base_data[, 1] >= min_train & base_data[, 1] <= max_train, ]
-    } else {
-      train_data <- base_data[-model_res_fit$positions, ]
-    }
-  } else if (data_origin >= 2) {
-    brt_model <- model_data$model
-    min_train <- model_data$train_y[1]
-    max_train <- model_data$train_y[2]
-    base_data <- model_data$data_in
-    if ((is.null(data_type) || data_type != 2)) {
-      train_data <- base_data[base_data[, 1] >= min_train & base_data[, 1] <= max_train, ]
-    } else {
-      train_data <- base_data[-model_data$positions, ]
-    }
+  brt_model <- model_res_fit$model
+  min_train <- model_res_fit$train_y[1]
+  max_train <- model_res_fit$train_y[2]
+  base_data <- model_res_fit$data_in
+
+  if ((is.null(data_type) || data_type != 2)) {
+    train_data <- base_data[base_data[, 1] >= min_train & base_data[, 1] <= max_train, ]
+  } else {
+    train_data <- base_data[-model_res_fit$positions, ]
   }
 
   # Check if there is any data
@@ -898,43 +879,24 @@ pdp1d_fun <- function(
 
 # Function to calculate PDP 2D plot
 pdp2d_fun <- function(
-  data_origin,
   data_type,
   model_res_fit,
-  model_data,
   points_pd2,
   x_dp2,
   x_dp3,
-  target,
-  prev_model
+  target
 ) {
-  # Store base data
-  if (
-    data_origin == 1 ||
-    (data_origin >= 2 && !is.null(prev_model) && (prev_model == 2))
-  ) {
-    brt_model <- model_res_fit$model
-    min_train <- model_res_fit$train_y[1]
-    max_train <- model_res_fit$train_y[2]
-    base_data <- model_res_fit$data_in
+  brt_model <- model_res_fit$model
+  min_train <- model_res_fit$train_y[1]
+  max_train <- model_res_fit$train_y[2]
+  base_data <- model_res_fit$data_in
 
-    if ((is.null(data_type) || data_type != 2)) {
-      train_data <- base_data[
-        base_data[, 1] >= min_train & base_data[, 1] <= max_train,
-      ]
-    } else {
-      train_data <- base_data[-model_res_fit$positions, ]
-    }
-  } else if (data_origin >= 2) {
-    brt_model <- model_data$model
-    min_train <- model_data$train_y[1]
-    max_train <- model_data$train_y[2]
-    base_data <- model_data$data_in
-    if ((is.null(data_type) || data_type != 2)) {
-      train_data <- base_data[base_data[, 1] >= min_train & base_data[, 1] <= max_train, ]
-    } else {
-      train_data <- base_data[-model_data$positions, ]
-    }
+  if ((is.null(data_type) || data_type != 2)) {
+    train_data <- base_data[
+      base_data[, 1] >= min_train & base_data[, 1] <= max_train,
+    ]
+  } else {
+    train_data <- base_data[-model_res_fit$positions, ]
   }
 
   # Check if there is any data
@@ -1050,43 +1012,26 @@ pdp2d_fun <- function(
 
 # Function to calculate PDP 3D plot
 pdp3d_fun <- function(
-  data_origin,
   model_res_fit,
   data_type,
-  model_data,
   points_pd2,
   x_dp2,
   x_dp3,
-  target,
-  prev_model
+  target
 ) {
-  # Store base data
-  if (
-    data_origin == 1 ||
-    (data_origin >= 2 && !is.null(prev_model) && (prev_model == 2))
-  ) {
-    brt_model <- model_res_fit$model
-    min_train <- model_res_fit$train_y[1]
-    max_train <- model_res_fit$train_y[2]
-    base_data <- model_res_fit$data_in
-    if ((is.null(data_type) || data_type != 2)) {
-      train_data <- base_data[
-        base_data[, 1] >= min_train & base_data[, 1] <= max_train,
-        ]
-    } else {
-      train_data <- base_data[-model_res_fit$positions, ]
-    }
-  } else if (data_origin >= 2) {
-    brt_model <- model_data$model
-    min_train <- model_data$train_y[1]
-    max_train <- model_data$train_y[2]
-    base_data <- model_data$data_in
-    if ((is.null(data_type) || data_type != 2)) {
-      train_data <- base_data[base_data[, 1] >= min_train & base_data[, 1] <= max_train, ]
-    } else {
-      train_data <- base_data[-model_data$positions, ]
-    }
+  brt_model <- model_res_fit$model
+  min_train <- model_res_fit$train_y[1]
+  max_train <- model_res_fit$train_y[2]
+  base_data <- model_res_fit$data_in
+
+  if ((is.null(data_type) || data_type != 2)) {
+    train_data <- base_data[
+      base_data[, 1] >= min_train & base_data[, 1] <= max_train,
+      ]
+  } else {
+    train_data <- base_data[-model_res_fit$positions, ]
   }
+
   if (is.null(brt_model)) {
     return(NULL)
   } # Check if there is any data

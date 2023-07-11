@@ -53,15 +53,6 @@ shiny::shinyServer(function(input, output, session) {
   #---------------------TabItem 1: Select files and images---------------------#
   #----------------------------------------------------------------------------#
 
-  output$i_load <- renderUI({
-      radioButtons(
-        inputId = "data_origin",
-        label = NULL,
-        choices = list("Load data for a new model" = 1),
-        selected = character(0)
-      )
-  })
-
   output$i_data_type <- renderUI({
     if (timeSoldier) {
       radioButtons(
@@ -93,9 +84,6 @@ shiny::shinyServer(function(input, output, session) {
 
   # Load new data file
   observeEvent(input$file_new_data, {
-    # "data_origin": new model/previous one
-    validate(need(input$data_origin >= 1, "Please load monitoring data"))
-
     # "file_new_data": file with new data
     in_file <- input$file_new_data
 
@@ -213,51 +201,6 @@ shiny::shinyServer(function(input, output, session) {
     results$residual <- vector("numeric", length = nrow(datum))
 
     values$dat <- datum
-  })
-
-  # Load a previously fitted RDS file
-  model_data <- reactive({
-    # "data_origin": new model/previous one
-    if (input$data_origin >= 2) {
-      # "fileSaved": file with previous model
-      in_file <- input$fileSaved
-
-      # Check if there is any data
-      if (is.null(in_file)) {
-        return(NULL)
-      }
-
-      # Search for correct extension
-      rds_ext <- max(0, grep("rds", in_file$datapath))
-
-      # Check if the file is RDS
-      if (rds_ext == 1) {
-        load_model_res <- readRDS(in_file$datapath)
-
-        # Check if the RDS file has the adequate class
-        if (class(load_model_res[]) != "list") {
-          showModal(
-            modalDialog(
-              title = "Warning",
-              "Loaded file is not a model",
-              size = c("s"),
-              easyClose = TRUE
-            )
-          )
-        }
-
-        load_model_res
-      } else {
-        showModal(
-          modalDialog(
-            title = "Warning",
-            "Must be a .RDS file",
-            size = c("s"),
-            easyClose = TRUE
-          )
-        )
-      }
-    }
   })
 
   # Load front image and help image (for both kinds of plots)
@@ -1156,63 +1099,14 @@ shiny::shinyServer(function(input, output, session) {
   output$targetTitle <- renderPrint({
     HTML("<b>Target: </b>")
   })
-  output$targetSaved <- renderPrint({
-    # "fileSaved": file with previous model
-    if (is.null(input$fileSaved)) {
-      return(HTML(""))
-    }
-
-    HTML(
-      # "model_data": previously fitted RDS
-      paste(model_data()$model$response.name, sep = "")
-    )
-  })
 
   output$inputTitle <- renderPrint({
     HTML("<b>Predictors: </b>")
   })
 
-  output$inputsSaved <- renderPrint({
-    # Check if there is any data
-    if (is.null(input$fileSaved)) {
-      return(HTML(""))
-    }
-
-    inputs <- model_data()$model$var.names[1]
-
-    # Store variable names
-    for (i in 2:length(model_data()$model$var.names)) {
-      inputs <- HTML(
-        paste(inputs, model_data()$model$var.names[i], sep = " - ")
-      )
-    }
-    inputs
-  })
-
   # Show model parameters for loaded model
   output$paramsTitle <- renderPrint({
     HTML("<b>Model parameters: </b>")
-  })
-  output$paramsSaved <- renderPrint({
-    if (is.null(input$fileSaved)) {
-      return(HTML(""))
-    } # "fileSaved": file with previous model
-    mod <- model_data()$model
-    params <- HTML(paste(
-      "Shrinkage:",
-      mod$shrinkage,
-      "<br/>",
-      "Bag fraction:",
-      mod$bag.fraction,
-      "<br/>",
-      "Interaction depth:",
-      mod$interaction.depth,
-      "<br/>",
-      "Number of trees:",
-      mod$n.trees,
-      "<br/>"
-    ))
-    params
   })
 
   # Show training and testing years for loaded model
@@ -1222,49 +1116,6 @@ shiny::shinyServer(function(input, output, session) {
       title <- HTML("<b>Model training and testing period: </b>")
     }
     title
-  })
-
-  output$loadTesYear <- renderPrint({
-    # Check if there is any data
-    if (is.null(input$fileSaved)) {
-      return(HTML(""))
-    }
-    if ((is.null(input$data_type) || input$data_type != 2)) {
-      HTML(
-        paste(
-          as.Date(model_data()$test_y[1], origin = lubridate::origin),
-          "to",
-          as.Date(model_data()$test_y[2], origin = lubridate::origin),
-          sep = " "
-        )
-      )
-    } else {
-      HTML(model_data()$test_perc)
-    }
-  })
-
-  output$loadPredYear <- renderPrint({
-    # Check if there is any data
-    if (is.null(input$fileSaved)) {
-      return(HTML(""))
-    }
-
-    if (input$data_origin == 3) {
-      return(HTML(""))
-    }
-
-    if ((is.null(input$data_type) || input$data_type != 2)) {
-      HTML(
-        paste(
-          as.Date(values$dat[1, 1], origin = lubridate::origin),
-          "to",
-          as.Date(values$dat[nrow(values$dat), 1], origin = lubridate::origin),
-          sep = " "
-        )
-      )
-    } else {
-      HTML(model_data()$test_perc)
-    }
   })
 
   #----------------------------------------------------------------------------#
@@ -1283,11 +1134,6 @@ shiny::shinyServer(function(input, output, session) {
     sele <- NULL
     if (!is.null(input$target)) {
       sele <- input$target
-    }
-    if (!is.null(input$prev_model) && input$prev_model == 2 && is.null(sele)) {
-      if (!is.null(match(model_data()$model$response.name, names(datum)))) {
-        sele <- model_data()$model$response.name
-      }
     }
     selectInput("target", "Target variable", items, sele)
   })
@@ -1317,10 +1163,6 @@ shiny::shinyServer(function(input, output, session) {
 
     if (!is.null(input$inputs)) {
       sele <- input$inputs
-    }
-
-    if (!is.null(input$prev_model) && input$prev_model == 2 && is.null(sele)) {
-      sele <- model_data()$model$var.names
     }
 
     pickerInput(
@@ -1413,14 +1255,14 @@ shiny::shinyServer(function(input, output, session) {
 
   # Menu for choosing parameters for the new model
   output$i_shrinkage <- renderUI({
+    # Adapt options to the user choices
     if (input$info1) {
       return(NULL)
-    } # Adapt options to the user choices
+    }
+
     if (timeSoldier) {
       val <- 0.01
-      if (!is.null(input$prev_model) && input$prev_model == 2) {
-        val <- model_data()$model$shrinkage
-      }
+
       numericInput(
         "shrinkage",
         label = "Shrinkage",
@@ -1434,14 +1276,14 @@ shiny::shinyServer(function(input, output, session) {
     }
   })
   output$i_int_depth <- renderUI({
+    # Adapt options to the user choices
     if (input$info1) {
       return(NULL)
-    } # Adapt options to the user choices
+    }
+
     if (timeSoldier) {
       val <- 2
-      if (!is.null(input$prev_model) && input$prev_model == 2) {
-        val <- model_data()$model$interaction.depth
-      }
+
       sliderInput(
         "intDepth",
         label = "Interaction depth",
@@ -1460,9 +1302,7 @@ shiny::shinyServer(function(input, output, session) {
     } # Adapt options to the user choices
     if (timeSoldier) {
       val <- 0.5
-      if (!is.null(input$prev_model) && input$prev_model == 2) {
-        val <- model_data()$model$bag.fraction
-      }
+
       sliderInput(
         "bagFraction",
         label = "Bag fraction",
@@ -1481,9 +1321,7 @@ shiny::shinyServer(function(input, output, session) {
     } # Adapt options to the user choices
     if (timeSoldier) {
       val <- 500
-      if (!is.null(input$prev_model) && input$prev_model == 2) {
-        val <- model_data()$model$n.trees
-      }
+
       numericInput(
         "numTree",
         label = "Number of trees",
@@ -1497,12 +1335,15 @@ shiny::shinyServer(function(input, output, session) {
     }
   })
   output$iDefault <- renderUI({
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(NULL)
     }
+
+    # Adapt options to the user choices
     if (input$info1) {
       return(NULL)
-    } # Adapt options to the user choices
+    }
+
     if (!timeSoldier) {
       HTML(
         "<b>Shrinkage:</b> 0.01,
@@ -1514,8 +1355,9 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
   })
+
   output$iInfo1 <- renderUI({
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(NULL)
     }
     if (!input$info1) {
@@ -1539,107 +1381,6 @@ shiny::shinyServer(function(input, output, session) {
     refresh <- TRUE
   })
 
-  output$fitGraphNew <- renderPlotly({
-    if ((!is.null(input$data_type) && input$data_type == 2)) {
-      return(NULL)
-    }
-
-    if (!is.null(input$data_origin) && (input$data_origin != 2)) {
-      return(NULL)
-    }
-
-    refresh <- model_predict()
-    isolate({
-      old_model <- model_data()$model
-      new_dat <- values$dat[, -2]
-      prediction <- predict(
-        old_model,
-        newdata = new_dat,
-        n.trees = old_model$n.trees
-      )
-      graph_data <- data.frame(new_dat[, 1], prediction)
-      data_sort <- xts::xts(graph_data[, 2], order.by = graph_data[, 1])
-
-      # Show graph
-      print("Calculating model fitting graph")
-      names(data_sort) <- "New prediction"
-
-      # Calculate time series plot
-      fit_graph <- generate_time_plot_prediction(
-        data_sort,
-        results,
-        start_train = NULL,
-        end_train = NULL,
-        end_test = NULL,
-        400,
-        FALSE
-      )
-
-      fit_graph
-    })
-  })
-
-  output$fitPlotNew <- renderPlot({
-    if ((is.null(input$data_type) || input$data_type != 2)) {
-      return(NULL)
-    }
-    if (input$data_origin == 1) {
-      return(NULL)
-    }
-    refresh <- model_predict()
-    old_model <- model_data()$model
-
-    prediction <- predict(
-      old_model,
-      newdata = values$dat,
-      n.trees = old_model$n.trees
-    )
-
-    graph_data <- data.frame(prediction, prediction)
-
-    for (i in seq_len(nrow(graph_data))) {
-      graph_data[i, 2] <- i
-    }
-
-    min2 <- min(graph_data[, 2], na.rm = TRUE)
-    max2 <- max(graph_data[, 2], na.rm = TRUE)
-    min1 <- min(graph_data[, 1], na.rm = TRUE)
-    max1 <- max(graph_data[, 1], na.rm = TRUE)
-    y_points <- aes(y = prediction)
-    text <- "Simulation number"
-
-    sca_plot <- line_fun_ggplot2(
-      graph_data[, ],
-      text,
-      "Prediction",
-      graph_data[, 2],
-      y_points,
-      c(min2, max2),
-      c(min1, max1)
-    )
-
-    return(sca_plot)
-  })
-
-  output$download0 <- downloadHandler(
-    filename = "Prediciton.xlsx",
-    content = function(file) {
-      write.xlsx(
-        cbind(
-          values$dat,
-          "Prediction" = predict(
-            model_data()$model,
-            newdata = values$dat,
-            n.trees = model_data()$model$n.trees
-          )
-        ),
-        file,
-        sheetName = "Data",
-        col.names = TRUE
-      )
-    }
-  )
-
   #----------------------------------------------------------------------------#
   #-----------------------TabItem 2: Calculate new model-----------------------#
   #----------------------------------------------------------------------------#
@@ -1650,10 +1391,6 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   output$iBuild <- renderUI({
-    if (!is.null(input$data_origin) && (input$data_origin != 1) && (input$prev_model == 1)) {
-      return(NULL)
-    }
-
     models$num <- 1
 
     actionButton("build", label = "Calculate", icon = icon("cog"))
@@ -1982,11 +1719,6 @@ shiny::shinyServer(function(input, output, session) {
 
   # Save the new model
   output$iDownload1 <- renderUI({
-    if (
-      !is.null(input$data_origin) && (input$data_origin != 1) && (input$prev_model == 1)
-    ) {
-      return(NULL)
-    }
 
     datum <- values$dat
 
@@ -2027,7 +1759,7 @@ shiny::shinyServer(function(input, output, session) {
 
   # Show MAE and R2 for training
   output$iMaeTrain <- renderValueBox({
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(valueBox(NULL, "Training MAE", icon("chart-line"), "blue"))
     }
 
@@ -2036,51 +1768,44 @@ shiny::shinyServer(function(input, output, session) {
       return(valueBox(NULL, "Training MAE", icon("chart-line"), "blue"))
     }
 
-    # "data_origin": new model/previous one
-    if (input$data_origin == 1 || (input$data_origin >= 2 && !is.null(input$prev_model) && (input$prev_model == 2))) {
-      if (length(models$num) > 0) {
-        mae_train <- 0
+    if (length(models$num) > 0) {
+      mae_train <- 0
 
-        # Calculate mean of MAE for all the models for train period
-        for (i in seq_len(models$num)) {
-          mae_train <- mae_train + results$error[1, i]
-        }
-        mae_train <- round(mae_train / models$num, digits = 2)
+      # Calculate mean of MAE for all the models for train period
+      for (i in seq_len(models$num)) {
+        mae_train <- mae_train + results$error[1, i]
       }
-    } else {
-      # "model_data": previously fitted RDS
-      mae_train <- model_data()$mae.train
+      mae_train <- round(mae_train / models$num, digits = 2)
     }
+
     valueBox(mae_train, "Training MAE", icon("chart-line"), "blue")
   })
+
   output$iR2Train <- renderValueBox({
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(valueBox(NULL, "Training R2", icon("list"), "blue"))
     }
+
     if (input$info3) { # Adapt options to the user choices
       return(valueBox(NULL, "Training R2", icon("list"), "blue"))
     }
 
-    # "data_origin": new model/previous one
-    if (input$data_origin == 1 || (input$data_origin >= 2 && !is.null(input$prev_model) && (input$prev_model == 2))) {
-      if (length(models$num) > 0) {
-        r2_train <- 0
+    if (length(models$num) > 0) {
+      r2_train <- 0
 
-        # Calculate mean of R2 for all the models for train period
-        for (i in seq_len(models$num)) {
-          r2_train <- r2_train + results$error[3, i]
-        }
-        r2_train <- round(r2_train / models$num, digits = 2)
+      # Calculate mean of R2 for all the models for train period
+      for (i in seq_len(models$num)) {
+        r2_train <- r2_train + results$error[3, i]
       }
-    } else {
-      r2_train <- model_data()$R2.train
+      r2_train <- round(r2_train / models$num, digits = 2)
     }
+
     valueBox(r2_train, "Training R2", icon("list"), "blue")
   })
 
   # Show MAE and R2 for testing
   output$iMaeTest <- renderValueBox({
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(valueBox(NULL, "Testing MAE", icon("chart-line"), "blue"))
     }
 
@@ -2089,24 +1814,20 @@ shiny::shinyServer(function(input, output, session) {
       return(valueBox(NULL, "Testing MAE", icon("chart-line"), "blue"))
     }
 
-    # "data_origin": new model/previous one
-    if (input$data_origin == 1 || (input$data_origin >= 2 && !is.null(input$prev_model) && (input$prev_model == 2))) {
-      if (length(models$num) > 0) {
-        mae_test <- 0
+    if (length(models$num) > 0) {
+      mae_test <- 0
 
-        # Calculate mean of MAE for all the models for test period
-        for (i in seq_len(models$num)) {
-          mae_test <- mae_test + results$error[2, i]
-        }
-        mae_test <- round(mae_test / models$num, digits = 2)
+      # Calculate mean of MAE for all the models for test period
+      for (i in seq_len(models$num)) {
+        mae_test <- mae_test + results$error[2, i]
       }
-    } else { # "mae.test": mean absolute error of testing data
-      mae_test <- model_data()$mae.test # "model_data": previously fitted RDS
+      mae_test <- round(mae_test / models$num, digits = 2)
     }
+
     valueBox(mae_test, "Testing MAE", icon("chart-line"), "blue")
   })
   output$iR2Test <- renderValueBox({
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(valueBox(NULL, "Testing R2", icon("list"), "blue"))
     }
 
@@ -2115,31 +1836,29 @@ shiny::shinyServer(function(input, output, session) {
       return(valueBox(NULL, "Testing R2", icon("list"), "blue"))
     }
 
-    # "data_origin": new model/previous one
-    if (input$data_origin == 1 || (input$data_origin >= 2 && !is.null(input$prev_model) && (input$prev_model == 2))) {
-      if (length(models$num) > 0) {
-        r2_test <- 0
+    if (length(models$num) > 0) {
+      r2_test <- 0
 
-        # Calculate mean of R2 for all the models for test period
-        for (i in seq_len(models$num)) {
-          r2_test <- r2_test + results$error[4, i]
-        }
-        r2_test <- round(r2_test / models$num, digits = 2)
+      # Calculate mean of R2 for all the models for test period
+      for (i in seq_len(models$num)) {
+        r2_test <- r2_test + results$error[4, i]
       }
-    } else {
-      r2_test <- model_data()$R2.test
+      r2_test <- round(r2_test / models$num, digits = 2)
     }
+
     valueBox(r2_test, "Testing R2", icon("list"), "blue")
   })
 
   # Show info
   output$iInfo3 <- renderUI({
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(NULL)
     }
+
+    # Adapt options to the user choices
     if (!input$info3) {
       return(NULL)
-    } # Adapt options to the user choices
+    }
     HTML("<b>MAE</b>: Mean Absolute Error <br>
                <b>R2</b>: Coefficient of Determination")
   })
@@ -2147,8 +1866,8 @@ shiny::shinyServer(function(input, output, session) {
   # Graph for model fitting (date and non-date data)
   output$iRefre <- renderUI({
     if (
-      !is.null(input$data_origin) &&
-      input$data_origin >= 1
+      !is.null(input$data_type) &&
+      input$data_type >= 1
     ) {
       actionButton(
         "refresh_pred_data",
@@ -2178,15 +1897,10 @@ shiny::shinyServer(function(input, output, session) {
       })
     } else { # Graphs for time-independent data
       refresh <- ref_no_date_data()
-      if (input$data_origin == 1) {
-        model_res <- model_res_fit()
-        n_model <- models$num
-        predict <- model_p$pre
-      } else {
-        model_res <- model_data()
-        n_model <- 1
-        predict <- cbind(model_res$prediction, model_res$prediction)
-      }
+
+      model_res <- model_res_fit()
+      n_model <- models$num
+      predict <- model_p$pre
 
       results$residual <- model_res$data_out[,4]
 
@@ -2254,16 +1968,10 @@ shiny::shinyServer(function(input, output, session) {
 
     refresh <- refPlot7()
 
-    # "data_origin": new model/previous one
-    if (input$data_origin == 1) {
-      model_res <- model_res_fit()
-      n_model <- models$num
-      predict <- model_p$pre
-    } else {
-      model_res <- model_data()
-      n_model <- 1
-      predict <- cbind(model_res$prediction, model_res$prediction)
-    }
+    model_res <- model_res_fit()
+    n_model <- models$num
+    predict <- model_p$pre
+
     ini <- 1
     end <- nrow(model_res$data_out) - length(model_res$positions)
     text <- "Training observation"
@@ -2280,18 +1988,11 @@ shiny::shinyServer(function(input, output, session) {
 
   # Out-of-bag plot for regression
   output$oobPlot <- renderPlot({
-    if (is.null(values$dat) && is.null(model_data()$data_out)) {
+    if (is.null(values$dat)) {
       return(NULL)
     }
-    if (input$data_origin == 1) { # "data_origin": new model/previous one
-      oob_dat <- model_res_fit()$model
-    } else {
-      if (input$prev_model == 1) {
-        oob_dat <- model_data()$model
-      } else {
-         oob_dat <- model_res_fit()$model
-      }
-    }
+
+    oob_dat <- model_res_fit()$model
 
     plot_oob <- gbm.perf(
       oob_dat,
@@ -2306,28 +2007,6 @@ shiny::shinyServer(function(input, output, session) {
   #----------------------------------------------------------------------------#
   #--------------------TabItem 3: Relative influence plots---------------------#
   #----------------------------------------------------------------------------#
-
-  # Bars plot for relative influence (best 20 variables): last loaded model
-  output$barPlot1a <- renderPlotly({
-    # Check if there is any data
-    if (is.null(model_data())) {
-      return(NULL)
-    }
-
-    rel_influence_plot <- bars_load_fun(model_data())
-    return(rel_influence_plot)
-    dev.off()
-  })
-  output$barPlot1b <- renderPlotly({
-    # Check if there is any data
-    if (is.null(model_data())) {
-      return(NULL)
-    }
-
-    rel_influence_plot <- bars_new_fun(model_data()$influ)
-    return(rel_influence_plot)
-    dev.off()
-  })
 
   # Bars plot for relative influence (best 20 variables): mean new models
   output$barPlot2 <- renderPlotly({
@@ -2420,38 +2099,14 @@ shiny::shinyServer(function(input, output, session) {
 
   # Menu for selecting variables for partial dependence plots
   output$varsPd2 <- renderUI({
-    # Check if there is any data
-    if (is.null(input$data_origin)) {
-      return(NULL)
-    }
-
-    # "data_origin": new model/previous one
-    if (
-      input$data_origin == 1 ||
-      (input$data_origin >= 2 && !is.null(input$prev_model) &&
-      (input$prev_model == 2))
-    ) {
-      mod_vars <- model_res_fit()$model$var.names
-    } else if (
-      input$data_origin >= 2
-    ) {
-      mod_vars <- model_data()$model$var.names
-    }
+    mod_vars <- model_res_fit()$model$var.names
 
     selectizeInput("x_dp2", NULL, choices = c("None", mod_vars))
   })
 
   output$varsPd3 <- renderUI({
-    # "data_origin": new model/previous one
-    if (
-      input$data_origin == 1 ||
-      (input$data_origin >= 2 && !is.null(input$prev_model) &&
-      (input$prev_model == 2))
-    ) {
-      mod_vars <- model_res_fit()$model$var.names
-    } else if (input$data_origin >= 2) {
-      mod_vars <- model_data()$model$var.names
-    }
+    mod_vars <- model_res_fit()$model$var.names
+
     selectizeInput("x_dp3", NULL, choices = c("None", mod_vars))
   })
 
@@ -2482,11 +2137,6 @@ shiny::shinyServer(function(input, output, session) {
 
   # Show partial dependence plot 1D
   output$pdPlot1 <- renderPlotly({
-    # Check if there is any data
-    if (is.null(input$data_origin)) {
-      return(NULL)
-    }
-
     if (is.null(input$x_dp2) || input$x_dp2 == "None") {
       return(NULL)
     }
@@ -2516,15 +2166,12 @@ shiny::shinyServer(function(input, output, session) {
     }
 
     pd_plot <- pdp1d_fun(
-      input$data_origin,
       model_res_fit(),
-      model_data(),
       input$data_type,
       values$points_pd2,
       input$x_dp3,
       input$x_dp2,
-      input$target,
-      input$prev_model
+      input$target
     )
 
     pd_plot
@@ -2532,11 +2179,6 @@ shiny::shinyServer(function(input, output, session) {
 
   # Show partial dependence plot 2D
   output$pdPlot2 <- renderPlotly({
-    # Check if there is any data
-    if (is.null(input$data_origin) || is.null(values$points_pd2)) {
-      return(NULL)
-    }
-
     if (is.null(input$x_dp2) || input$x_dp2 == "None") {
       return(NULL)
     }
@@ -2546,15 +2188,12 @@ shiny::shinyServer(function(input, output, session) {
     }
     print("Calculating 2D PDP graph")
     heat_p <- pdp2d_fun(
-      input$data_origin,
       input$data_type,
       model_res_fit(),
-      model_data(),
       values$points_pd2,
       input$x_dp2,
       input$x_dp3,
-      input$target,
-      input$prev_model
+      input$target
     )
 
     heat_p
@@ -2579,9 +2218,6 @@ shiny::shinyServer(function(input, output, session) {
     }
   })
   output$pdPlot3 <- renderPlotly({
-    if (is.null(input$data_origin) || is.null(values$points_pd2)) {
-      return(NULL)
-    } # Check if there is any data
     if (is.null(input$x_dp2) || input$x_dp2 == "None") {
       return(NULL)
     }
@@ -2590,15 +2226,12 @@ shiny::shinyServer(function(input, output, session) {
     }
     print("Calculating 3D PDP graph")
     plot_3d <- pdp3d_fun(
-      input$data_origin,
       model_res_fit(),
       input$data_type,
-      model_data(),
       values$points_pd2,
       input$x_dp2,
       input$x_dp3,
-      input$target,
-      input$prev_model
+      input$target
     )
 
     plot_3d

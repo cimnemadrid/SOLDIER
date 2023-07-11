@@ -94,76 +94,61 @@ column(
 
   # Graph for residual of model fitting (date-data)
   if (time_file == 8) {
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(NULL)
     } # Check if there is any data
     if (compatible == FALSE) {
       return(NULL)
     }
 
-    # Save data for graph (sorted as data frame), label and end of train
-    # period ("data_origin": new model/previous one)
-    dat_orig <- input$data_origin
-    prev_mod <- input$prev_model
-
-    if (
-      dat_orig == 1 || (dat_orig >= 2 && !is.null(prev_mod) && (prev_mod == 2))
-    ) {
-      if (is.null(input$train_test) || input$train_test == 2) {
-        # Set test/train periods by percentage
-        if (is.null(input$test_perc)) {
-          i_test_perc <- c(75, 100)
-        } else {
-          i_test_perc <- input$test_perc
-        }
-
-        min_date <- values$dat[, 1][1]
-        max_date <- values$dat[, 1][length(values$dat[, 1])]
-        date_diff <- max_date - min_date
-        test_perc_diff <- i_test_perc[2] - i_test_perc[1]
-        train_days <- round(date_diff * i_test_perc[1] / 100) - 2
-        test_days <- round(date_diff * test_perc_diff / 100) - 2
-
-        # Set test period before or after train period
-        if (i_test_perc[1] >= (100 - i_test_perc[2])) {
-          min_train <- min_date
-          max_train <- min_date + train_days
-          max_test <- max_train + test_days
-        } else {
-          min_train <- min_date
-          max_train <- max_date
-          max_test <- min_date + train_days + test_days
-        }
+    if (is.null(input$train_test) || input$train_test == 2) {
+      # Set test/train periods by percentage
+      if (is.null(input$test_perc)) {
+        i_test_perc <- c(75, 100)
       } else {
-        min_train <- input$train_years[1]
-        max_train <- input$train_years[2]
-        max_test <- input$test_years[2]
+        i_test_perc <- input$test_perc
       }
 
-      start_train <- min_train
-      end_train <- max_train
-      end_test <- max_test
+      min_date <- values$dat[, 1][1]
+      max_date <- values$dat[, 1][length(values$dat[, 1])]
+      date_diff <- max_date - min_date
+      test_perc_diff <- i_test_perc[2] - i_test_perc[1]
+      train_days <- round(date_diff * i_test_perc[1] / 100) - 2
+      test_days <- round(date_diff * test_perc_diff / 100) - 2
 
-      # "model_res_fit": model with parameters
-      graph_data <- model_res_fit()$data_out
-
-      graph_data[, 3] <- 0
-      graph_data[, 4] <- 0
-
-      # Calculate mean of errors for all the models
-      for (i in seq_len(models$num)) {
-        graph_data[, 3] <- graph_data[, 3] + model_p$pre[, i]
-        graph_data[, 4] <- graph_data[, 4] + model_e$error[, i]
+      # Set test period before or after train period
+      if (i_test_perc[1] >= (100 - i_test_perc[2])) {
+        min_train <- min_date
+        max_train <- min_date + train_days
+        max_test <- max_train + test_days
+      } else {
+        min_train <- min_date
+        max_train <- max_date
+        max_test <- min_date + train_days + test_days
       }
-      graph_data[, 3] <- graph_data[, 3] / models$num
-      graph_data[, 4] <- graph_data[, 4] / models$num
     } else {
-      # "model_data": previously fitted RDS
-      start_train <- model_data()$train_y[1]
-      end_train <- model_data()$train_y[2]
-      end_test <- model_data()$test_y[2]
-      graph_data <- model_data()$data_out
+      min_train <- input$train_years[1]
+      max_train <- input$train_years[2]
+      max_test <- input$test_years[2]
     }
+
+    start_train <- min_train
+    end_train <- max_train
+    end_test <- max_test
+
+    # "model_res_fit": model with parameters
+    graph_data <- model_res_fit()$data_out
+
+    graph_data[, 3] <- 0
+    graph_data[, 4] <- 0
+
+    # Calculate mean of errors for all the models
+    for (i in seq_len(models$num)) {
+      graph_data[, 3] <- graph_data[, 3] + model_p$pre[, i]
+      graph_data[, 4] <- graph_data[, 4] + model_e$error[, i]
+    }
+    graph_data[, 3] <- graph_data[, 3] / models$num
+    graph_data[, 4] <- graph_data[, 4] / models$num
 
     names(graph_data)[1] <- "Date"
     names(graph_data)[2] <- "Observation"
@@ -198,66 +183,51 @@ column(
 
   # Graph for model fitting (date-data)
   if (time_file == 10) {
-    if ((is.null(values$dat)) && (is.null(model_data()$data_out))) {
+    if (is.null(values$dat)) {
       return(NULL)
     } # Check if there is any data
     if (compatible == FALSE) {
       return(NULL)
     }
 
-    # Save data for graph (sorted as xts), labels and end of train period
-    # ("data_origin": new model/previous one)
-    dat_orig <- input$data_origin
-    prev_mod <- input$prev_model
-
-    if (
-      dat_orig == 1 || (dat_orig >= 2 && !is.null(prev_mod) && (prev_mod == 2))
-    ) {
-      if (is.null(input$trainTest) || input$trainTest == 2) {
-        if (is.null(input$test_perc)) { # Set test/train periods by percentage
-          i_test_perc <- c(75, 100)
-        } else {
-          i_test_perc <- input$test_perc
-        }
-        min_date <- values$dat[, 1][1]
-        max_date <- values$dat[, 1][length(values$dat[, 1])]
-        date_diff <- max_date - min_date
-        test_perc_diff <- i_test_perc[2] - i_test_perc[1]
-        train_days <- round(date_diff * i_test_perc[1] / 100) - 2
-        test_days <- round(date_diff * test_perc_diff / 100) - 2
-
-        # Set test period before or after train period
-        if (i_test_perc[1] >= (100 - i_test_perc[2])) {
-          max_train <- min_date + train_days
-          max_test <- max_train + test_days
-        } else {
-          max_train <- max_date
-          max_test <- min_date + train_days + test_days
-        }
+    if (is.null(input$trainTest) || input$trainTest == 2) {
+      if (is.null(input$test_perc)) { # Set test/train periods by percentage
+        i_test_perc <- c(75, 100)
       } else {
-        max_test <- input$test_years[2]
-        max_train <- input$train_years[2]
+        i_test_perc <- input$test_perc
       }
+      min_date <- values$dat[, 1][1]
+      max_date <- values$dat[, 1][length(values$dat[, 1])]
+      date_diff <- max_date - min_date
+      test_perc_diff <- i_test_perc[2] - i_test_perc[1]
+      train_days <- round(date_diff * i_test_perc[1] / 100) - 2
+      test_days <- round(date_diff * test_perc_diff / 100) - 2
 
-      end_test <- max_test
-      end_train <- max_train
-
-      # "model_res_fit": model with parameters
-      graph_data <- model_res_fit()$data_out
-      graph_data[, 3] <- 0
-
-      # Calculate mean of predictions for all the models
-      for (i in seq_len(models$num)) {
-        graph_data[, 3] <- graph_data[, 3] + model_p$pre[, i]
+      # Set test period before or after train period
+      if (i_test_perc[1] >= (100 - i_test_perc[2])) {
+        max_train <- min_date + train_days
+        max_test <- max_train + test_days
+      } else {
+        max_train <- max_date
+        max_test <- min_date + train_days + test_days
       }
-      graph_data[, 3] <- graph_data[, 3] / models$num
     } else {
-      end_test <- model_data()$test_y[2]
-      end_train <- model_data()$train_y[2]
-
-      # "model_data": previously fitted RDS
-      graph_data <- model_data()$data_out
+      max_test <- input$test_years[2]
+      max_train <- input$train_years[2]
     }
+
+    end_test <- max_test
+    end_train <- max_train
+
+    # "model_res_fit": model with parameters
+    graph_data <- model_res_fit()$data_out
+    graph_data[, 3] <- 0
+
+    # Calculate mean of predictions for all the models
+    for (i in seq_len(models$num)) {
+      graph_data[, 3] <- graph_data[, 3] + model_p$pre[, i]
+    }
+    graph_data[, 3] <- graph_data[, 3] / models$num
 
     data_sort <- xts(graph_data[, 2:3], order.by = graph_data[, 1])
 

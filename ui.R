@@ -213,18 +213,8 @@ dashboardPage(
 
             # Let choose type of data
             box(
-              title = "Select load option",
-              width = 4,
-              height = 112,
-              status = "primary",
-              solidHeader = TRUE,
-              uiOutput("i_load")
-            ),
-
-            # Let choose type of data
-            box(
               title = "Select data type",
-              width = 2,
+              width = 4,
               height = 112,
               status = "primary",
               solidHeader = TRUE,
@@ -233,10 +223,10 @@ dashboardPage(
 
             # Box for choosing new file
             conditionalPanel(
-              condition = "input.data_origin == 1 || input.data_origin == 2",
+              condition = "input.data_type == 1 || input.data_type == 2",
               box(
                 title = "Select a data file",
-                width = 3,
+                width = 4,
                 height = 112,
                 status = "primary",
                 solidHeader = TRUE,
@@ -245,19 +235,6 @@ dashboardPage(
                           accept = c(".csv", ".rds", ".xls", ".xlsx"))
               )
             ),
-
-            # Box for choosing saved model file
-            conditionalPanel(
-              condition = "input.data_origin >= 2",
-              box(
-                title = "Select a model file",
-                width = 3,
-                height = 112,
-                status = "primary",
-                solidHeader = TRUE,
-                fileInput(inputId = "fileSaved", label = NULL, accept = ".rds")
-              )
-            )
           ),
           fluidRow(
 
@@ -272,7 +249,7 @@ dashboardPage(
 
             # Box for drawing time series plot
             conditionalPanel(
-              condition = "(input.data_origin == 1 || input.data_origin == 2) &&
+              condition = "(input.data_type == 1 || input.data_type == 2) &&
                            input.plotType == 1",
               tabBox(
                 width = 12,
@@ -292,7 +269,7 @@ dashboardPage(
 
             # Box for drawing scatterplot
             conditionalPanel(
-              condition = "(input.data_origin == 1 || input.data_origin == 2) &&
+              condition = "(input.data_type == 1 || input.data_type == 2) &&
                            input.plotType == 2",
               tabBox(
                 width = 12,
@@ -315,7 +292,7 @@ dashboardPage(
 
             # Box for drawing scatterplot 4D
             conditionalPanel(
-              condition = "(input.data_origin == 1 || input.data_origin == 2) &&
+              condition = "(input.data_type == 1 || input.data_type == 2) &&
                            input.plotType == 3",
               tabBox(
                 width = 12,
@@ -338,7 +315,7 @@ dashboardPage(
 
             # Box for drawing dynamic scatterplot
             conditionalPanel(
-              condition = "(input.data_origin == 1 || input.data_origin == 2) &&
+              condition = "(input.data_type == 1 || input.data_type == 2) &&
                            input.plotType == 4",
               tabBox(
                 width = 12,
@@ -362,7 +339,7 @@ dashboardPage(
 
           # Let choose plot type
           conditionalPanel(
-            condition = "(input.data_origin == 1 || input.data_origin == 2)",
+            condition = "(input.data_type == 1 || input.data_type == 2)",
             box(
               title = "Select plot",
               width = NULL,
@@ -374,7 +351,7 @@ dashboardPage(
 
           # Box for choosing variables to show on time series plot
           conditionalPanel(
-            condition = "(input.data_origin == 1 || input.data_origin == 2) &&
+            condition = "(input.data_type == 1 || input.data_type == 2) &&
                          input.plotType == 1",
             box(
               title = "Variables to plot",
@@ -392,7 +369,7 @@ dashboardPage(
 
           # Box for choosing variables to show on scatterplot
           conditionalPanel(
-            condition = "(input.data_origin == 1 || input.data_origin == 2) &&
+            condition = "(input.data_type == 1 || input.data_type == 2) &&
                          input.plotType == 2",
             box(
               title = "Variables to plot",
@@ -410,7 +387,7 @@ dashboardPage(
 
           # Box for choosing variables to show on scatterplot 4D
           conditionalPanel(
-            condition = "(input.data_origin == 1 || input.data_origin == 2) &&
+            condition = "(input.data_type == 1 || input.data_type == 2) &&
                          input.plotType == 3",
             box(
               title = "Variables to plot",
@@ -427,7 +404,7 @@ dashboardPage(
 
           # Box for choosing variables to show on dynamic scatterplot
           conditionalPanel(
-            condition = "(input.data_origin == 1 || input.data_origin == 2) &&
+            condition = "(input.data_type == 1 || input.data_type == 2) &&
                          input.plotType == 4",
             box(
               title = "Variables to plot",
@@ -454,58 +431,9 @@ dashboardPage(
         column(
           width = 3,
 
-          # Box with variables for previous fitted model
-          conditionalPanel(
-            condition = "input.data_origin >= 2 && input.prev_model != 2",
-            box(
-              title = "Model variables",
-              width = NULL,
-              solidHeader = TRUE,
-              status = "primary",
-              htmlOutput(outputId = "targetTitle", container = tags$h5),
-              htmlOutput(outputId = "targetSaved", container = tags$h5),
-              tags$head(tags$style(
-                HTML("hr {border-top: 1px solid #000000;}")
-                )),
-              tags$hr(),
-              htmlOutput(outputId = "inputTitle", container = tags$h5),
-              htmlOutput(outputId = "inputsSaved", container = tags$h5)
-            )
-          ),
-
-          # Box with parameters for previous fitted model
-          conditionalPanel(
-            condition = "input.data_origin >= 2 && input.prev_model != 2",
-            box(
-              title = "Model info",
-              width = NULL,
-              solidHeader = TRUE,
-              status = "primary",
-              htmlOutput(outputId = "paramsTitle", container = tags$h5),
-              htmlOutput(outputId = "paramsSaved", container = tags$h5),
-              tags$hr(),
-              htmlOutput(outputId = "yearsTitle", container = tags$h5),
-              htmlOutput(outputId = "loadTraYear", container = tags$h5),
-              htmlOutput(outputId = "loadTesYear", container = tags$h5)
-            )
-          ),
-
-          # Box with data information for reusing previous model
-          conditionalPanel(
-            condition = "input.data_origin != 1 && input.prev_model != 2",
-            box(
-              title = "New data",
-              width = NULL,
-              solidHeader = TRUE,
-              status = "primary",
-              htmlOutput(outputId = "yearsTitle2", container = tags$h5),
-              htmlOutput(outputId = "loadPredYear", container = tags$h5)
-            )
-          ),
-
           # Box with variables for new model
           conditionalPanel(
-            condition = "input.data_origin == 1 || input.prev_model == 2",
+            condition = "input.data_type == 1 || input.data_type == 2",
             box(
               title = "Variables Selection",
               width = NULL,
@@ -518,7 +446,7 @@ dashboardPage(
 
           # Box with parameters for new model
           conditionalPanel(
-            condition = "input.data_origin == 1 || input.prev_model == 2",
+            condition = "input.data_type == 1 || input.data_type == 2",
             box(
               title = "Training Parameters",
               width = NULL,
@@ -574,7 +502,7 @@ dashboardPage(
 
             # Box for errors
             conditionalPanel(
-              condition = "input.data_origin == 1 || input.data_origin >= 2",
+              condition = "input.data_type == 1 || input.data_type == 2",
               box(
                 title = "Accuracy",
                 width = 9,
@@ -620,32 +548,9 @@ dashboardPage(
         column(
           width = 5,
 
-          # Relative influence plot for loaded model
-          conditionalPanel(
-            condition = "input.data_origin >= 2 && input.prev_model != 2",
-            box(
-              title = "Most influential variables on loaded model",
-              width = 13,
-              height = 780,
-              status = "primary",
-              solidHeader = TRUE,
-              tabBox(
-                width = 13,
-                tabPanel(
-                  "Individual",
-                  plotly::plotlyOutput(outputId = "barPlot1a", height = "650px")
-                ),
-                tabPanel(
-                  "Group",
-                  plotly::plotlyOutput(outputId = "barPlot1b", height = "650px")
-                )
-              )
-            )
-          ),
-
           # Relative influence plots for new model
           conditionalPanel(
-            condition = "input.data_origin == 1 || input.prev_model == 2",
+            condition = "input.data_type == 1 || input.data_type == 2",
             box(
               title = "Most influential variables",
               width = 13,
@@ -693,7 +598,7 @@ dashboardPage(
 
             # Partial dependence column
             conditionalPanel(
-              condition = "input.data_origin == 1 || input.data_origin >= 2",
+              condition = "input.data_type == 1 || input.data_type == 2",
               box(
                 title = "Partial Dependence",
                 width = 13,
