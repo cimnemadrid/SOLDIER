@@ -121,8 +121,7 @@ if (!require("openxlsx")) {
   install.packages("shinytest2")
 }
 
-# Intento de contar conexiones a la versión web
-# tags$head(includeHTML(("google-analytics.html")))
+set.seed(1)
 
 #------------------------------------------------------------------------------#
 #-----------------------------Title and background-----------------------------#
@@ -214,7 +213,7 @@ dashboardPage(
             # Let choose type of data
             box(
               title = "Select data type",
-              width = 4,
+              width = 6,
               height = 112,
               status = "primary",
               solidHeader = TRUE,
@@ -226,7 +225,7 @@ dashboardPage(
               condition = "input.data_type == 1 || input.data_type == 2",
               box(
                 title = "Select a data file",
-                width = 4,
+                width = 6,
                 height = 112,
                 status = "primary",
                 solidHeader = TRUE,
