@@ -527,12 +527,6 @@ dashboardPage(
                 tabPanel(
                   "Group",
                   plotly::plotlyOutput(outputId = "barPlot3", height = "650px")
-                  #---------------Limitation not Legacy version----------------#
-                  # ),
-                  # tabPanel(
-                  #      "Multiple models",
-                  #      plotOutput(outputId = "plotBox", height = "650px")
-                  #------------------------------------------------------------#
                 ),
                 tabPanel(
                   "Help and save",

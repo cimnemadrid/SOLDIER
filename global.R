@@ -386,7 +386,7 @@ generate_time_plot_prediction <- function(
 }
 
 # Function to calculate fitting plot
-fit_fun <- function(graph_data, n_model, predict, ini, end, text) {
+generate_fitting_plot_ggplot2 <- function(graph_data, n_model, predict, ini, end, text) {
   graph_data[, 3] <- 0
 
   # Calculate mean of predictions for all the models
@@ -402,7 +402,7 @@ fit_fun <- function(graph_data, n_model, predict, ini, end, text) {
   graph_data <- graph_data[ini:end, ]
   y_points <- ggplot2::aes(y = prediction)
 
-  sca_plot <- line_fun_ggplot2(
+  sca_plot <- generate_line_plot_ggplot2(
     graph_data[, 2:3],
     text,
     "Prediction",
@@ -419,7 +419,7 @@ fit_fun <- function(graph_data, n_model, predict, ini, end, text) {
 }
 
 # Function to calculate line plot
-line_fun_ggplot2 <- function(
+generate_line_plot_ggplot2 <- function(
   base_plot,
   x_dp2,
   response_name,
@@ -441,59 +441,8 @@ line_fun_ggplot2 <- function(
   return(pd_plot)
 }
 
-# Function to calculate box plot for relative influence
-box_fun <- function(influ, n_model) {
-  # Sort means numerically
-  mean_influence_ordered <- influ$mean[order(influ$mean[, 2]), ]
-  vars_plot <- min(10, nrow(mean_influence_ordered), na.rm = TRUE)
-  box_var <- vector("character", length = vars_plot)
-  box_values <- c(0, 0)
-
-  # Save names of the variables with more influence (last ones)
-  for (i in seq_len(vars_plot)) {
-    box_var[i] <- as.character(
-      mean_influence_ordered[i + nrow(mean_influence_ordered) - vars_plot, 1]
-    )
-  }
-
-  # Save row numbers for most influence variables
-  row_numbers <- match(box_var, influ$inf[, 1])
-  data_plot <- as.data.frame(
-    matrix(
-      NA,
-      nrow = ncol(influ$inf) - 1,
-      ncol = vars_plot
-    )
-  )
-
-  # Sort numerically influences of each model changing rows for columns
-  for (i in seq_len(nrow(data_plot))) {
-    for (j in seq_len(ncol(data_plot))) {
-      data_plot[i, j] <- influ$inf[row_numbers[j], i + 1]
-    }
-  }
-
-  # Change matrix into vector
-  for (i in seq_len(vars_plot)) {
-    ini <- (n_model * (i - 1)) + 1
-    end <- n_model * i
-    box_values[ini:end] <- c(data_plot[, i])
-  }
-  box_data <- data.frame(
-    var = factor(rep(box_var, each = n_model)),
-    rel.inf = box_values
-  )
-
-  min_var <- 1
-  max_var <- nrow(box_data)
-  box <- bars_fun(box_data, min_var, max_var) # Calculate bars plots
-  box <- box +
-    ggplot2::geom_boxplot(fill = "steelblue1")
-  return(box)
-}
-
 # Funtion to calculate bars plots
-bars_fun <- function(var_inf, min_var, max_var) {
+generate_bar_plot <- function(var_inf, min_var, max_var) {
   rel_influence_plot <- ggplot2::ggplot(
     var_inf[min_var:max_var, ],
     ggplot2::aes(x = var, y = rel.inf)
@@ -509,7 +458,7 @@ bars_fun <- function(var_inf, min_var, max_var) {
 }
 
 # Function to calculate bars plot for relative influence for new model
-bars_new_fun <- function(influmean) {
+generate_bar_plot_new_model <- function(influmean) {
   mean_influence_ordered <- influmean[order(influmean[, 2]), ]
   var_inf <- data.frame(
     var = mean_influence_ordered[, 1],
@@ -609,7 +558,7 @@ bars_new_fun <- function(influmean) {
   min_var <- max_var + 1 - vars_plot
 
   # Calculate and show bars plots
-  rel_influence_plot <- bars_fun(
+  rel_influence_plot <- generate_bar_plot(
     var_inf,
     min_var,
     max_var
@@ -622,7 +571,7 @@ bars_new_fun <- function(influmean) {
 }
 
 # Function to calculate PDP 1D plot
-pdp1d_fun <- function(
+generate_pdp1d_plot <- function(
   model_res_fit,
   data_type,
   points_pd2,
@@ -794,7 +743,7 @@ pdp1d_fun <- function(
 }
 
 # Function to calculate PDP 2D plot
-pdp2d_fun <- function(
+generate_pdp2d_plot <- function(
   data_type,
   model_res_fit,
   points_pd2,
@@ -926,7 +875,7 @@ pdp2d_fun <- function(
 }
 
 # Function to calculate PDP 3D plot
-pdp3d_fun <- function(
+generate_pdp3d_plot <- function(
   model_res_fit,
   data_type,
   points_pd2,
@@ -1212,7 +1161,7 @@ pre_theme <- function() {
 #-----------------------------Set values functions-----------------------------#
 #------------------------------------------------------------------------------#
 # Function to select prediction variables
-select_pred_variables <- function(classes, datum, target, groups) {
+select_prediction_variables <- function(classes, datum, target, groups) {
   date_class <- which("Date" == classes)
   pos_class <- which("POSIXct" == classes)
 
@@ -1319,8 +1268,8 @@ select_variables <- function(datum, selected_vars) {
 #-------------------------------Other functions--------------------------------#
 #------------------------------------------------------------------------------#
 
-# Function to change character variables to factor variables
-change_char_to_factor <- function(
+# Function to calculate the influence of the variables
+calculate_variables_influence <- function(
   influ,
   iter,
   data_type,
@@ -1393,7 +1342,7 @@ change_char_to_factor <- function(
 }
 
 # Function to change character variables to factor variables
-factFun <- function(dat) {
+change_char_to_factor <- function(dat) {
   datum <- dat
   for (i in seq_len(ncol(datum))) {
     if (class(datum[, i])[1] == "character") {
@@ -1413,7 +1362,7 @@ factFun <- function(dat) {
 }
 
 # Function to build model
-model_fun <- function(
+build_model <- function(
   influ,
   input,
   results,

@@ -194,7 +194,7 @@ shiny::shinyServer(function(input, output, session) {
     }
 
     # Change character variables to factor variables
-    datum <- factFun(values$dat)
+    datum <- change_char_to_factor(values$dat)
 
     # Initialize results$residual
     results$residual <- vector("numeric", length = nrow(datum))
@@ -1041,7 +1041,7 @@ shiny::shinyServer(function(input, output, session) {
     classes <- identify_classes(datum)
 
     # Select prediction variables
-    selected_pred_vars_list <- select_pred_variables(
+    selected_pred_vars_list <- select_prediction_variables(
       classes,
       datum,
       input$target,
@@ -1516,7 +1516,7 @@ shiny::shinyServer(function(input, output, session) {
 
         # Create BRT model
         print("Creating BRT model")
-        model_list <- model_fun(
+        model_list <- build_model(
           influ,
           input,
           results,
@@ -1565,7 +1565,7 @@ shiny::shinyServer(function(input, output, session) {
 
     # End models calculations
     print("Calculating mean influences")
-    end_list <- change_char_to_factor(
+    end_list <- calculate_variables_influence(
       influ,
       iter,
       input$data_type,
@@ -1799,7 +1799,7 @@ shiny::shinyServer(function(input, output, session) {
       ini_train <- 1
       end_train <- nrow(model_res$data_out) - length(model_res$positions)
       text_train <- "Training observation"
-      sca_plot_train <- fit_fun(
+      sca_plot_train <- generate_fitting_plot_ggplot2(
         model_res$data_out,
         n_model,
         predict,
@@ -1813,7 +1813,7 @@ shiny::shinyServer(function(input, output, session) {
       end_test <- nrow(model_res$data_out)
       text_test <- "Testing observation"
 
-      sca_plot_test <- fit_fun(
+      sca_plot_test <- generate_fitting_plot_ggplot2(
         model_res$data_out,
         n_model,
         predict,
@@ -1868,7 +1868,7 @@ shiny::shinyServer(function(input, output, session) {
     text <- "Training observation"
 
     # Calculate fitting plot
-    sca_plot <- fit_fun(model_res$data_out, n_model, predict, ini, end, text)
+    sca_plot <- generate_fitting_plot_ggplot2(model_res$data_out, n_model, predict, ini, end, text)
 
     return(sca_plot)
   })
@@ -1923,7 +1923,7 @@ shiny::shinyServer(function(input, output, session) {
     min_var <- max_var + 1 - vars_plot
 
     # Calculate bars plots
-    rel_influence_plot <- bars_fun(var_inf, min_var, max_var)
+    rel_influence_plot <- generate_bar_plot(var_inf, min_var, max_var)
     rel_influence_plot <- rel_influence_plot +
       geom_bar(stat = "identity", fill = "steelblue1", colour = "black")
 
@@ -1940,20 +1940,8 @@ shiny::shinyServer(function(input, output, session) {
 
     print("Calculating relative influence bars graph")
 
-    rel_influence_plot <- bars_new_fun(influ$mean)
+    rel_influence_plot <- generate_bar_plot_new_model(influ$mean)
     return(rel_influence_plot)
-    dev.off()
-  })
-
-  # Box plot for relative influence (best 10 variables) mean new models
-  output$plotBox <- renderPlot({
-    # Check if there is any data
-    if (is.null(influ$mean)) {
-      return(NULL)
-    }
-    print("Calculating relative influence box graph")
-    box <- box_fun(influ, models$num)
-    return(box)
     dev.off()
   })
 
@@ -2056,7 +2044,7 @@ shiny::shinyServer(function(input, output, session) {
       }
     }
 
-    pd_plot <- pdp1d_fun(
+    pd_plot <- generate_pdp1d_plot(
       model_res_fit(),
       input$data_type,
       values$points_pd2,
@@ -2078,7 +2066,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
     print("Calculating 2D PDP graph")
-    heat_p <- pdp2d_fun(
+    heat_p <- generate_pdp2d_plot(
       input$data_type,
       model_res_fit(),
       values$points_pd2,
@@ -2116,7 +2104,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
     print("Calculating 3D PDP graph")
-    plot_3d <- pdp3d_fun(
+    plot_3d <- generate_pdp3d_plot(
       model_res_fit(),
       input$data_type,
       values$points_pd2,
