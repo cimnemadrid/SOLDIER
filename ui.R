@@ -310,26 +310,6 @@ dashboardPage(
                   imageOutput("image3")
                 )
               )
-            ),
-
-            # Box for drawing dynamic scatterplot
-            conditionalPanel(
-              condition = "(input.data_type == 1 || input.data_type == 2) &&
-                           input.plotType == 4",
-              tabBox(
-                width = 12,
-                tabPanel(
-                  "DYNAMIC SCATTERPLOT",
-                  plotlyOutput("aniPlot", height = "640px")
-                ),
-                tabPanel(
-                  "Help image",
-                  fileInput(inputId = "fileImg4",
-                            label = NULL,
-                            accept = "image/*"),
-                  imageOutput("image4")
-                )
-              )
             )
           )
         ),
@@ -398,24 +378,6 @@ dashboardPage(
               uiOutput("z_var_scat4d"),
               uiOutput("i_color_scat4d"),
               uiOutput("i_draw_scat4d")
-            )
-          ),
-
-          # Box for choosing variables to show on dynamic scatterplot
-          conditionalPanel(
-            condition = "(input.data_type == 1 || input.data_type == 2) &&
-                         input.plotType == 4",
-            box(
-              title = "Variables to plot",
-              width = NULL,
-              solidHeader = TRUE,
-              status = "primary",
-              uiOutput("y_var_dyn_scat"),
-              uiOutput("x_var_dyn_scat"),
-              uiOutput("i_hover"),
-              uiOutput("i_period"),
-              uiOutput("i_sizes"),
-              uiOutput("i_draw_dyn_scat")
             )
           )
         )

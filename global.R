@@ -385,72 +385,6 @@ generate_time_plot_prediction <- function(
   return(time_plot)
 }
 
-# Function to calculate dynamic plot
-dynamic_plot_fun <- function(
-  datum,
-  col_pos,
-  var_cols,
-  size,
-  x_scat,
-  sizes
-) {
-  years <- datum[, match("Year", colnames(datum))]
-  pos_year <- match(unique(years), years)
-  ani_data <- datum[pos_year, unique(col_pos)]
-  ani_data <- tidyr::gather(
-    ani_data,
-    var_cols,
-    key = "Variable",
-    value = "Values"
-  )
-  ani_data <- cbind(ani_data, seq(1, 1, nrow(ani_data)))
-  col_name <- colnames(ani_data)
-  classes <- identify_classes(ani_data)
-  date_class <- which("Date" == classes)
-  hover_pos <- match(size, col_name)
-  size_val <- ani_data[, hover_pos]
-  if (!sizes) {
-    double_d <- rbind(ani_data, ani_data, ani_data)
-    for (i in 3:nrow(ani_data)) {
-      double_d[i, match("Year", col_name)] <- ani_data[i - 1, match("Year", col_name)]
-      double_d[i, ncol(double_d)] <- 3
-      double_d[nrow(ani_data) + i, match("Year", col_name)] <- ani_data[i - 2, match("Year", col_name)]
-      double_d[nrow(ani_data) + i, ncol(double_d)] <- 5
-    }
-    ani_data <- double_d
-    size_val <- ani_data[, ncol(ani_data)]
-  }
-  animate <- plotly::plot_ly(
-    data = ani_data,
-    x = ani_data[, match(x_scat, col_name)],
-    y = ani_data[, ncol(ani_data) - 1],
-    frame = ani_data[, match("Year", col_name)],
-    size = size_val,
-    color = ani_data[, ncol(ani_data) - 2],
-    hoverinfo = "text",
-    type = "scatter",
-    mode = "markers",
-    text = paste(
-      size,
-      ": ",
-      round(ani_data[, hover_pos], digits = 2),
-      "\n",
-      "Date: ",
-      ani_data[, date_class[1]],
-      sep = ""
-    )
-  )
-  animate <- animate %>%
-    plotly::animation_slider(
-      currentvalue = list(
-        xanchor = "center",
-        prefix = "YEAR: ",
-        font = list(color = "blue")
-      )
-    )
-  return(animate)
-}
-
 # Function to calculate fitting plot
 fit_fun <- function(graph_data, n_model, predict, ini, end, text) {
   graph_data[, 3] <- 0
@@ -556,24 +490,6 @@ box_fun <- function(influ, n_model) {
   box <- box +
     ggplot2::geom_boxplot(fill = "steelblue1")
   return(box)
-}
-
-# Funtion to calculate relative influence bars plot for loaded model
-bars_load_fun <- function(brt_model) {
-  var_inf <- data.frame(
-    var = brt_model$influ[, 1],
-    rel.inf = brt_model$influ[, 2]
-  )
-  vars_plot <- min(20, nrow(var_inf), na.rm = TRUE)
-  min_var <- 1
-  max_var <- vars_plot
-
-  # Calculate bars plots
-  rel_influence_plot <- bars_fun(var_inf, min_var, max_var)
-  rel_influence_plot <- rel_influence_plot +
-    ggplot2::geom_bar(stat = "identity", fill = "steelblue1", colour = "black")
-
-  return(rel_influence_plot)
 }
 
 # Funtion to calculate bars plots
@@ -957,7 +873,6 @@ pdp2d_fun <- function(
 
   plot_data <- heat_data_3
 
-  # TODO: review these lines
   min_x <- min(heat_p[, 2])
   max_x <- max(heat_p[, 2])
   min_y <- min(heat_p[, 1])
@@ -1091,7 +1006,6 @@ pdp3d_fun <- function(
   max_row <- max_pos - n_rows * (max_col - 1)
   plot_data <- heat_data_3
 
-  # TODO: review these lines
   min_x <- min(heat_p[, 2])
   max_x <- max(heat_p[, 2])
   min_y <- min(heat_p[, 1])
@@ -1297,54 +1211,6 @@ pre_theme <- function() {
 #------------------------------------------------------------------------------#
 #-----------------------------Set values functions-----------------------------#
 #------------------------------------------------------------------------------#
-
-# Function to select a list of variables for the dynamic scatterplot
-select_vars_dyn_scatterplot <- function(classes, datum, results) {
-  num_class <- which("numeric" == classes)
-  items <- sort(names(datum)[num_class])
-  groups <- as.data.frame(matrix(
-    data = NA,
-    nrow = length(items),
-    ncol = length(items)
-  ))
-  pos <- 0
-  j <- 1
-
-  # Search the first 3 letters of each variable name
-  for (i in seq_along(items)) {
-    first_3_letters <- substr(items[i], 1, 3)
-    same_letters <- grep(first_3_letters, substr(items, 1, 3))
-    if (length(same_letters) > 1) {
-      # Assign to a group the variables with the same letters
-      for (k in seq_along(same_letters)) {
-        groups[k, j] <- same_letters[k]
-      }
-      colnames(groups)[j] <- first_3_letters
-      j <- j + 1
-    }
-  }
-
-  # Search the amount of variables in the biggest group
-  for (i in seq_len(nrow(groups))) {
-    if (!all(is.na(groups[i, ]))) pos <- i
-  }
-
-  mat_gr <- 0
-
-  if (pos > 0) {
-    groups <- groups[1:pos, unique(colnames(groups))]
-    groups <- groups[, !is.na(groups[1, ])]
-    mat_gr <- groups
-    items <- c(paste(colnames(groups), "group"), items)
-  }
-
-  if (sum(results$residual) != 0) {
-    items <- c(items, "Residual")
-  }
-
-  return(list(mat_gr, items))
-}
-
 # Function to select prediction variables
 select_pred_variables <- function(classes, datum, target, groups) {
   date_class <- which("Date" == classes)

@@ -3,7 +3,7 @@ column(
   12,
 
   # Save columns of variables for plotting time series
-  if (time_file == 4) {
+  if (aux_soldier == "vars_time_sieries_plot") {
     vars_left <- select_variables(datum, input$vars_left)
     vars_left <<- vars_left
     sel_vars <- c(vars_left, input$vars_right)
@@ -11,7 +11,7 @@ column(
   },
 
   # Generate graph output for time series
-  if (time_file == 5) {
+  if (aux_soldier == "generate_time_series_plot") {
     # Save variables to plot in the left axis
     vars <- paste(vars_left)
 
@@ -60,7 +60,7 @@ column(
   },
 
   # Menu for selecting plot type
-  if (time_file == 6) {
+  if (aux_soldier == "menu_plot_type") {
     option <- list(
       "Show scatterplot" = 2,
       "Show scatterplot 4D" = 3,
@@ -76,7 +76,7 @@ column(
   },
 
   # Warning message
-  if (time_file == 7) {
+  if (aux_soldier == "warning_msg") {
     # Check if the first variable has the adequate class
     if (class(values$dat[, 1])[1] != "Date") {
       if (class(values$dat[, 1])[1] != "POSIXct") {
@@ -93,7 +93,7 @@ column(
   },
 
   # Graph for residual of model fitting (date-data)
-  if (time_file == 8) {
+  if (aux_soldier == "model_fit_graph") {
     if (is.null(values$dat)) {
       return(NULL)
     } # Check if there is any data
@@ -181,72 +181,8 @@ column(
     )
   },
 
-  # Graph for model fitting (date-data)
-  if (time_file == 10) {
-    if (is.null(values$dat)) {
-      return(NULL)
-    } # Check if there is any data
-    if (compatible == FALSE) {
-      return(NULL)
-    }
-
-    if (is.null(input$trainTest) || input$trainTest == 2) {
-      if (is.null(input$test_perc)) { # Set test/train periods by percentage
-        i_test_perc <- c(75, 100)
-      } else {
-        i_test_perc <- input$test_perc
-      }
-      min_date <- values$dat[, 1][1]
-      max_date <- values$dat[, 1][length(values$dat[, 1])]
-      date_diff <- max_date - min_date
-      test_perc_diff <- i_test_perc[2] - i_test_perc[1]
-      train_days <- round(date_diff * i_test_perc[1] / 100) - 2
-      test_days <- round(date_diff * test_perc_diff / 100) - 2
-
-      # Set test period before or after train period
-      if (i_test_perc[1] >= (100 - i_test_perc[2])) {
-        max_train <- min_date + train_days
-        max_test <- max_train + test_days
-      } else {
-        max_train <- max_date
-        max_test <- min_date + train_days + test_days
-      }
-    } else {
-      max_test <- input$test_years[2]
-      max_train <- input$train_years[2]
-    }
-
-    end_test <- max_test
-    end_train <- max_train
-
-    # "model_res_fit": model with parameters
-    graph_data <- model_res_fit()$data_out
-    graph_data[, 3] <- 0
-
-    # Calculate mean of predictions for all the models
-    for (i in seq_len(models$num)) {
-      graph_data[, 3] <- graph_data[, 3] + model_p$pre[, i]
-    }
-    graph_data[, 3] <- graph_data[, 3] / models$num
-
-    data_sort <- xts(graph_data[, 2:3], order.by = graph_data[, 1])
-
-    # Show graph
-    print("Calculating model fitting graph")
-
-    # Calculate time series plot
-    fit_graph <- time_fun_pred(
-      data_sort,
-      end_train,
-      end_test,
-      400,
-      TRUE,
-      FALSE
-    )
-  },
-
   # Menu for choosing test/train options for the new model
-  if (time_file == 11) {
+  if (aux_soldier == "train_test_options") {
     radioButtons(
       "train_test",
       label = NULL,
@@ -259,7 +195,7 @@ column(
   },
 
   # Menu for choosing train periods for the new model
-  if (time_file == 12) {
+  if (aux_soldier == "train_periods") {
     # "values": dataframe with new data
     datum <- values$dat
 
@@ -315,7 +251,7 @@ column(
   },
 
   # Menu for choosing test period for the new model
-  if (time_file == 13) {
+  if (aux_soldier == "test_period") {
     datum <- values$dat
 
     # Check if there is any data
@@ -361,7 +297,7 @@ column(
   },
 
   # Menu for choosing percentage test period for the new model
-  if (time_file == 14) {
+  if (aux_soldier == "test_period_perc") {
     if (is.null(values$dat) || is.null(input$train_test)) {
       return(NULL)
     } # Check if there is any data
@@ -378,7 +314,7 @@ column(
   },
 
   # Check train/test data
-  if (time_file == 15) {
+  if (aux_soldier == "check_train_test") {
     print("Checking train/test data")
     if (is.null(input$test_perc)) { # Set the test/train percentages
       i_test_perc <- c(75, 100)
@@ -536,112 +472,5 @@ column(
 
       return(NULL)
     }
-  },
-
-  # Menu for selecting vertical variables for dynamic scatterplot
-  if (time_file == 16) {
-    datum <- values$dat
-    if (is.null(datum)) {
-      return(NULL)
-    } # Check if there is any data
-    classes <- identify_classes(datum) # Calculate classes for columns
-    sel_dyn_list <- select_vars_dyn_scatterplot(classes,
-                            datum,
-                            results) # Select prediction variables
-    mat_gr <<- sel_dyn_list[[1]]
-    items <- sel_dyn_list[[2]]
-    pickerInput("y_var_dyn_scat",
-                "Vertical Axis",
-                items,
-                selected = items[1],
-                multiple = TRUE,
-                options = list("actions-box" = TRUE),
-                width = "215px")
-  },
-
-  # Let select sizes and period for dynamic scatterplot
-  if (time_file == 17) {
-    datum <- values$dat
-
-    # Check if there is any data
-    if (is.null(datum)) {
-      return(NULL)
-    }
-
-    classes <- identify_classes(datum)
-
-    posixct_class <- which("POSIXct" == classes)
-    as.Date(posixct_class[1])
-
-    date_class <- which("Date" == classes)
-
-    if (length(date_class) == 0) {
-      date_class <- which("POSIXct" == classes)
-    }
-
-    first <- as.numeric(
-      format(datum[1, date_class[1]],
-      "%Y",
-      tz = "GMT")
-    )
-    end <- as.numeric(
-      format(datum[nrow(datum), date_class[1]],
-      "%Y",
-      tz = "GMT")
-    )
-
-    sliderInput("period",
-                label = HTML("<b>Time period</b>"),
-                min = first,
-                max = end,
-                value = c(first, end))
-  },
-
-  # Plotting Dynamic scatterplot
-  if (time_file == 18) {
-    datum <- cbind(values$dat, as.data.frame(results$residual))
-    names(datum)[ncol(datum)] <- "Residual"
-    col_name <- colnames(datum)
-    if (is.na(match(input$size, col_name)) || is.na(match(input$x_scat, col_name))) {
-      return(NULL)
-    }
-    var_cols <- select_variables(datum, input$y_var_dyn_scat) # Match groups of variables
-
-    # Check variables
-    if (is.na(match(var_cols, col_name))) {
-      return(NULL)
-    }
-    if (!is.na(match(input$x_scat, var_cols))) {
-      showModal(modalDialog(title = "Horizontal variable can't be a vertical variable", size = c("s"), easyClose = FALSE))
-      return(NULL)
-    }
-    if (!is.na(match(input$size, var_cols))) {
-      showModal(modalDialog(title = "Hover variable can't be a vertical variable", size = c("s"), easyClose = FALSE))
-      return(NULL)
-    }
-    classes <- identify_classes(datum)
-    date_class <- which("Date" == classes)
-    col_pos <- c(match(c("Year", input$size, var_cols, input$x_scat), col_name), date_class[1])
-    yearCol <- match("Year", col_name)
-    if (is.na(yearCol)) {
-      showModal(modalDialog(title = "Selected data has not 'Year' variable", size = c("s")))
-      return(NULL)
-    }
-    start <- which(datum[, yearCol] >= input$period[1])[1]
-    end <- which(datum[, yearCol] >= (input$period[2]) + 1)[1]
-    if (is.na(end)) {
-      end <- nrow(datum)
-    }
-    datum <- datum[start:end, ]
-    checkNa <- sum(!is.na(datum[, match(input$x_scat, col_name)]))
-    if (checkNa == 0) {
-      showModal(modalDialog(title = "Selected variables have no data during selected period", size = c("s")))
-      return(NULL)
-    }
-
-    # Set data for drawing
-    showModal(modalDialog(title = "Calculating plot", footer = "This may take a while...", size = c("s"), easyClose = FALSE))
-    animate <- dynamic_plot_fun(datum, col_pos, var_cols, input$size, input$x_scat, input$sizes) # Calculate dynamic plot
-    showModal(modalDialog(title = "Draw plot", size = c("s")))
   }
 )

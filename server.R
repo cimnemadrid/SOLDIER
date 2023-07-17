@@ -7,7 +7,7 @@
 options(shiny.maxRequestSize = 50 * 1024^2)
 
 shiny::shinyServer(function(input, output, session) {
-  timeSoldier <- file.exists("timeSoldier.R")
+  aux_soldier <- file.exists("aux_soldier.R")
 
   # Start reactive variables
   values <- reactiveValues(
@@ -54,7 +54,7 @@ shiny::shinyServer(function(input, output, session) {
   #----------------------------------------------------------------------------#
 
   output$i_data_type <- renderUI({
-    if (timeSoldier) {
+    if (aux_soldier) {
       radioButtons(
         inputId = "data_type",
         label = NULL,
@@ -68,10 +68,10 @@ shiny::shinyServer(function(input, output, session) {
 
   # Menu for selecting plot type
   output$iPlot <- renderUI({
-    # Adapt options to the existence of "timeSoldier.R"
-    if (timeSoldier && (is.null(input$data_type) || input$data_type != 2)) {
-      time_file <- 6
-      source("timeSoldier.R", local = TRUE)$value
+    # Adapt options to the existence of "aux_soldier.R"
+    if (aux_soldier && (is.null(input$data_type) || input$data_type != 2)) {
+      aux_soldier <- "menu_plot_type"
+      source("aux_soldier.R", local = TRUE)$value
     } else {
       radioButtons(
         inputId = "plotType",
@@ -121,7 +121,6 @@ shiny::shinyServer(function(input, output, session) {
 
       values$dat <- as.data.frame(values$dat)
 
-      # TODO: read dataframes in the same manner with PREDATOR and SOLDIER
       if (input$data_type == 1) { ### Adapt options to the date based data
         values$dat[, 1] <- as.POSIXct(
           values$dat[, 1],
@@ -132,8 +131,8 @@ shiny::shinyServer(function(input, output, session) {
 
       if ((is.null(input$data_type) || input$data_type != 2)) {
         # Warning message
-        time_file <- 7
-        source("timeSoldier.R", local = TRUE)$value
+        aux_soldier <- "warning_msg"
+        source("aux_soldier.R", local = TRUE)$value
       }
     }else if (rds_ext == 1) { # Check if the file is RDS
       values$dat <- readRDS(in_file$datapath)
@@ -155,8 +154,8 @@ shiny::shinyServer(function(input, output, session) {
 
       if ((is.null(input$data_type) || input$data_type != 2)) {
         # Warning message
-        time_file <- 7
-        source("timeSoldier.R", local = TRUE)$value
+        aux_soldier <- "warning_msg"
+        source("aux_soldier.R", local = TRUE)$value
       }
     } else if (excel == 1) { # Check if the file is EXCEL
       values$dat <- as.data.frame(
@@ -172,8 +171,8 @@ shiny::shinyServer(function(input, output, session) {
       values$dat <- search_wrong_class_columns(values$dat, classes)
       if ((is.null(input$data_type) || input$data_type != 2)) {
         # Warning message
-        time_file <- 7
-        source("timeSoldier.R", local = TRUE)$value
+        aux_soldier <- "warning_msg"
+        source("aux_soldier.R", local = TRUE)$value
       }
     } else {
       showModal(
@@ -316,7 +315,7 @@ shiny::shinyServer(function(input, output, session) {
     if (is.null(datum) || is.null(input$plotType)) {
       return(HTML("Please load some data file and select plot"))
     }
-    if (timeSoldier) {
+    if (aux_soldier) {
       # Calculate classes for columns
       classes <- identify_classes(datum)
       num_class <- which("numeric" == classes)
@@ -351,7 +350,7 @@ shiny::shinyServer(function(input, output, session) {
     if (input$plotType != 1) {
       return(NULL)
     }
-    if (timeSoldier) {
+    if (aux_soldier) {
       checkboxInput("colours2", label = "Alternative color", value = FALSE)
     } else {
       return(NULL)
@@ -366,7 +365,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    if (timeSoldier) {
+    if (aux_soldier) {
       items <- sort(names(datum))
 
       if (sum(results$residual[!is.na(results$residual)]) != 0) {
@@ -395,9 +394,9 @@ shiny::shinyServer(function(input, output, session) {
     if (is.null(datum)) {
       return(NULL)
     } # Check if there is any data
-    if (timeSoldier) {
-      time_file <- 4
-      source("timeSoldier.R", local = TRUE)$value
+    if (aux_soldier) {
+      aux_soldier <- "vars_time_sieries_plot"
+      source("aux_soldier.R", local = TRUE)$value
       var_cols
     }
   })
@@ -407,7 +406,7 @@ shiny::shinyServer(function(input, output, session) {
     if (is.null(values$dat)) {
       return(NULL)
     } # Check if there is any data
-    if (timeSoldier) {
+    if (aux_soldier) {
       input$refresh5
       datum <- cbind(values$dat, as.data.frame(results$residual))
       names(datum)[ncol(datum)] <- "Residual"
@@ -443,8 +442,8 @@ shiny::shinyServer(function(input, output, session) {
           )
           time_plot <- NULL
         } else {
-          time_file <- 5
-          source("timeSoldier.R", local = TRUE)$value
+          aux_soldier <- "generate_time_series_plot"
+          source("aux_soldier.R", local = TRUE)$value
         }
         time_plot
       })
@@ -528,7 +527,7 @@ shiny::shinyServer(function(input, output, session) {
 
   # Only train option
   output$i_only_train_hull <- renderUI({
-    if (!timeSoldier) {
+    if (!aux_soldier) {
       return(NULL)
     }
 
@@ -566,7 +565,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    if (timeSoldier) {
+    if (aux_soldier) {
       checkboxInput(
         inputId = "back_colour_scatter_plot",
         label = "Alternative color",
@@ -984,114 +983,6 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   #----------------------------------------------------------------------------#
-  #-----------------------TabItem 1: Dynamic scatterplot-----------------------#
-  #----------------------------------------------------------------------------#
-
-  # Menu for selecting vertical variables for dynamic scatterplot
-  output$y_var_dyn_scat <- renderUI({
-    if (is.null(values$dat)) {
-      return(NULL)
-    } # Check if there is any data
-    if (is.null(input$plotType) || (input$plotType != 4)) {
-      return(NULL)
-    } else {
-      time_file <- 16
-      source("timeSoldier.R", local = TRUE)$value
-    }
-  })
-
- output$x_var_dyn_scat <- renderUI({
-    datum <- values$dat # "values": dataframe with new data
-
-    # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
-      return(HTML("Please load some data file and select plot"))
-    }
-
-    nam <- names(datum)
-    items <- sort(nam)
-
-    if (sum(results$residual[!is.na(results$residual)]) != 0) {
-      items <- c(items, "Residual")
-    }
-
-    first <- which(items == nam[1])
-    selectInput("x_dyn_scat", "Horizontal Axis", items, items[first])
-  })
-
-  # Let select hover variable for dynamic plot
-  output$i_hover <- renderUI({
-    datum <- values$dat
-    if (is.null(datum) || is.null(input$plotType)) {
-      return(NULL)
-    } # Check if there is any data
-
-    if (input$plotType == 2) {
-      return(NULL)
-    }
-
-    items <- c(sort(names(datum)))
-    if (sum(results$residual[!is.na(results$residual)]) != 0) {
-      items <- c(items, "Residual")
-    }
-    titl <- "Hover Text"
-    selectInput("hover", titl, items)
-  })
-  hover_var <- eventReactive(input$refresh4, {
-    hover_var <- input$hover
-    hover_var
-  })
-
-  # Let select sizes and period for dynamic scatterplot
-  output$i_sizes <- renderUI({
-    if (is.null(values$dat)) {
-      return(NULL)
-    } # Check if there is any data
-    if (is.null(input$plotType) || (input$plotType != 4)) {
-      return(NULL)
-    }
-    checkboxInput("sizes", label = "Sizes by hover variable", value = FALSE)
-  })
-  output$i_period <- renderUI({
-    if (is.null(values$dat)) {
-      return(NULL)
-    } # Check if there is any data
-    if (is.null(input$plotType) || (input$plotType != 4)) {
-      return(NULL)
-    } else {
-      time_file <- 17
-      source("timeSoldier.R", local = TRUE)$value
-    }
-  })
-
-  # Drawing buttons
-  output$i_draw_dyn_scat <- renderUI({
-    if (is.null(values$dat)) {
-      return(NULL)
-    } # Check if there is any data
-    if (is.null(input$plotType) || (input$plotType != 4)) {
-      return(NULL)
-    }
-    actionButton("refresh4", label = "Draw/Refresh", icon = icon("signal"))
-  })
-  ref_plot4 <- eventReactive(input$refresh4, {
-    refresh <- TRUE
-  })
-
-  # Plotting Dynamic scatterplot
-  output$ani_plot <- renderPlotly({
-    if (is.null(values$dat)) {
-      return(NULL)
-    } # Check if there is any data
-    refresh <- ref_plot4()
-    isolate({
-      time_file <- 18
-      source("timeSoldier.R", local = TRUE)$value
-    })
-    animate
-  })
-
-  #----------------------------------------------------------------------------#
   #---------------------TabItem 2: Loaded model variables----------------------#
   #----------------------------------------------------------------------------#
 
@@ -1184,32 +1075,32 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    time_file <- 11
-    source("timeSoldier.R", local = TRUE)$value
+    aux_soldier <- "train_test_options"
+    source("aux_soldier.R", local = TRUE)$value
   })
 
   output$iTrainYears <- renderUI({
     if ((!is.null(input$data_type) && input$data_type == 2)) {
       return(NULL)
     }
-    time_file <- 12
-    source("timeSoldier.R", local = TRUE)$value
+    aux_soldier <- "train_periods"
+    source("aux_soldier.R", local = TRUE)$value
   })
 
   output$iTestYears <- renderUI({
     if ((!is.null(input$data_type) && input$data_type == 2)) {
       return(NULL)
     }
-    time_file <- 13
-    source("timeSoldier.R", local = TRUE)$value
+    aux_soldier <- "test_period"
+    source("aux_soldier.R", local = TRUE)$value
   })
 
   output$iTestPerc1 <- renderUI({
     if ((!is.null(input$data_type) && input$data_type == 2)) {
       return(NULL)
     }
-    time_file <- 14
-    source("timeSoldier.R", local = TRUE)$value
+    aux_soldier <- "test_period_perc"
+    source("aux_soldier.R", local = TRUE)$value
   })
 
   output$i_random_data <- renderUI({
@@ -1260,7 +1151,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    if (timeSoldier) {
+    if (aux_soldier) {
       val <- 0.01
 
       numericInput(
@@ -1281,7 +1172,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    if (timeSoldier) {
+    if (aux_soldier) {
       val <- 2
 
       sliderInput(
@@ -1300,7 +1191,7 @@ shiny::shinyServer(function(input, output, session) {
     if (input$info1) {
       return(NULL)
     } # Adapt options to the user choices
-    if (timeSoldier) {
+    if (aux_soldier) {
       val <- 0.5
 
       sliderInput(
@@ -1319,7 +1210,7 @@ shiny::shinyServer(function(input, output, session) {
     if (input$info1) {
       return(NULL)
     } # Adapt options to the user choices
-    if (timeSoldier) {
+    if (aux_soldier) {
       val <- 500
 
       numericInput(
@@ -1344,7 +1235,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    if (!timeSoldier) {
+    if (!aux_soldier) {
       HTML(
         "<b>Shrinkage:</b> 0.01,
         <b>Interaction depth:</b> 2,
@@ -1425,8 +1316,8 @@ shiny::shinyServer(function(input, output, session) {
     datum <- values$dat
 
     if ((is.null(input$data_type) || input$data_type != 2)) {
-      time_file <- 15
-      source("timeSoldier.R", local = TRUE)$value
+      aux_soldier <- "check_train_test"
+      source("aux_soldier.R", local = TRUE)$value
     } else {
       indices <- vector("numeric", nrow(values$dat))
       for (i in seq_along(indices)) {
@@ -1723,7 +1614,7 @@ shiny::shinyServer(function(input, output, session) {
     datum <- values$dat
 
     # Adapt options to the user choices
-    if (!timeSoldier) {
+    if (!aux_soldier) {
       return(NULL)
     }
 
@@ -1891,8 +1782,8 @@ shiny::shinyServer(function(input, output, session) {
     if (input$data_type != 2) { # Graphs for time-dependent data
       refresh <- ref_date_data()
       isolate({
-        time_file <- 8
-        source("timeSoldier.R", local = TRUE)$value
+        aux_soldier <- "model_fit_graph"
+        source("aux_soldier.R", local = TRUE)$value
         res_graph
       })
     } else { # Graphs for time-independent data
@@ -2072,7 +1963,7 @@ shiny::shinyServer(function(input, output, session) {
     if (is.null(input$x_dp2)) {
       return(NULL)
     } # Check if there is any data
-    if (!timeSoldier) {
+    if (!aux_soldier) {
       return(NULL)
     } # Adapt options to the date based data
     if (is.null(datum)) {
@@ -2111,14 +2002,14 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   output$iTextNum <- renderUI({
-    if (!timeSoldier) {
+    if (!aux_soldier) {
       return(NULL)
     }
     HTML("<b>Number of points:</b>")
   })
 
   output$iPointsPd2 <- renderUI({
-    if (!timeSoldier) {
+    if (!aux_soldier) {
       return(NULL)
     }
     numericInput(
@@ -2201,7 +2092,7 @@ shiny::shinyServer(function(input, output, session) {
 
   # Show partial dependence plot 3D
   output$warning2 <- renderUI({
-    if (!timeSoldier) {
+    if (!aux_soldier) {
       warning <- em("Not avaliable")
     } else if ((length(input$reduce) > 0) && input$reduce == "Month") {
       warning <- em("Not avaliable")
@@ -2211,7 +2102,7 @@ shiny::shinyServer(function(input, output, session) {
     warning
   })
   output$iPdPlot3 <- renderUI({
-    if (timeSoldier) {
+    if (aux_soldier) {
       plotly::plotlyOutput("pdPlot3", height = 600, width = 600)
     } else {
       return(NULL)
