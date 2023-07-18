@@ -682,34 +682,24 @@ generate_pdp1d_plot <- function(
   return(pd_plot)
 }
 
-# Function to calculate PDP 2D plot
-generate_pdp2d_plot <- function(
-  data_type,
-  model_res_fit,
-  points_pd2,
-  x_dp2,
-  x_dp3,
-  target
-) {
-  brt_model <- model_res_fit$model
+# Function to filter train data
+filter_train_data <- function(data_type, model_res_fit) {
   min_train <- model_res_fit$train_y[1]
   max_train <- model_res_fit$train_y[2]
-  base_data <- model_res_fit$data_in
 
-  if ((is.null(data_type) || data_type != 2)) {
-    train_data <- base_data[
-      base_data[, 1] >= min_train & base_data[, 1] <= max_train,
+  if (is.null(data_type) || data_type != 2) {
+    train_data <- model_res_fit$data_in[
+      model_res_fit$data_in[, 1] >= min_train & model_res_fit$data_in[, 1] <= max_train,
     ]
   } else {
-    train_data <- base_data[-model_res_fit$positions, ]
+    train_data <- model_res_fit$data_in[-model_res_fit$positions, ]
   }
 
-  # Check if there is any data
-  if (is.null(brt_model)) {
-    return(NULL)
-  }
+  train_data
+}
 
-  # Calculate values for plotting partial dependence plot 2D
+# Helper function to calculate heat_p
+calculate_heat_p <- function(brt_model, train_data, points_pd2, x_dp2, x_dp3) {
   n_points <- points_pd2 + 1
   heat_p <- pdp::partial(
     brt_model,
@@ -721,56 +711,52 @@ generate_pdp2d_plot <- function(
     grid.resolution = n_points
   )
 
-  # Order the values for plotting in a matrix
-  n_rows <- length(unique(heat_p[, 1]))
-  n_cols <- length(unique(heat_p[, 2]))
-  heat_data_1 <- matrix(NA, n_rows, n_cols)
-  heat_data_3 <- matrix(NA, n_rows, n_cols)
-  columns <- match(unique(heat_p[, 2]), heat_p[, 2])
+  heat_p
+}
 
-  # Tranform colums 1 and 3 in two matrices
-  for (j in seq_along(columns)) { # Tranform colums 1 and 3 in two matrices
-    if (j == length(columns)) { # Set the length of this column
-      end <- length(heat_p[, 2]) - columns[j] + 1
+create_tick_labels <- function(heat_p_row) {
+  min_val <- min(heat_p_row)
+  max_val <- max(heat_p_row)
+
+  text <- c(
+    toString(round(min_val + 0.25 * (max_val - min_val), digits = 1)),
+    toString(round(min_val + 0.50 * (max_val - min_val), digits = 1)),
+    toString(round(min_val + 0.75 * (max_val - min_val), digits = 1))
+  )
+
+  text
+}
+
+create_data_pdp_plot <- function(columns, heat_p, heat_data_1, heat_data_3) {
+  for (j in seq_along(columns)) {
+    end <- if (j == length(columns)) {
+      length(heat_p[, 2]) - columns[j] + 1
     } else {
-      end <- columns[j + 1] - columns[j]
+      columns[j + 1] - columns[j]
     }
     heat_data_1[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 1]
     heat_data_3[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 3]
   }
 
-  # Move down columns if they are not in the correct position
-  for (i in seq_len(nrow(heat_data_3))) {
-    min_row <- min(heat_data_1[i, ], na.rm = TRUE)
-    for (j in seq_len(ncol(heat_data_3))) {
-      if (!is.na(heat_data_1[i, j]) && (heat_data_1[i, j] > min_row)) {
-        heat_data_1[2:nrow(heat_data_3), j] <- heat_data_1[seq_len(nrow(heat_data_3) - 1), j]
-        heat_data_1[1, j] <- NA
-        heat_data_3[2:nrow(heat_data_3), j] <- heat_data_3[seq_len(nrow(heat_data_3) - 1), j]
-        heat_data_3[1, j] <- NA
-      }
-    }
-  }
+  min_row <- apply(heat_data_1, 1, min, na.rm = TRUE)
+  heat_data_1[heat_data_1 > min_row] <- NA
+  heat_data_3[heat_data_1 > min_row] <- NA
 
   plot_data <- heat_data_3
 
-  min_x <- min(heat_p[, 2])
-  max_x <- max(heat_p[, 2])
-  min_y <- min(heat_p[, 1])
-  max_y <- max(heat_p[, 1])
+  plot_data
+}
 
-  text_x <- c(
-    toString(round(min_x + 0.25 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.50 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.75 * (max_x - min_x), digits = 1))
-  )
-  text_y <- c(
-    toString(round(min_y + 0.25 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.50 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.75 * (max_y - min_y), digits = 1))
-  )
-
-  # Draw partial dependence plot 2D
+generate_pdp2d_plotly_plot <- function(
+  plot_data,
+  target,
+  x_dp2,
+  x_dp3,
+  n_cols,
+  n_rows,
+  text_x,
+  text_y
+) {
   plot_2d <- plotly::plot_ly(
     z = plot_data,
     showscale = TRUE,
@@ -803,46 +789,27 @@ generate_pdp2d_plot <- function(
       )
     )
 
-  return(plot_2d)
+  plot_2d
 }
 
-# Function to calculate PDP 3D plot
-generate_pdp3d_plot <- function(
-  model_res_fit,
+# Function to calculate PDP 2D plot
+generate_pdp2d_plot <- function(
   data_type,
+  model_res_fit,
   points_pd2,
   x_dp2,
   x_dp3,
   target
 ) {
-  brt_model <- model_res_fit$model
-  min_train <- model_res_fit$train_y[1]
-  max_train <- model_res_fit$train_y[2]
-  base_data <- model_res_fit$data_in
+  # Filter train data
+  train_data <- filter_train_data(data_type, model_res_fit)
 
-  if ((is.null(data_type) || data_type != 2)) {
-    train_data <- base_data[
-      base_data[, 1] >= min_train & base_data[, 1] <= max_train,
-      ]
-  } else {
-    train_data <- base_data[-model_res_fit$positions, ]
+  # Check if there is any data
+  if (is.null(model_res_fit$model)) {
+    return(NULL)
   }
 
-  if (is.null(brt_model)) {
-    return(NULL)
-  } # Check if there is any data
-
-  # Calculate values for plotting
-  n_points <- points_pd2 + 1
-  heat_p <- pdp::partial(
-    brt_model,
-    pred.var = c(x_dp2, x_dp3),
-    train = train_data,
-    plot = FALSE,
-    chull = TRUE,
-    n.trees = brt_model$n.trees,
-    grid.resolution = n_points
-  )
+  heat_p <- calculate_heat_p(model_res_fit$model, train_data, points_pd2, x_dp2, x_dp3)
 
   # Order the values for plotting in a matrix
   n_rows <- length(unique(heat_p[, 1]))
@@ -850,79 +817,37 @@ generate_pdp3d_plot <- function(
   heat_data_1 <- matrix(NA, n_rows, n_cols)
   heat_data_3 <- matrix(NA, n_rows, n_cols)
   columns <- match(unique(heat_p[, 2]), heat_p[, 2])
-  for (j in seq_along(columns)) { # Tranform colums 1 and 3 in two matrices
-    if (j == length(columns)) { # Set the length of this column
-      end <- length(heat_p[, 2]) - columns[j] + 1
-    } else {
-      end <- columns[j + 1] - columns[j]
-    }
-    heat_data_1[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 1]
-    heat_data_3[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 3]
-  }
 
-  # Move down columns if they are not in the correct position
-  for (i in seq_len(nrow(heat_data_3))) {
-    min_row <- min(heat_data_1[i, ], na.rm = TRUE)
-    for (j in seq_len(ncol(heat_data_3))) {
-      if (!is.na(heat_data_1[i, j]) && (heat_data_1[i, j] > min_row)) {
-        heat_data_1[2:nrow(heat_data_3), j] <- heat_data_1[seq_len(nrow(heat_data_3) - 1), j]
-        heat_data_1[1, j] <- NA
-        heat_data_3[2:nrow(heat_data_3), j] <- heat_data_3[seq_len(nrow(heat_data_3) - 1), j]
-        heat_data_3[1, j] <- NA
-      }
-    }
-  }
+  plot_data <- create_data_pdp_plot(columns, heat_p, heat_data_1, heat_data_3)
 
-  # Spin the matrix for better plotting
-  max_pos <- which(heat_data_3 == max(heat_data_3, na.rm = TRUE))[1]
-  max_col <- round(0.49 + (max_pos / n_rows))
-  max_row <- max_pos - n_rows * (max_col - 1)
-  plot_data <- heat_data_3
+  text_x <- create_tick_labels(heat_p[, 2])
+  text_y <- create_tick_labels(heat_p[, 1])
 
-  min_x <- min(heat_p[, 2])
-  max_x <- max(heat_p[, 2])
-  min_y <- min(heat_p[, 1])
-  max_y <- max(heat_p[, 1])
-
-  text_x <- c(
-    toString(round(min_x + 0.25 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.50 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.75 * (max_x - min_x), digits = 1))
-  )
-  text_y <- c(
-    toString(round(min_y + 0.25 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.50 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.75 * (max_y - min_y), digits = 1))
+  # Draw partial dependence plot 2D
+  plot_2d <- generate_pdp2d_plotly_plot(
+    plot_data,
+    target,
+    x_dp2,
+    x_dp3,
+    n_cols,
+    n_rows,
+    text_x,
+    text_y
   )
 
-  # If the maximum is in the wrong half, spin all the data
-  if (max_row >= n_rows * 0.50) {
-    for (j in seq_len(n_cols)) {
-      i <- 1:n_rows
-      plot_data[i, j] <- heat_data_3[1 + n_rows - i, j]
-    }
-    text_y <- c(
-      toString(round(min_y + 0.75 * (max_y - min_y), digits = 1)),
-      toString(round(min_y + 0.50 * (max_y - min_y), digits = 1)),
-      toString(round(min_y + 0.25 * (max_y - min_y), digits = 1))
-    )
-    heat_data_3 <- plot_data
-  }
+  return(plot_2d)
+}
 
-  # If the maximum is in the wrong half, spin all the data
-  if (max_col >= n_cols * 0.50) {
-    for (i in seq_len(n_rows)) {
-      j <- 1:n_cols
-      plot_data[i, j] <- heat_data_3[i, 1 + n_cols - j]
-    }
-    text_x <- c(
-      toString(round(min_x + 0.75 * (max_x - min_x), digits = 1)),
-      toString(round(min_x + 0.50 * (max_x - min_x), digits = 1)),
-      toString(round(min_x + 0.25 * (max_x - min_x), digits = 1))
-    )
-  }
-
-  # Draw partial dependence plot 3D
+generate_pdp3d_plotly_plot <- function(
+  plot_data,
+  target,
+  x_dp2,
+  x_dp3,
+  n_cols,
+  n_rows,
+  text_x,
+  text_y
+) {
   plot_3d <- plotly::plot_ly(
     z = plot_data,
     showscale = FALSE,
@@ -967,6 +892,96 @@ generate_pdp3d_plot <- function(
         zaxis = list(title = target)
       )
     )
+
+  plot_3d
+}
+
+# Function to calculate PDP 3D plot
+generate_pdp3d_plot <- function(
+  model_res_fit,
+  data_type,
+  points_pd2,
+  x_dp2,
+  x_dp3,
+  target
+) {
+  # Filter train data
+  train_data <- filter_train_data(data_type, model_res_fit)
+
+  if (is.null(model_res_fit$model)) {
+    return(NULL)
+  } # Check if there is any data
+
+  # Calculate values for plotting
+  heat_p <- calculate_heat_p(model_res_fit$model, train_data, points_pd2, x_dp2, x_dp3)
+
+  # Order the values for plotting in a matrix
+  n_rows <- length(unique(heat_p[, 1]))
+  n_cols <- length(unique(heat_p[, 2]))
+  heat_data_1 <- matrix(NA, n_rows, n_cols)
+  heat_data_3 <- matrix(NA, n_rows, n_cols)
+  columns <- match(unique(heat_p[, 2]), heat_p[, 2])
+
+  plot_data <- create_data_pdp_plot(columns, heat_p, heat_data_1, heat_data_3)
+
+  # Spin the matrix for better plotting
+  max_pos <- which(plot_data == max(plot_data, na.rm = TRUE))[1]
+  max_col <- round(0.49 + (max_pos / n_rows))
+  max_row <- max_pos - n_rows * (max_col - 1)
+
+  text_x <- create_tick_labels(heat_p[, 2])
+  text_y <- create_tick_labels(heat_p[, 1])
+
+  # If the maximum is in the wrong half, spin all the data
+  if (max_row >= n_rows * 0.50) {
+    plot_data_aux <- plot_data
+
+    for (j in seq_len(n_cols)) {
+      i <- 1:n_rows
+      plot_data[i, j] <- plot_data_aux[1 + n_rows - i, j]
+    }
+
+    min_y <- min(heat_p[, 1])
+    max_y <- max(heat_p[, 1])
+
+    text_y <- c(
+      toString(round(min_y + 0.75 * (max_y - min_y), digits = 1)),
+      toString(round(min_y + 0.50 * (max_y - min_y), digits = 1)),
+      toString(round(min_y + 0.25 * (max_y - min_y), digits = 1))
+    )
+  }
+
+  # If the maximum is in the wrong half, spin all the data
+  if (max_col >= n_cols * 0.50) {
+    plot_data_aux <- plot_data
+
+    for (i in seq_len(n_rows)) {
+      j <- 1:n_cols
+      plot_data[i, j] <- plot_data_aux[i, 1 + n_cols - j]
+    }
+
+    min_x <- min(heat_p[, 2])
+    max_x <- max(heat_p[, 2])
+
+    text_x <- c(
+      toString(round(min_x + 0.75 * (max_x - min_x), digits = 1)),
+      toString(round(min_x + 0.50 * (max_x - min_x), digits = 1)),
+      toString(round(min_x + 0.25 * (max_x - min_x), digits = 1))
+    )
+  }
+
+  # Draw partial dependence plot 3D
+  plot_3d <- generate_pdp3d_plotly_plot(
+    plot_data,
+    target,
+    x_dp2,
+    x_dp3,
+    n_cols,
+    n_rows,
+    text_x,
+    text_y
+  )
+
   return(plot_3d)
 }
 
