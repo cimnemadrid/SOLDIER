@@ -37,6 +37,9 @@ if (!require("shinydashboard")) {
 if (!require("shinyWidgets")) {
   install.packages("shinyWidgets")
 }
+if (!require("magrittr")) {
+  install.packages("magrittr")
+}
 
 # Load or install libraries for creating graphics
 if (!require("tidyverse")) {
@@ -485,7 +488,7 @@ dashboardPage(
               width = 12,
               tabPanel(
                 "Model fitting",
-                uiOutput("iRefre"),
+                uiOutput("i_refresh"),
                 plotly::plotlyOutput(outputId = "pred_graph", height = "540px")
               ),
               tabPanel(

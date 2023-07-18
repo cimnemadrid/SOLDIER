@@ -1,3 +1,8 @@
+library(magrittr)
+library(ggplot2)
+
+relative_influence <- NULL
+prediction <- NULL
 
 #------------------------------------------------------------------------------#
 #-----------------------------Draw plot functions------------------------------#
@@ -41,7 +46,7 @@ generate_time_plot <- function(
     back_color <- "darkgrey"
   }
 
-  date <- as.Date(index(data_sort))
+  date <- as.Date(zoo::index(data_sort))
   graph_data <- as.data.frame(data_sort)
 
   time_plot <- plotly::plot_ly()
@@ -89,7 +94,7 @@ generate_time_plot <- function(
     )
 
     if (length(vars2) == 1) {
-      time_plot <- add_trace(
+      time_plot <- plotly::add_trace(
         data = graph_data,
         x = date,
         y = graph_data[, c(vars2)],
@@ -108,7 +113,7 @@ generate_time_plot <- function(
       )
     } else {
       for (j in seq_along(vars2)) {
-        time_plot <- add_trace(
+        time_plot <- plotly::add_trace(
           data = graph_data,
           x = date,
           y = graph_data[, c(vars2)][[j]],
@@ -202,7 +207,7 @@ generate_time_plot_prediction <- function(
     back_color <- "darkgrey"
   }
 
-  date <- as.Date(index(data_sort))
+  date <- as.Date(zoo::index(data_sort))
   graph_data <- as.data.frame(data_sort)
 
   min_y <- min(
@@ -239,7 +244,7 @@ generate_time_plot_prediction <- function(
   )
 
   # Calculate the upper and lower bounds of the confidence interval
-  sd_train_error = sd(results$residual_train)
+  sd_train_error <- sd(results$residual_train)
   upper_bound <- graph_data$Prediction + 2 * sd_train_error
   lower_bound <- graph_data$Prediction - 2 * sd_train_error
 
@@ -399,6 +404,7 @@ generate_fitting_plot_ggplot2 <- function(graph_data, n_model, predict, ini, end
   max2 <- max(graph_data[, 2], na.rm = TRUE)
   min3 <- min(graph_data[, 3], na.rm = TRUE)
   max3 <- max(graph_data[, 3], na.rm = TRUE)
+
   graph_data <- graph_data[ini:end, ]
   y_points <- ggplot2::aes(y = prediction)
 
@@ -441,11 +447,11 @@ generate_line_plot_ggplot2 <- function(
   return(pd_plot)
 }
 
-# Funtion to calculate bars plots
+# Funtion to generate bar plot
 generate_bar_plot <- function(var_inf, min_var, max_var) {
   rel_influence_plot <- ggplot2::ggplot(
     var_inf[min_var:max_var, ],
-    ggplot2::aes(x = var, y = rel.inf)
+    ggplot2::aes(x = var, y = relative_influence)
   )
 
   rel_influence_plot <- rel_influence_plot +
@@ -462,113 +468,56 @@ generate_bar_plot_new_model <- function(influmean) {
   mean_influence_ordered <- influmean[order(influmean[, 2]), ]
   var_inf <- data.frame(
     var = mean_influence_ordered[, 1],
-    rel.inf = mean_influence_ordered[, 2]
+    relative_influence = mean_influence_ordered[, 2]
   )
 
-  # Search the first 3 letters of each variable name
-  groups <- as.data.frame(
-    matrix(
-      data = NA,
-      nrow = nrow(var_inf),
-      ncol = nrow(var_inf)
-    )
-  )
+  # Group variables with the same first 3 letters
+  group_names <- unique(substr(var_inf$var, 1, 3))
+  groups <- lapply(group_names, function(name) var_inf[grep(name, var_inf$var), ])
 
-  all_groups <- 0
-  j <- 1
-  for (i in seq_len(nrow(var_inf))) {
-    first_3_letters <- substr(var_inf[i, 1], 1, 3)
-    same_name <- grep(first_3_letters, substr(var_inf[, 1], 1, 3))
-    if (length(same_name) > 1) {
-      all_groups <- c(all_groups, same_name)
+  # Calculate group sizes
+  group_sizes <- sapply(groups, function(group) nrow(group))
 
-      # Assign to a group the variables with the same letters
-      for (k in seq_along(same_name)) {
-        groups[k, j] <- same_name[k]
-      }
-
-      names(groups)[j] <- as.character(first_3_letters)
-      j <- j + 1
-    }
-  }
-
-  # Search the amount of variables in the biggest group
-  pos <- 0
-  for (i in seq_len(nrow(groups))) {
-    if (!all(is.na(groups[i, ]))) pos <- i
-  }
-
-  # Replace variable influences for group influences
-  if (pos > 0) {
-    mat_im <- 0
-    base_na <- colnames(groups)[1]
-    groups <- groups[1:pos, unique(colnames(groups))]
-    if (is.null(nrow(groups))) {
-      return(NULL)
-    }
-    groups <- groups[, !is.na(groups[1, ])]
-    if (!is.null(ncol(groups))) {
-      base_na <- colnames(groups)
-    }
-    mat_im <- groups
-    names(mat_im) <- paste(base_na, "group")
-    if (length(nrow(mat_im)) > 0) {
-      for (i in seq_len(nrow(mat_im))) {
-        for (j in seq_len(ncol(mat_im))) {
-          mat_im[i, j] <- var_inf[mat_im[i, j], 2]
+  # Create data frame for grouped influences
+  var_inf_grouped <- data.frame(
+    var = mapply(
+      function(group_name, group) {
+        if (group_sizes[group_name] > 1) {
+          paste0(substr(group$var[1], 1, 3), "_group")
+        } else {
+          group$var[1]
         }
-      }
-      colu <- ncol(mat_im)
-    } else {
-      for (i in seq_along(mat_im)) {
-        mat_im[i] <- var_inf[mat_im[i], 2]
-      }
-      colu <- 1
-    }
-    singles <- c(1:nrow(var_inf))[-all_groups[-1]]
-    inf_group <- as.data.frame(
-      matrix(
-        data = NA,
-        nrow = length(singles) + colu, ncol = 2
-      )
+      },
+      seq_along(group_names),
+      groups
+    ),
+    relative_influence = mapply(
+      function(group_name, group) {
+        if (group_sizes[group_name] > 1) {
+          sum(group$relative_influence, na.rm = TRUE)
+        } else {
+          group$relative_influence
+        }
+      },
+      seq_along(group_names),
+      groups
     )
+  )
 
-    for (i in seq_along(singles)) {
-      inf_group[i, 1] <- as.character(var_inf[singles, 1][i])
-      inf_group[i, 2] <- var_inf[singles, 2][i]
-    }
+  var_inf_grouped <- var_inf_grouped[order(var_inf_grouped$relative_influence), ]
 
-    for (i in seq_len(colu)) {
-      inf_group[length(singles) + i, 1] <- as.character(names(mat_im)[i])
-      if (length(nrow(mat_im)) > 0) {
-        inf_group[length(singles) + i, 2] <- sum(mat_im[, i], na.rm = TRUE)
-      } else {
-        inf_group[length(singles) + i, 2] <- sum(mat_im, na.rm = TRUE)
-      }
-    }
-
-    names(inf_group) <- names(var_inf)
-    var_inf <- inf_group[order(inf_group[, 2]), ]
-  }
-
-  vars_plot <- min(20, nrow(var_inf), na.rm = TRUE)
-
-  # The last variables are the ones with more influence
-  max_var <- nrow(var_inf)
+  vars_plot <- min(20, nrow(var_inf_grouped), na.rm = TRUE)
+  max_var <- nrow(var_inf_grouped)
   min_var <- max_var + 1 - vars_plot
 
-  # Calculate and show bars plots
-  rel_influence_plot <- generate_bar_plot(
-    var_inf,
-    min_var,
-    max_var
-  )
-
+  # Generate and customize bar plot
+  rel_influence_plot <- generate_bar_plot(var_inf_grouped, min_var, max_var)
   rel_influence_plot <- rel_influence_plot +
     ggplot2::geom_bar(stat = "identity", fill = "steelblue1", colour = "black")
 
   return(rel_influence_plot)
 }
+
 
 # Function to calculate PDP 1D plot
 generate_pdp1d_plot <- function(
@@ -580,15 +529,6 @@ generate_pdp1d_plot <- function(
   target
 ) {
   brt_model <- model_res_fit$model
-  min_train <- model_res_fit$train_y[1]
-  max_train <- model_res_fit$train_y[2]
-  base_data <- model_res_fit$data_in
-
-  if ((is.null(data_type) || data_type != 2)) {
-    train_data <- base_data[base_data[, 1] >= min_train & base_data[, 1] <= max_train, ]
-  } else {
-    train_data <- base_data[-model_res_fit$positions, ]
-  }
 
   # Check if there is any data
   if (is.null(brt_model) || is.null(points_pd2)) {
@@ -742,34 +682,21 @@ generate_pdp1d_plot <- function(
   return(pd_plot)
 }
 
-# Function to calculate PDP 2D plot
-generate_pdp2d_plot <- function(
-  data_type,
-  model_res_fit,
-  points_pd2,
-  x_dp2,
-  x_dp3,
-  target
-) {
-  brt_model <- model_res_fit$model
-  min_train <- model_res_fit$train_y[1]
-  max_train <- model_res_fit$train_y[2]
-  base_data <- model_res_fit$data_in
-
-  if ((is.null(data_type) || data_type != 2)) {
-    train_data <- base_data[
-      base_data[, 1] >= min_train & base_data[, 1] <= max_train,
-    ]
+# Function to filter train_data based on data_type
+filter_train_data <- function(data_type, base_data, model_res_fit) {
+  if (is.null(data_type) || data_type != 2) {
+    return(
+      base_data[
+        base_data[, 1] >= model_res_fit$train_y[1] & base_data[, 1] <= model_res_fit$train_y[2],
+      ]
+    )
   } else {
-    train_data <- base_data[-model_res_fit$positions, ]
+    return(base_data[-model_res_fit$positions, ])
   }
+}
 
-  # Check if there is any data
-  if (is.null(brt_model)) {
-    return(NULL)
-  }
-
-  # Calculate values for plotting partial dependence plot 2D
+# Helper function to calculate heat_p
+calculate_heat_p <- function(brt_model, train_data, points_pd2, x_dp2, x_dp3) {
   n_points <- points_pd2 + 1
   heat_p <- pdp::partial(
     brt_model,
@@ -781,64 +708,76 @@ generate_pdp2d_plot <- function(
     grid.resolution = n_points
   )
 
-  # Order the values for plotting in a matrix
+  heat_p
+}
+
+# Function to calculate heat data matrices
+calculate_heat_data <- function(heat_p) {
   n_rows <- length(unique(heat_p[, 1]))
   n_cols <- length(unique(heat_p[, 2]))
-  heat_data_1 <- matrix(NA, n_rows, n_cols)
-  heat_data_3 <- matrix(NA, n_rows, n_cols)
+
+  heat_data_1 <- create_heat_data_matrix(heat_p, n_rows, n_cols, 1)
+  heat_data_3 <- create_heat_data_matrix(heat_p, n_rows, n_cols, 3)
+
+  adjust_heat_data(heat_data_1, heat_data_3)
+}
+
+# Helper function to create the initial heat data matrix
+create_heat_data_matrix <- function(heat_p, n_rows, n_cols, col_index) {
+  heat_data <- matrix(NA, n_rows, n_cols)
   columns <- match(unique(heat_p[, 2]), heat_p[, 2])
 
-  # Tranform colums 1 and 3 in two matrices
-  for (j in seq_along(columns)) { # Tranform colums 1 and 3 in two matrices
-    if (j == length(columns)) { # Set the length of this column
+  for (j in seq_along(columns)) {
+    if (j == length(columns)) {
       end <- length(heat_p[, 2]) - columns[j] + 1
     } else {
       end <- columns[j + 1] - columns[j]
     }
-    heat_data_1[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 1]
-    heat_data_3[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 3]
+
+    heat_data[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), col_index]
   }
 
-  # Move down columns if they are not in the correct position
+  heat_data
+}
+
+# Helper function to adjust the heat data matrix
+adjust_heat_data <- function(heat_data_1, heat_data_3) {
   for (i in seq_len(nrow(heat_data_3))) {
     min_row <- min(heat_data_1[i, ], na.rm = TRUE)
+
     for (j in seq_len(ncol(heat_data_3))) {
       if (!is.na(heat_data_1[i, j]) && (heat_data_1[i, j] > min_row)) {
-        heat_data_1[
-          2:nrow(heat_data_3), j
-        ] <- heat_data_1[
-          1:nrow(heat_data_3) - 1, j
-        ]
+        heat_data_1[2:nrow(heat_data_3), j] <- heat_data_1[seq_len(nrow(heat_data_3) - 1), j]
         heat_data_1[1, j] <- NA
-        heat_data_3[
-          2:nrow(heat_data_3), j
-        ] <- heat_data_3[
-          1:nrow(heat_data_3) - 1, j
-        ]
+        heat_data_3[2:nrow(heat_data_3), j] <- heat_data_3[seq_len(nrow(heat_data_3) - 1), j]
         heat_data_3[1, j] <- NA
       }
     }
   }
 
-  plot_data <- heat_data_3
+  list(heat_data_1 = heat_data_1, heat_data_3 = heat_data_3)
+}
 
-  min_x <- min(heat_p[, 2])
-  max_x <- max(heat_p[, 2])
-  min_y <- min(heat_p[, 1])
-  max_y <- max(heat_p[, 1])
-
-  text_x <- c(
-    toString(round(min_x + 0.25 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.50 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.75 * (max_x - min_x), digits = 1))
+# Function to create tick labels for the plot
+create_tick_labels <- function(min_val, max_val) {
+  c(
+    toString(round(min_val + 0.25 * (max_val - min_val), digits = 1)),
+    toString(round(min_val + 0.50 * (max_val - min_val), digits = 1)),
+    toString(round(min_val + 0.75 * (max_val - min_val), digits = 1))
   )
-  text_y <- c(
-    toString(round(min_y + 0.25 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.50 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.75 * (max_y - min_y), digits = 1))
-  )
+}
 
-  # Draw partial dependence plot 2D
+# Function to generate the PDP 2D plotly plot
+generate_pdp2d_plotly_plot <- function(
+  plot_data,
+  x_dp3,
+  x_dp2,
+  n_cols,
+  n_rows,
+  text_x,
+  text_y,
+  target
+) {
   plot_2d <- plotly::plot_ly(
     z = plot_data,
     showscale = TRUE,
@@ -853,20 +792,12 @@ generate_pdp2d_plot <- function(
       title = NULL,
       xaxis = list(
         title = x_dp3,
-        tickvals = c(
-          (n_cols - 1) * 0.25,
-          (n_cols - 1) * 0.50,
-          (n_cols - 1) * 0.75
-        ),
+        tickvals = c((n_cols - 1) * 0.25, (n_cols - 1) * 0.50, (n_cols - 1) * 0.75),
         ticktext = text_x
       ),
       yaxis = list(
         title = x_dp2,
-        tickvals = c(
-          (n_rows - 1) * 0.25,
-          (n_rows - 1) * 0.50,
-          (n_rows - 1) * 0.75
-        ),
+        tickvals = c((n_rows - 1) * 0.25, (n_rows - 1) * 0.50, (n_rows - 1) * 0.75),
         ticktext = text_y
       )
     )
@@ -874,85 +805,23 @@ generate_pdp2d_plot <- function(
   return(plot_2d)
 }
 
-# Function to calculate PDP 3D plot
-generate_pdp3d_plot <- function(
-  model_res_fit,
-  data_type,
-  points_pd2,
-  x_dp2,
-  x_dp3,
-  target
-) {
+# Main function to generate the PDP 2D plot
+generate_pdp2d_plot <- function(data_type, model_res_fit, points_pd2, x_dp2, x_dp3, target) {
   brt_model <- model_res_fit$model
-  min_train <- model_res_fit$train_y[1]
-  max_train <- model_res_fit$train_y[2]
   base_data <- model_res_fit$data_in
 
-  if ((is.null(data_type) || data_type != 2)) {
-    train_data <- base_data[
-      base_data[, 1] >= min_train & base_data[, 1] <= max_train,
-      ]
-  } else {
-    train_data <- base_data[-model_res_fit$positions, ]
-  }
+  train_data <- filter_train_data(data_type, base_data, model_res_fit)
 
   if (is.null(brt_model)) {
     return(NULL)
-  } # Check if there is any data
+  }
 
   # Calculate values for plotting
-  n_points <- points_pd2 + 1
-  heat_p <- pdp::partial(
-    brt_model,
-    pred.var = c(x_dp2, x_dp3),
-    train = train_data,
-    plot = FALSE,
-    chull = TRUE,
-    n.trees = brt_model$n.trees,
-    grid.resolution = n_points
-  )
+  heat_p <- calculate_heat_p(brt_model, train_data, points_pd2, x_dp2, x_dp3)
 
-  # Order the values for plotting in a matrix
-  n_rows <- length(unique(heat_p[, 1]))
-  n_cols <- length(unique(heat_p[, 2]))
-  heat_data_1 <- matrix(NA, n_rows, n_cols)
-  heat_data_3 <- matrix(NA, n_rows, n_cols)
-  columns <- match(unique(heat_p[, 2]), heat_p[, 2])
-  for (j in seq_along(columns)) { # Tranform colums 1 and 3 in two matrices
-    if (j == length(columns)) { # Set the length of this column
-      end <- length(heat_p[, 2]) - columns[j] + 1
-    } else {
-      end <- columns[j + 1] - columns[j]
-    }
-    heat_data_1[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 1]
-    heat_data_3[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 3]
-  }
+  heat_data <- calculate_heat_data(heat_p)
+  heat_data_3 <- heat_data$heat_data_3
 
-  # Move down columns if they are not in the correct position
-  for (i in seq_len(nrow(heat_data_3))) {
-    min_row <- min(heat_data_1[i, ], na.rm = TRUE)
-    for (j in seq_len(ncol(heat_data_3))) {
-      if (!is.na(heat_data_1[i, j]) && (heat_data_1[i, j] > min_row)) {
-        heat_data_1[
-          2:nrow(heat_data_3), j
-        ] <- heat_data_1[
-          1:nrow(heat_data_3) - 1, j
-        ]
-        heat_data_1[1, j] <- NA
-        heat_data_3[
-          2:nrow(heat_data_3), j
-        ] <- heat_data_3[
-          1:nrow(heat_data_3) - 1, j
-        ]
-        heat_data_3[1, j] <- NA
-      }
-    }
-  }
-
-  # Spin the matrix for better plotting
-  max_pos <- which(heat_data_3 == max(heat_data_3, na.rm = TRUE))[1]
-  max_col <- round(0.49 + (max_pos / n_rows))
-  max_row <- max_pos - n_rows * (max_col - 1)
   plot_data <- heat_data_3
 
   min_x <- min(heat_p[, 2])
@@ -960,53 +829,66 @@ generate_pdp3d_plot <- function(
   min_y <- min(heat_p[, 1])
   max_y <- max(heat_p[, 1])
 
-  text_x <- c(
-    toString(round(min_x + 0.25 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.50 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.75 * (max_x - min_x), digits = 1))
-  )
-  text_y <- c(
-    toString(round(min_y + 0.25 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.50 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.75 * (max_y - min_y), digits = 1))
+  text_x <- create_tick_labels(min_x, max_x)
+  text_y <- create_tick_labels(min_y, max_y)
+
+  plot_2d <- generate_pdp2d_plotly_plot(
+    plot_data,
+    x_dp3,
+    x_dp2,
+    ncol(heat_data_3),
+    nrow(heat_data_3),
+    text_x,
+    text_y,
+    target
   )
 
-  # If the maximum is in the wrong half, spin all the data
-  if (max_row >= n_rows * 0.50) {
-    for (j in seq_len(n_cols)) {
-      i <- 1:n_rows
-      plot_data[i, j] <- heat_data_3[1 + n_rows - i, j]
-    }
-    text_y <- c(
-      toString(round(min_y + 0.75 * (max_y - min_y), digits = 1)),
-      toString(round(min_y + 0.50 * (max_y - min_y), digits = 1)),
-      toString(round(min_y + 0.25 * (max_y - min_y), digits = 1))
-    )
-    heat_data_3 <- plot_data
+  return(plot_2d)
+}
+
+generate_ticktext <- function(min_value, max_value, interval) {
+  round_vals <- round(min_value + seq(0, 0.75, interval) * (max_value - min_value), digits = 1)
+  round_vals[-1] <- round_vals[-1] + interval * (max_value - min_value)
+  round_vals <- round(round_vals, digits = 1)
+
+  as.character(round_vals)
+}
+
+generate_tickvals <- function(num_values, interval) {
+  (num_values - 1) * seq(interval, 0.75, interval)
+}
+
+generate_plot_3d <- function(plot_data, heat_p, x_dp3, x_dp2, target) {
+  n_rows <- nrow(plot_data)
+  n_cols <- ncol(plot_data)
+
+  min_x <- min(heat_p[, 2])
+  max_x <- max(heat_p[, 2])
+  min_y <- min(heat_p[, 1])
+  max_y <- max(heat_p[, 1])
+
+  text_x <- generate_ticktext(min_x, max_x, 0.25)
+  text_y <- generate_ticktext(min_y, max_y, 0.25)
+
+  if (n_rows * 0.50 <= which.max(plot_data)) {
+    plot_data <- plot_data[if (nrow(plot_data) > 0) seq_len(nrow(plot_data)) else 1, ]
+    text_y <- rev(text_y)
   }
 
-  # If the maximum is in the wrong half, spin all the data
-  if (max_col >= n_cols * 0.50) {
-    for (i in seq_len(n_rows)) {
-      j <- 1:n_cols
-      plot_data[i, j] <- heat_data_3[i, 1 + n_cols - j]
-    }
-    text_x <- c(
-      toString(round(min_x + 0.75 * (max_x - min_x), digits = 1)),
-      toString(round(min_x + 0.50 * (max_x - min_x), digits = 1)),
-      toString(round(min_x + 0.25 * (max_x - min_x), digits = 1))
-    )
+  if (n_cols * 0.50 <= which.max(plot_data)) {
+    plot_data <- plot_data[, if (ncol(plot_data) > 0) seq_len(ncol(plot_data)) else 1]
+    text_x <- rev(text_x)
   }
 
-  # Draw partial dependence plot 3D
   plot_3d <- plotly::plot_ly(
     z = plot_data,
     showscale = FALSE,
     hoverinfo = "z",
     hoverlabel = list(bgcolor = "white", font = list(size = 10))
   )
+
   plot_3d <- plot_3d %>%
-    add_surface(
+    plotly::add_surface(
       lighting = list(
         roughness = 0.3,
         ambient = 0.8,
@@ -1024,25 +906,51 @@ generate_pdp3d_plot <- function(
       scene = list(
         xaxis = list(
           title = x_dp3,
-          tickvals = c(
-            (n_cols - 1) * 0.25,
-            (n_cols - 1) * 0.50,
-            (n_cols - 1) * 0.75
-          ),
+          tickvals = generate_tickvals(n_cols, 0.25),
           ticktext = text_x
         ),
         yaxis = list(
           title = x_dp2,
-          tickvals = c(
-            (n_rows - 1) * 0.25,
-            (n_rows - 1) * 0.50,
-            (n_rows - 1) * 0.75
-          ),
+          tickvals = generate_tickvals(n_rows, 0.25),
           ticktext = text_y
         ),
         zaxis = list(title = target)
       )
     )
+
+  plot_3d
+}
+
+# Function to generate the 3D partial dependence plot
+generate_pdp3d_plot <- function(
+  model_res_fit,
+  data_type,
+  points_pd2,
+  x_dp2,
+  x_dp3,
+  target
+) {
+  brt_model <- model_res_fit$model
+  base_data <- model_res_fit$data_in
+
+  train_data <- filter_train_data(data_type, base_data, model_res_fit)
+
+  if (is.null(brt_model)) {
+    return(NULL)
+  }
+
+  # Calculate values for plotting
+  heat_p <- calculate_heat_p(brt_model, train_data, points_pd2, x_dp2, x_dp3)
+
+  # Order the values for plotting in a matrix
+  heat_data <- calculate_heat_data(heat_p)
+  heat_data_3 <- heat_data$heat_data_3
+
+  plot_data <- heat_data_3
+
+  # Draw partial dependence plot 3D
+  plot_3d <- generate_plot_3d(plot_data, heat_p, x_dp3, x_dp2, target)
+
   return(plot_3d)
 }
 
@@ -1178,7 +1086,7 @@ select_prediction_variables <- function(classes, datum, target, groups) {
   target_nu <- match(target, items)
   items <- items[-target_nu]
   groups_list <- create_variables_groups(classes, datum)
-  mat_mo <<- groups_list[[1]]
+  mat_mo <- groups_list[[1]]
   items <- groups_list[[2]]
   return(list(mat_mo, items))
 }
@@ -1293,9 +1201,9 @@ calculate_variables_influence <- function(
 
   influ$mean[, 2] <- influ$mean[, 2] / iter
   text <- NULL
-  inputNam <- colnames(values$dat)
-  inputsNu <- match(inputs, inputNam)
-  excVars <- NULL
+  input_name <- colnames(values$dat)
+  inputs_num <- match(inputs, input_name)
+  exc_vars <- NULL
 
   if ((!is.null(data_type) && data_type == 2)) {
     train_max <- max(values$dat[-positions, target_nu], na.rm = TRUE)
@@ -1304,38 +1212,70 @@ calculate_variables_influence <- function(
     test_min <- min(values$dat[positions, target_nu], na.rm = TRUE)
   } else {
     # Check range of inputs not factor (except "Year")
-    for (i in seq_along(inputsNu)) {
-      if (("factor" != class(values$dat[, inputsNu[i]])) && ("Year" != inputNam[inputsNu[i]])) {
-        train_max <- max(values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, inputsNu[i]], na.rm = TRUE)
-        test_max <- max(values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, inputsNu[i]], na.rm = TRUE)
-        train_min <- min(values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, inputsNu[i]], na.rm = TRUE)
-        test_min <- min(values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, inputsNu[i]], na.rm = TRUE)
+    for (i in seq_along(inputs_num)) {
+      if (
+        ("factor" != class(values$dat[, inputs_num[i]])) && ("Year" != input_name[inputs_num[i]])
+      ) {
+        train_max <- max(
+          values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, inputs_num[i]],
+          na.rm = TRUE
+        )
+        test_max <- max(
+          values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, inputs_num[i]],
+          na.rm = TRUE
+        )
+        train_min <- min(
+          values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, inputs_num[i]],
+          na.rm = TRUE
+        )
+        test_min <- min(
+          values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, inputs_num[i]],
+          na.rm = TRUE
+        )
 
         if ((!is.null(data_type) && data_type == 2)) {
-          train_max <- max(values$dat[-positions, inputsNu[i]], na.rm = TRUE)
-          test_max <- max(values$dat[positions, inputsNu[i]], na.rm = TRUE)
-          train_min <- min(values$dat[-positions, inputsNu[i]], na.rm = TRUE)
-          test_min <- min(values$dat[positions, inputsNu[i]], na.rm = TRUE)
+          train_max <- max(values$dat[-positions, inputs_num[i]], na.rm = TRUE)
+          test_max <- max(values$dat[positions, inputs_num[i]], na.rm = TRUE)
+          train_min <- min(values$dat[-positions, inputs_num[i]], na.rm = TRUE)
+          test_min <- min(values$dat[positions, inputs_num[i]], na.rm = TRUE)
         }
 
         if ((train_max < test_max) || (test_min < train_min)) {
-          excVars <- paste(excVars, inputs[i], sep = " ")
+          exc_vars <- paste(exc_vars, inputs[i], sep = " ")
         }
       }
     }
     target_nu <- match(target, colnames(values$dat))
-    train_max <- max(values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, target_nu], na.rm = TRUE)
-    test_max <- max(values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, target_nu], na.rm = TRUE)
-    train_min <- min(values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, target_nu], na.rm = TRUE)
-    test_min <- min(values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, target_nu], na.rm = TRUE)
+    train_max <- max(
+      values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, target_nu],
+      na.rm = TRUE
+    )
+    test_max <- max(
+      values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, target_nu],
+      na.rm = TRUE
+    )
+    train_min <- min(
+      values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, target_nu],
+      na.rm = TRUE
+    )
+    test_min <- min(
+      values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, target_nu],
+      na.rm = TRUE
+    )
   }
 
   # Check range of target variable
   if ((train_max < test_max) || (test_min < train_min)) {
-    excVars <- paste(excVars, target, sep = " ")
+    exc_vars <- paste(exc_vars, target, sep = " ")
   }
-  text <- paste("Warning: the range for test data of some variables (", excVars, ") exceeds the range for input training data")
-  if (is.null(excVars)) {
+
+  text <- paste(
+    "Warning: the range for test data of some variables (",
+    exc_vars,
+    ") exceeds the range for input training data"
+  )
+
+  if (is.null(exc_vars)) {
     text <- NULL
   }
   return(list(influ$mean, text))
@@ -1346,16 +1286,16 @@ change_char_to_factor <- function(dat) {
   datum <- dat
   for (i in seq_len(ncol(datum))) {
     if (class(datum[, i])[1] == "character") {
-      factorVar <- as.factor(datum[, i])
-      namesVars <- names(datum)
+      factor_var <- as.factor(datum[, i])
+      names_vars <- names(datum)
       if (i == 1) {
-        datum <- cbind(factorVar, datum[, (i + 1):ncol(datum)])
+        datum <- cbind(factor_var, datum[, (i + 1):ncol(datum)])
       } else if (i == ncol(datum)) {
-        datum <- cbind(datum[, 1:(i - 1)], factorVar)
+        datum <- cbind(datum[, 1:(i - 1)], factor_var)
       } else {
-        datum <- cbind(datum[, 1:(i - 1)], factorVar, datum[, (i + 1):ncol(datum)])
+        datum <- cbind(datum[, 1:(i - 1)], factor_var, datum[, (i + 1):ncol(datum)])
       }
-      names(datum) <- namesVars
+      names(datum) <- names_vars
     }
   }
   return(datum)
@@ -1384,7 +1324,7 @@ build_model <- function(
   min_test,
   max_test,
   dat,
-  testPerc2
+  test_perc_2
 ) {
   if ((is.null(data_type) || data_type != 2)) {
     set.seed(iter)
@@ -1430,7 +1370,7 @@ build_model <- function(
   data_out <- data.frame(first, observation, prediction, error)
 
   mae_train <- round(
-    (generics::accuracy(pred_train,obs_train)[3]),
+    (generics::accuracy(pred_train, obs_train)[3]),
     digits = 2
   )
 
@@ -1453,7 +1393,7 @@ build_model <- function(
   var_inf_num <- summary(brt_model, plotit = FALSE)
   var_inf <- var_inf_num[order(var_inf_num[, 1]), ]
   influ$inf[, 1] <- data.frame(var = rownames(var_inf))
-  influ$inf[, iter + 1] <- data.frame(rel.inf = var_inf[, 2])
+  influ$inf[, iter + 1] <- data.frame(relative_influence = var_inf[, 2])
 
   if (input$data_type != 2) {
     data_sort_residual_train <- xts::xts(error_train, order.by = train_data[, 1])
@@ -1491,7 +1431,7 @@ build_model <- function(
     train_y = c(min_train, max_train),
     test_y = c(min_test, max_test),
     data_in = dat,
-    test_perc = testPerc2,
+    test_perc = test_perc_2,
     prediction = prediction,
     influ = influ$inf
   )

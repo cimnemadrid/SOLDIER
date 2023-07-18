@@ -225,7 +225,13 @@ column(
     }
 
     train_start_date <- reactive({
-      if (is.null(input$train_years[1]) || !lubridate::is.Date(input$train_years[1]) || input$train_years[1] < initial_date_train) {
+      if (
+        is.null(
+          input$train_years[1]
+        ) || !lubridate::is.Date(
+          input$train_years[1]
+        ) || input$train_years[1] < initial_date_train
+      ) {
         initial_date_train
       } else {
         input$train_years[1]
@@ -279,7 +285,12 @@ column(
     })
 
     test_end_date <- reactive({
-      if (is.null(input$test_years[2]) || !lubridate::is.Date(input$test_years[2]) || input$test_years[2] > max(dates)) {
+      if (
+        is.null(
+          input$test_years[2]
+        ) || !lubridate::is.Date(
+          input$test_years[2]
+        ) || input$test_years[2] > max(dates)) {
         max(dates)
       } else {
         input$test_years[2]
