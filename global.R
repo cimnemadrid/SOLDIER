@@ -682,66 +682,53 @@ generate_pdp1d_plot <- function(
   return(pd_plot)
 }
 
-# Function to calculate PDP 2D plot
-generate_pdp2d_plot <- function(
-  data_type,
-  model_res_fit,
-  points_pd2,
-  x_dp2,
-  x_dp3,
-  target
-) {
-  brt_model <- model_res_fit$model
-  min_train <- model_res_fit$train_y[1]
-  max_train <- model_res_fit$train_y[2]
-  base_data <- model_res_fit$data_in
-
-  if ((is.null(data_type) || data_type != 2)) {
-    train_data <- base_data[
-      base_data[, 1] >= min_train & base_data[, 1] <= max_train,
-    ]
+# Function to filter train_data based on data_type
+filter_train_data <- function(data_type, base_data, model_res_fit) {
+  if (is.null(data_type) || data_type != 2) {
+    return(
+      base_data[
+        base_data[, 1] >= model_res_fit$train_y[1] & base_data[, 1] <= model_res_fit$train_y[2],
+      ]
+    )
   } else {
-    train_data <- base_data[-model_res_fit$positions, ]
+    return(base_data[-model_res_fit$positions, ])
   }
+}
 
-  # Check if there is any data
-  if (is.null(brt_model)) {
-    return(NULL)
-  }
-
-  # Calculate values for plotting partial dependence plot 2D
-  n_points <- points_pd2 + 1
-  heat_p <- pdp::partial(
-    brt_model,
-    pred.var = c(x_dp2, x_dp3),
-    train = train_data,
-    plot = FALSE,
-    chull = TRUE,
-    n.trees = brt_model$n.trees,
-    grid.resolution = n_points
-  )
-
-  # Order the values for plotting in a matrix
+# Function to calculate heat data matrices
+calculate_heat_data <- function(heat_p) {
   n_rows <- length(unique(heat_p[, 1]))
   n_cols <- length(unique(heat_p[, 2]))
-  heat_data_1 <- matrix(NA, n_rows, n_cols)
-  heat_data_3 <- matrix(NA, n_rows, n_cols)
+
+  heat_data_1 <- create_heat_data_matrix(heat_p, n_rows, n_cols, 1)
+  heat_data_3 <- create_heat_data_matrix(heat_p, n_rows, n_cols, 3)
+
+  adjust_heat_data(heat_data_1, heat_data_3)
+}
+
+# Helper function to create the initial heat data matrix
+create_heat_data_matrix <- function(heat_p, n_rows, n_cols, col_index) {
+  heat_data <- matrix(NA, n_rows, n_cols)
   columns <- match(unique(heat_p[, 2]), heat_p[, 2])
 
-  # Tranform colums 1 and 3 in two matrices
-  for (j in seq_along(columns)) { # Tranform colums 1 and 3 in two matrices
-    if (j == length(columns)) { # Set the length of this column
+  for (j in seq_along(columns)) {
+    if (j == length(columns)) {
       end <- length(heat_p[, 2]) - columns[j] + 1
     } else {
       end <- columns[j + 1] - columns[j]
     }
-    heat_data_1[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 1]
-    heat_data_3[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 3]
+
+    heat_data[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), col_index]
   }
 
-  # Move down columns if they are not in the correct position
+  heat_data
+}
+
+# Helper function to adjust the heat data matrix
+adjust_heat_data <- function(heat_data_1, heat_data_3) {
   for (i in seq_len(nrow(heat_data_3))) {
     min_row <- min(heat_data_1[i, ], na.rm = TRUE)
+
     for (j in seq_len(ncol(heat_data_3))) {
       if (!is.na(heat_data_1[i, j]) && (heat_data_1[i, j] > min_row)) {
         heat_data_1[2:nrow(heat_data_3), j] <- heat_data_1[seq_len(nrow(heat_data_3) - 1), j]
@@ -752,25 +739,29 @@ generate_pdp2d_plot <- function(
     }
   }
 
-  plot_data <- heat_data_3
+  list(heat_data_1 = heat_data_1, heat_data_3 = heat_data_3)
+}
 
-  min_x <- min(heat_p[, 2])
-  max_x <- max(heat_p[, 2])
-  min_y <- min(heat_p[, 1])
-  max_y <- max(heat_p[, 1])
-
-  text_x <- c(
-    toString(round(min_x + 0.25 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.50 * (max_x - min_x), digits = 1)),
-    toString(round(min_x + 0.75 * (max_x - min_x), digits = 1))
+# Function to create tick labels for the plot
+create_tick_labels <- function(min_val, max_val) {
+  c(
+    toString(round(min_val + 0.25 * (max_val - min_val), digits = 1)),
+    toString(round(min_val + 0.50 * (max_val - min_val), digits = 1)),
+    toString(round(min_val + 0.75 * (max_val - min_val), digits = 1))
   )
-  text_y <- c(
-    toString(round(min_y + 0.25 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.50 * (max_y - min_y), digits = 1)),
-    toString(round(min_y + 0.75 * (max_y - min_y), digits = 1))
-  )
+}
 
-  # Draw partial dependence plot 2D
+# Function to generate the PDP 2D plotly plot
+generate_pdp2d_plotly_plot <- function(
+  plot_data,
+  x_dp3,
+  x_dp2,
+  n_cols,
+  n_rows,
+  text_x,
+  text_y,
+  target
+) {
   plot_2d <- plotly::plot_ly(
     z = plot_data,
     showscale = TRUE,
@@ -785,23 +776,64 @@ generate_pdp2d_plot <- function(
       title = NULL,
       xaxis = list(
         title = x_dp3,
-        tickvals = c(
-          (n_cols - 1) * 0.25,
-          (n_cols - 1) * 0.50,
-          (n_cols - 1) * 0.75
-        ),
+        tickvals = c((n_cols - 1) * 0.25, (n_cols - 1) * 0.50, (n_cols - 1) * 0.75),
         ticktext = text_x
       ),
       yaxis = list(
         title = x_dp2,
-        tickvals = c(
-          (n_rows - 1) * 0.25,
-          (n_rows - 1) * 0.50,
-          (n_rows - 1) * 0.75
-        ),
+        tickvals = c((n_rows - 1) * 0.25, (n_rows - 1) * 0.50, (n_rows - 1) * 0.75),
         ticktext = text_y
       )
     )
+
+  return(plot_2d)
+}
+
+# Main function to generate the PDP 2D plot
+generate_pdp2d_plot <- function(data_type, model_res_fit, points_pd2, x_dp2, x_dp3, target) {
+  brt_model <- model_res_fit$model
+  base_data <- model_res_fit$data_in
+
+  train_data <- filter_train_data(data_type, base_data, model_res_fit)
+
+  if (is.null(brt_model)) {
+    return(NULL)
+  }
+
+  n_points <- points_pd2 + 1
+  heat_p <- pdp::partial(
+    brt_model,
+    pred.var = c(x_dp2, x_dp3),
+    train = train_data,
+    plot = FALSE,
+    chull = TRUE,
+    n.trees = brt_model$n.trees,
+    grid.resolution = n_points
+  )
+
+  heat_data <- calculate_heat_data(heat_p)
+  heat_data_3 <- heat_data$heat_data_3
+
+  plot_data <- heat_data_3
+
+  min_x <- min(heat_p[, 2])
+  max_x <- max(heat_p[, 2])
+  min_y <- min(heat_p[, 1])
+  max_y <- max(heat_p[, 1])
+
+  text_x <- create_tick_labels(min_x, max_x)
+  text_y <- create_tick_labels(min_y, max_y)
+
+  plot_2d <- generate_pdp2d_plotly_plot(
+    plot_data,
+    x_dp3,
+    x_dp2,
+    ncol(heat_data_3),
+    nrow(heat_data_3),
+    text_x,
+    text_y,
+    target
+  )
 
   return(plot_2d)
 }
