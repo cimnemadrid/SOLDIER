@@ -132,9 +132,7 @@ dashboardPage(
   skin = "black",
   dashboardHeader(
     title = div(
-      tags$img(src = "CIMNE_LOGO.png", height = "30px"),
-      tags$a("SOLDIER - SOLution for Data Interpretation and safety Evaluation with boosted
-             Regression trees"),
+      tags$a("SOLDIER - SOLution for Dam behavior Interpretation and safety Evaluation with BRT"),
       tags$img(src = "CIMNE.png", height = "30px")
     ),
     titleWidth = 1300
