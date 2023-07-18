@@ -519,7 +519,7 @@ generate_bar_plot_new_model <- function(influmean) {
 }
 
 
-# Function to calculate PDP 1D plot
+# Function to calculate partial dependence 1D plot
 generate_pdp1d_plot <- function(
   model_res_fit,
   data_type,
@@ -714,6 +714,7 @@ calculate_heat_p <- function(brt_model, train_data, points_pd2, x_dp2, x_dp3) {
   heat_p
 }
 
+# Tick labels for partial dependence plots
 create_tick_labels <- function(heat_p_row) {
   min_val <- min(heat_p_row)
   max_val <- max(heat_p_row)
@@ -727,6 +728,7 @@ create_tick_labels <- function(heat_p_row) {
   text
 }
 
+# Create plot data for partial dependence plots
 create_data_pdp_plot <- function(columns, heat_p, heat_data_1, heat_data_3) {
   for (j in seq_along(columns)) {
     end <- if (j == length(columns)) {
@@ -747,6 +749,7 @@ create_data_pdp_plot <- function(columns, heat_p, heat_data_1, heat_data_3) {
   plot_data
 }
 
+# Plotly partial dependence plot in 2D
 generate_pdp2d_plotly_plot <- function(
   plot_data,
   target,
