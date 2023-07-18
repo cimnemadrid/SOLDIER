@@ -1048,7 +1048,7 @@ shiny::shinyServer(function(input, output, session) {
       groups
     )
 
-    mat_mo <<- selected_pred_vars_list[[1]]
+    mat_mo <- selected_pred_vars_list[[1]]
     items <- selected_pred_vars_list[[2]]
     sele <- NULL
 
@@ -1136,7 +1136,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
     sliderInput(
-      "testPerc2",
+      "test_perc_2",
       label = h5("Percentage of testing data:"),
       min = 0,
       max = 50,
@@ -1166,6 +1166,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
   })
+
   output$i_int_depth <- renderUI({
     # Adapt options to the user choices
     if (input$info1) {
@@ -1187,6 +1188,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
   })
+
   output$i_bag_fraction <- renderUI({
     if (input$info1) {
       return(NULL)
@@ -1206,6 +1208,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
   })
+
   output$i_num_trees <- renderUI({
     if (input$info1) {
       return(NULL)
@@ -1225,6 +1228,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
   })
+
   output$iDefault <- renderUI({
     if (is.null(values$dat)) {
       return(NULL)
@@ -1328,9 +1332,9 @@ shiny::shinyServer(function(input, output, session) {
       min_test <- NULL
       max_test <- NULL
       if (input$random_data) {
-        positions <- sample(indices, length(indices) * input$testPerc2 / 100)
+        positions <- sample(indices, length(indices) * input$test_perc_2 / 100)
       } else {
-        positions <- tail(indices, n = length(indices) * input$testPerc2 / 100)
+        positions <- tail(indices, n = length(indices) * input$test_perc_2 / 100)
       }
       train_data <- values$dat[-positions, ]
       test_data <- values$dat[positions, ]
@@ -1538,7 +1542,7 @@ shiny::shinyServer(function(input, output, session) {
           min_test,
           max_test,
           values$dat,
-          input$testPerc2
+          input$test_perc_2
         )
         model_res_fit <- model_list[[1]]
         brt_model <- model_list[[2]]
@@ -1553,7 +1557,7 @@ shiny::shinyServer(function(input, output, session) {
           title = "Warning",
           paste(
             "Variables ",
-            paste(cols_with_all_miss, collapse=", "),
+            paste(cols_with_all_miss, collapse = ", "),
             " have been removed from training as in the selected period they
             are all NA."
           ),
@@ -1755,7 +1759,7 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   # Graph for model fitting (date and non-date data)
-  output$iRefre <- renderUI({
+  output$i_refresh <- renderUI({
     if (
       !is.null(input$data_type) &&
       input$data_type >= 1
@@ -1793,7 +1797,7 @@ shiny::shinyServer(function(input, output, session) {
       n_model <- models$num
       predict <- model_p$pre
 
-      results$residual <- model_res$data_out[,4]
+      results$residual <- model_res$data_out[, 4]
 
       # Calculate train fitting plot
       ini_train <- 1
@@ -1826,7 +1830,7 @@ shiny::shinyServer(function(input, output, session) {
       plotly::layout(xaxis = list(title = list(text = text_train)),
                      yaxis = list(title = list(text = "Prediction")))
 
-      plotly_sca_plot_test <- plotly::ggplotly(sca_plot_test)%>%
+      plotly_sca_plot_test <- plotly::ggplotly(sca_plot_test) %>%
       plotly::layout(xaxis = list(title = list(text = text_test)),
                      yaxis = list(title = list(text = "Prediction")))
 
@@ -1841,40 +1845,19 @@ shiny::shinyServer(function(input, output, session) {
     }
   })
 
-  # Graph for model fitting (no-date-data training)
-  output$iRefre8 <- renderUI({
-    if ((!is.null(input$data_type) && input$data_type == 2)) {
-      actionButton("refresh8", "Show/Refresh results", icon = icon("signal"))
+
+  # Graph for model fitting (date and non-date data)
+  output$i_refresh <- renderUI({
+    if (
+      !is.null(input$data_type) &&
+      input$data_type >= 1
+    ) {
+      actionButton(
+        "refresh_pred_data",
+        "Show/Refresh results",
+        icon = icon("signal")
+      )
     }
-  })
-
-  refPlot7 <- eventReactive(input$refresh8, {
-    refresh <- TRUE
-  })
-
-  output$fitPlot1 <- renderPlot({
-    if ((is.null(input$data_type) || input$data_type != 2)) {
-      return(NULL)
-    }
-
-    refresh <- refPlot7()
-
-    model_res <- model_res_fit()
-    n_model <- models$num
-    predict <- model_p$pre
-
-    ini <- 1
-    end <- nrow(model_res$data_out) - length(model_res$positions)
-    text <- "Training observation"
-
-    # Calculate fitting plot
-    sca_plot <- generate_fitting_plot_ggplot2(model_res$data_out, n_model, predict, ini, end, text)
-
-    return(sca_plot)
-  })
-
-  refPlot8 <- eventReactive(input$refresh8, {
-    refresh <- TRUE
   })
 
   # Out-of-bag plot for regression
@@ -1911,7 +1894,7 @@ shiny::shinyServer(function(input, output, session) {
     mean_influence_ordered <- influ$mean[order(influ$mean[, 2]), ]
     var_inf <- data.frame(
       var = mean_influence_ordered[, 1],
-      rel.inf = mean_influence_ordered[, 2]
+      relative_influence = mean_influence_ordered[, 2]
     )
 
     influ$less <- var_inf[var_inf[, 2] < (var_inf[nrow(var_inf), 2] / 30), 1]
