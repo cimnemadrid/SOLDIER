@@ -1117,11 +1117,11 @@ select_prediction_variables <- function(classes, datum, target, groups) {
   }
 
   # Don't allow to choose target as input
-  target_num <- match(target, items)
-  items <- items[-target_num]
   groups_list <- create_variables_groups(classes, datum)
   mat_mo <- groups_list[[1]]
   items <- groups_list[[2]]
+  target_num <- match(target, items)
+  items <- items[-target_num]
   return(list(mat_mo, items))
 }
 
