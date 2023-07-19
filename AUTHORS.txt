@@ -2,7 +2,5 @@ Authors
 -------
 
 Fernando Salazar González
-Director CIMNE-Madrid
-
+Joaquín Irazábal González
 André Conde Vázquez
-Investigador CIMNE-Madrid
