@@ -1,12 +1,9 @@
 {
   "input": {
-    "data_origin": "1",
     "data_type": "1",
     "fileImg": null,
     "fileImg2": null,
     "fileImg3": null,
-    "fileImg4": null,
-    "fileSaved": null,
     "file_new_data": {
       "name": [
         "DummyData.xlsx"
@@ -30,7 +27,7 @@
   },
   "output": {
     "frontImage": {
-      "src": "[image data hash: af2cb75166dafa84ee374a98e0a0ba97]",
+      "src": "[image data hash: 9a4cf764444d4fd799110d609f6755ce]",
       "alt": "frontImage",
       "width": 850,
       "height": 520
@@ -51,19 +48,9 @@
 
       ]
     },
-    "i_draw_dyn_scat": null,
     "i_draw_scat": null,
     "i_draw_scat4d": null,
-    "i_hover": null,
-    "i_load": {
-      "html": "<div id=\"data_origin\" class=\"form-group shiny-input-radiogroup shiny-input-container\" role=\"radiogroup\" aria-labelledby=\"data_origin-label\">\n  <label class=\"control-label shiny-label-null\" for=\"data_origin\" id=\"data_origin-label\"><\/label>\n  <div class=\"shiny-options-group\">\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"data_origin\" value=\"1\"/>\n        <span>Load data for a new model<\/span>\n      <\/label>\n    <\/div>\n    <div class=\"radio\">\n      <label>\n        <input type=\"radio\" name=\"data_origin\" value=\"2\"/>\n        <span>Load a previously fitted model and new data file<\/span>\n      <\/label>\n    <\/div>\n  <\/div>\n<\/div>",
-      "deps": [
-
-      ]
-    },
     "i_only_train_hull": null,
-    "i_period": null,
-    "i_sizes": null,
     "i_variables_left": {
       "html": "Please load some data file and select plot",
       "deps": [
@@ -98,12 +85,6 @@
 
       ]
     },
-    "x_var_dyn_scat": {
-      "html": "Please load some data file and select plot",
-      "deps": [
-
-      ]
-    },
     "x_var_scat": {
       "html": "Please load some data file and select plot",
       "deps": [
@@ -116,7 +97,6 @@
 
       ]
     },
-    "y_var_dyn_scat": null,
     "y_var_scat": null,
     "y_var_scat4d": null,
     "z_var_scat4d": null
