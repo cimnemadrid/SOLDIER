@@ -1300,8 +1300,8 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
     # Don't allow to choose target as input
-    target_nu <- match(input$target, names(datum))
-    datum <- datum[-target_nu]
+    target_num <- match(input$target, names(datum))
+    datum <- datum[-target_num]
 
     # Match groups of variables
     inputs <- unique(select_variables(datum, input$inputs))
@@ -1451,7 +1451,7 @@ shiny::shinyServer(function(input, output, session) {
 
       return(NULL)
     }
-    target_nu <- match(input$target, colnames(values$dat))
+    target_num <- match(input$target, colnames(values$dat))
 
     # Asign values to variables needed
     print("Asigning values to variables")
@@ -1463,9 +1463,9 @@ shiny::shinyServer(function(input, output, session) {
       }
     }
 
-    datum <- datum[!is.na(datum[, target_nu]), ]
-    train_data <- train_data[!is.na(train_data[, target_nu]), ]
-    test_data <- test_data[!is.na(test_data[, target_nu]), ]
+    datum <- datum[!is.na(datum[, target_num]), ]
+    train_data <- train_data[!is.na(train_data[, target_num]), ]
+    test_data <- test_data[!is.na(test_data[, target_num]), ]
 
     # Remove columns without values
     all_miss_cols <- sapply(train_data, function(x) all(is.na(x)))
@@ -1569,13 +1569,16 @@ shiny::shinyServer(function(input, output, session) {
 
     # End models calculations
     print("Calculating mean influences")
-    end_list <- calculate_variables_influence(
+    influ$mean <- calculate_variables_influence(
       influ,
-      iter,
+      iter
+    )
+
+    text <- check_test_train_range(
       input$data_type,
       values,
       positions,
-      target_nu,
+      target_num,
       input$target,
       inputs,
       min_train,
@@ -1584,8 +1587,6 @@ shiny::shinyServer(function(input, output, session) {
       max_test
     )
 
-    influ$mean <- end_list[[1]]
-    text <- end_list[[2]]
     title <- "Computation ended"
     if ((!is.null(input$data_type) && input$data_type == 2)) {
       rows <- c(seq_len(nrow(values$dat)))[-positions]
@@ -1594,8 +1595,8 @@ shiny::shinyServer(function(input, output, session) {
     }
 
     # Check if there are NA in traget variable
-    if (any(is.na(values$dat[rows, target_nu]))) {
-      perc <- 100 * sum(is.na(values$dat[rows, target_nu])) / (length(rows))
+    if (any(is.na(values$dat[rows, target_num]))) {
+      perc <- 100 * sum(is.na(values$dat[rows, target_num])) / (length(rows))
       title <- paste(
         "Warning",
         "There are",

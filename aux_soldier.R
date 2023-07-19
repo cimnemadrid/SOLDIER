@@ -216,11 +216,11 @@ column(
     end_date_train <- max(dates, na.rm = TRUE) - base_test
     label_years <- h5("Training and testing period")
     initial_date_train <- min(dates)
-    target_nu <- match(input$target, colnames(values$dat))
+    target_num <- match(input$target, colnames(values$dat))
 
     # Search the first no NA in the target variable
-    if ((!is.na(target_nu)) && any(is.na(values$dat[, target_nu]))) {
-      pos <- match(NA, match(values$dat[, target_nu], NA))
+    if ((!is.na(target_num)) && any(is.na(values$dat[, target_num]))) {
+      pos <- match(NA, match(values$dat[, target_num], NA))
       initial_date_train <- dates[pos]
     }
 

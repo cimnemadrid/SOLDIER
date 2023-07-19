@@ -1117,8 +1117,8 @@ select_prediction_variables <- function(classes, datum, target, groups) {
   }
 
   # Don't allow to choose target as input
-  target_nu <- match(target, items)
-  items <- items[-target_nu]
+  target_num <- match(target, items)
+  items <- items[-target_num]
   groups_list <- create_variables_groups(classes, datum)
   mat_mo <- groups_list[[1]]
   items <- groups_list[[2]]
@@ -1213,17 +1213,7 @@ select_variables <- function(datum, selected_vars) {
 # Function to calculate the influence of the variables
 calculate_variables_influence <- function(
   influ,
-  iter,
-  data_type,
-  values,
-  positions,
-  target_nu,
-  target,
-  inputs,
-  min_train,
-  max_train,
-  min_test,
-  max_test
+  iter
 ) {
   influ$mean[, 1] <- influ$inf[, 1]
   influ$mean[, 2] <- 0
@@ -1234,73 +1224,159 @@ calculate_variables_influence <- function(
   }
 
   influ$mean[, 2] <- influ$mean[, 2] / iter
+
+  return(influ$mean)
+}
+
+# Create a function to calculate min and max values based on given conditions
+calculate_min_max <- function(data, input_index, min_train, max_train, min_test, max_test) {
+  train_max <- max(data[data[, 1] >= min_train & data[, 1] <= max_train, input_index], na.rm = TRUE)
+  test_max <- max(data[data[, 1] >= min_test & data[, 1] <= max_test, input_index], na.rm = TRUE)
+  train_min <- min(data[data[, 1] >= min_train & data[, 1] <= max_train, input_index], na.rm = TRUE)
+  test_min <- min(data[data[, 1] >= min_test & data[, 1] <= max_test, input_index], na.rm = TRUE)
+
+  return(
+    list(train_max = train_max, test_max = test_max, train_min = train_min, test_min = test_min)
+  )
+}
+
+# Check the ranges of time-independent data
+check_ranges_time_indep_data <- function(
+  inputs_num,
+  values,
+  positions,
+  exc_vars,
+  inputs,
+  target,
+  min_train,
+  max_train,
+  min_test,
+  max_test
+) {
+  aux_vars <- exc_vars
+
+  # Check range of inputs not factor
+  for (i in seq_along(inputs_num)) {
+    if ("factor" != class(values$dat[, inputs_num[i]])) {
+      train_max <- max(values$dat[-positions, inputs_num[i]], na.rm = TRUE)
+      test_max <- max(values$dat[positions, inputs_num[i]], na.rm = TRUE)
+      train_min <- min(values$dat[-positions, inputs_num[i]], na.rm = TRUE)
+      test_min <- min(values$dat[positions, inputs_num[i]], na.rm = TRUE)
+
+      if ((train_max < test_max) || (test_min < train_min)) {
+        aux_vars <- paste(aux_vars, inputs[i], sep = " ")
+      }
+    }
+  }
+
+  # Check range of target value
+  target_num <- match(target, colnames(values$dat))
+
+  # Calculate min and max values
+  train_max <- max(values$dat[-positions, target_num], na.rm = TRUE)
+  test_max <- max(values$dat[positions, target_num], na.rm = TRUE)
+  train_min <- min(values$dat[-positions, target_num], na.rm = TRUE)
+  test_min <- min(values$dat[positions, target_num], na.rm = TRUE)
+
+  # Check range of target variable
+  if ((train_max < test_max) || (test_min < train_min)) {
+    aux_vars <- paste(aux_vars, target, sep = " ")
+  }
+
+  return(aux_vars)
+}
+# Helper function to check if a variable's range is exceeded
+check_range_exceeded <- function(data, input_num, min_train, max_train, min_test, max_test) {
+  min_max_values <- calculate_min_max(data, input_num, min_train, max_train, min_test, max_test)
+  train_max <- min_max_values$train_max
+  test_max <- min_max_values$test_max
+  train_min <- min_max_values$train_min
+  test_min <- min_max_values$test_min
+
+  return(train_max < test_max || test_min < train_min)
+}
+
+# Check ranges for time-dependent data
+check_ranges_time_dep_data <- function(
+  inputs_num,
+  input_name,
+  values,
+  exc_vars,
+  inputs,
+  target,
+  min_train,
+  max_train,
+  min_test,
+  max_test
+) {
+  aux_vars <- exc_vars
+
+  # Check range of inputs not factor (except "Year")
+  for (i in seq_along(inputs_num)) {
+    if ("factor" != class(values$dat[, inputs_num[i]]) && "Year" != input_name[inputs_num[i]]) {
+      if (
+        check_range_exceeded(values$dat, inputs_num[i], min_train, max_train, min_test, max_test)
+      ) {
+        aux_vars <- paste(aux_vars, inputs[i], sep = " ")
+      }
+    }
+  }
+
+  # Check range of target value
+  target_num <- match(target, colnames(values$dat))
+  if (check_range_exceeded(values$dat, target_num, min_train, max_train, min_test, max_test)) {
+    aux_vars <- paste(aux_vars, target, sep = " ")
+  }
+
+  return(aux_vars)
+}
+
+# Check the ranges of test and train data
+check_test_train_range <- function(
+  data_type,
+  values,
+  positions,
+  target_num,
+  target,
+  inputs,
+  min_train,
+  max_train,
+  min_test,
+  max_test
+) {
   text <- NULL
   input_name <- colnames(values$dat)
   inputs_num <- match(inputs, input_name)
   exc_vars <- NULL
 
   if ((!is.null(data_type) && data_type == 2)) {
-    train_max <- max(values$dat[-positions, target_nu], na.rm = TRUE)
-    test_max <- max(values$dat[positions, target_nu], na.rm = TRUE)
-    train_min <- min(values$dat[-positions, target_nu], na.rm = TRUE)
-    test_min <- min(values$dat[positions, target_nu], na.rm = TRUE)
+    aux_vars <- check_ranges_time_indep_data(
+      inputs_num,
+      values,
+      positions,
+      exc_vars,
+      inputs,
+      target,
+      min_train,
+      max_train,
+      min_test,
+      max_test
+    )
+    exc_vars <- aux_vars
   } else {
-    # Check range of inputs not factor (except "Year")
-    for (i in seq_along(inputs_num)) {
-      if (
-        ("factor" != class(values$dat[, inputs_num[i]])) && ("Year" != input_name[inputs_num[i]])
-      ) {
-        train_max <- max(
-          values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, inputs_num[i]],
-          na.rm = TRUE
-        )
-        test_max <- max(
-          values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, inputs_num[i]],
-          na.rm = TRUE
-        )
-        train_min <- min(
-          values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, inputs_num[i]],
-          na.rm = TRUE
-        )
-        test_min <- min(
-          values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, inputs_num[i]],
-          na.rm = TRUE
-        )
-
-        if ((!is.null(data_type) && data_type == 2)) {
-          train_max <- max(values$dat[-positions, inputs_num[i]], na.rm = TRUE)
-          test_max <- max(values$dat[positions, inputs_num[i]], na.rm = TRUE)
-          train_min <- min(values$dat[-positions, inputs_num[i]], na.rm = TRUE)
-          test_min <- min(values$dat[positions, inputs_num[i]], na.rm = TRUE)
-        }
-
-        if ((train_max < test_max) || (test_min < train_min)) {
-          exc_vars <- paste(exc_vars, inputs[i], sep = " ")
-        }
-      }
-    }
-    target_nu <- match(target, colnames(values$dat))
-    train_max <- max(
-      values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, target_nu],
-      na.rm = TRUE
+    aux_vars <- check_ranges_time_dep_data(
+      inputs_num,
+      input_name,
+      values,
+      exc_vars,
+      inputs,
+      target,
+      min_train,
+      max_train,
+      min_test,
+      max_test
     )
-    test_max <- max(
-      values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, target_nu],
-      na.rm = TRUE
-    )
-    train_min <- min(
-      values$dat[values$dat[, 1] >= min_train & values$dat[, 1] <= max_train, target_nu],
-      na.rm = TRUE
-    )
-    test_min <- min(
-      values$dat[values$dat[, 1] >= min_test & values$dat[, 1] <= max_test, target_nu],
-      na.rm = TRUE
-    )
-  }
-
-  # Check range of target variable
-  if ((train_max < test_max) || (test_min < train_min)) {
-    exc_vars <- paste(exc_vars, target, sep = " ")
+    exc_vars <- aux_vars
   }
 
   text <- paste(
@@ -1312,7 +1388,7 @@ calculate_variables_influence <- function(
   if (is.null(exc_vars)) {
     text <- NULL
   }
-  return(list(influ$mean, text))
+  return(text)
 }
 
 # Function to change character variables to factor variables
