@@ -1054,10 +1054,6 @@ shiny::shinyServer(function(input, output, session) {
     items <- selected_pred_vars_list[[2]]
     sele <- NULL
 
-    if (!is.null(input$inputs)) {
-      sele <- input$inputs
-    }
-
     pickerInput(
       inputId = "inputs",
       label = "Predictor variables",
