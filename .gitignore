@@ -50,3 +50,6 @@ rsconnect/
 
 # {shinytest2}: Ignore new debug snapshots for `$expect_values()`
 *_.new.png
+
+# lintr configuration files
+.lintr
