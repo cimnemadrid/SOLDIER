@@ -178,7 +178,7 @@ shiny::shinyServer(function(input, output, session) {
       showModal(
         modalDialog(
           title = "Warning",
-          "Must be a .CSV, .RDS, XLSX or .XLS file",
+          "Must be a .CSV, .RDS, .XLSX or .XLS file",
           size = c("s"),
           easyClose = TRUE
         )
@@ -186,11 +186,13 @@ shiny::shinyServer(function(input, output, session) {
     }
 
     if (input$data_type == 1) {
-      # Create "Month" and "Year" columns (if "Month" doesn't exist)
-      n_initial_columns <- ncol(values$dat)
-      datum <- values$dat
-      datum <- generate_month_year(datum, n_initial_columns)
-      values$dat <- datum
+      if ((class(values$dat[, 1])[1] == "Date") || (class(values$dat[, 1])[1] == "POSIXct")) {
+        # Create "Month" and "Year" columns (if "Month" doesn't exist)
+        n_initial_columns <- ncol(values$dat)
+        datum <- values$dat
+        datum <- generate_month_year(datum, n_initial_columns)
+        values$dat <- datum
+      }
     }
 
     # Change character variables to factor variables
