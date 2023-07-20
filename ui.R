@@ -120,7 +120,7 @@ if (!require("openxlsx")) {
 }
 
 # Testing
-if (!require("openxlsx")) {
+if (!require("shinytest2")) {
   install.packages("shinytest2")
 }
 
