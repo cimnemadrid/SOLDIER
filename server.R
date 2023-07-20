@@ -363,6 +363,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
   })
+
   output$i_variables_right <- renderUI({
     # "values": dataframe with new data
     datum <- values$dat
