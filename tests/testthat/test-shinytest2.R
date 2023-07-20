@@ -5,6 +5,7 @@ test_that("{shinytest2} recording: test_read_time_series_file", {
   app <- AppDriver$new(name = "test_read_time_series_file", height = 943, width = 1577)
   app$set_inputs(data_type = "1")
   app$upload_file(file_new_data = "DummyData.xlsx")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -13,6 +14,7 @@ test_that("{shinytest2} recording: test_read_other_data_file", {
   app <- AppDriver$new(name = "test_read_other_data_file", height = 943, width = 1577)
   app$set_inputs(data_type = "2")
   app$upload_file(file_new_data = "mympg.rds")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -26,6 +28,7 @@ test_that("{shinytest2} recording: test_scatter_plot_time_series", {
   Sys.sleep(0.5)
   app$click("refresh6")
   app$set_inputs(back_colour_scatter_plot = TRUE)
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -39,6 +42,7 @@ test_that("{shinytest2} recording: test_scatter_plot_4d_time_series", {
   app$set_inputs(color4d = "Rainfall")
   Sys.sleep(0.5)
   app$click("refresh3")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -48,16 +52,17 @@ test_that("{shinytest2} recording: test_time_series_plot", {
   app$set_inputs(data_type = "1")
   app$upload_file(file_new_data = "DummyData.xlsx")
   app$set_inputs(plotType = "1")
+  app$set_inputs(vars_left_open = TRUE, allow_no_input_binding_ = TRUE)
   app$set_inputs(vars_left = "Disp01")
   app$set_inputs(vars_left = c("Disp01", "Disp02"))
+  app$set_inputs(vars_left_open = FALSE, allow_no_input_binding_ = TRUE)
+  app$set_inputs(vars_right_open = TRUE, allow_no_input_binding_ = TRUE)
   app$set_inputs(vars_right = "Temp007")
   app$set_inputs(vars_right = c("Temp007", "Temp014"))
+  app$set_inputs(vars_right_open = FALSE, allow_no_input_binding_ = TRUE)
   Sys.sleep(0.5)
   app$click("refresh5")
   app$set_inputs(colours2 = TRUE)
-  Sys.sleep(0.5)
-  app$click("refresh5")
-  app$set_inputs(colours2 = FALSE)
   Sys.sleep(0.5)
   app$click("refresh5")
   app$expect_values()
@@ -74,6 +79,7 @@ test_that("{shinytest2} recording: test_scatter_plot_other_data", {
   Sys.sleep(0.5)
   app$click("refresh6")
   app$set_inputs(back_colour_scatter_plot = TRUE)
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -88,6 +94,7 @@ test_that("{shinytest2} recording: test_scatter_plot_4d_other_data", {
   app$set_inputs(color4d = "X4")
   Sys.sleep(0.5)
   app$click("refresh3")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -103,6 +110,7 @@ test_that("{shinytest2} recording: test_predict_time_series", {
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -116,6 +124,7 @@ test_that("{shinytest2} recording: test_predict_other_data", {
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -131,6 +140,7 @@ test_that("{shinytest2} recording: test_pdps_time_series", {
   app$click("build")
   app$set_inputs(x_dp2 = "Lev")
   app$set_inputs(x_dp3 = "Year")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -146,6 +156,7 @@ test_that("{shinytest2} recording: test_pdps_other_data", {
   app$click("refresh_pred_data")
   app$set_inputs(x_dp2 = "X2")
   app$set_inputs(x_dp3 = "X3")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -166,6 +177,7 @@ test_that("{shinytest2} recording: test_convex_hull", {
   app$set_inputs(only_train_hull = TRUE)
   Sys.sleep(0.5)
   app$click("refresh6")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -197,6 +209,7 @@ test_that("{shinytest2} recording: test_train_test_range_time_series", {
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
+  Sys.sleep(0.5)
   app$expect_values()
 })
 
@@ -220,5 +233,6 @@ test_that("{shinytest2} recording: test_train_test_range_other_data", {
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
+  Sys.sleep(0.5)
   app$expect_values()
 })
