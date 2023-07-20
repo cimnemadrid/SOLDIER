@@ -43,6 +43,11 @@ shiny::shinyServer(function(input, output, session) {
     test_residual = NULL
   )
 
+  mae_train <- NULL
+  r2_train <- NULL
+  mae_test <- NULL
+  r2_test <- NULL
+
   models <- reactiveValues(num = NULL)
 
   old_names <- NULL
@@ -1283,15 +1288,11 @@ shiny::shinyServer(function(input, output, session) {
     HTML("<b>Number of models</b>")
   })
 
-  output$iBuild <- renderUI({
-    models$num <- 1
-
-    actionButton("build", label = "Calculate", icon = icon("cog"))
-  })
-
   # Build model
   model_res_fit <- eventReactive(input$build, {
     datum <- values$dat
+
+    models$num <- 1
 
     # Check if there is any data
     if (is.null(datum)) {
@@ -1757,20 +1758,6 @@ shiny::shinyServer(function(input, output, session) {
                <b>R2</b>: Coefficient of Determination")
   })
 
-  # Graph for model fitting (date and non-date data)
-  output$i_refresh <- renderUI({
-    if (
-      !is.null(input$data_type) &&
-      input$data_type >= 1
-    ) {
-      actionButton(
-        "refresh_pred_data",
-        "Show/Refresh results",
-        icon = icon("signal")
-      )
-    }
-  })
-
   # Graph for observation/prediction/residual of model fitting (date data)
   ref_date_data <- eventReactive(input$refresh_pred_data, {
     refresh <- TRUE
@@ -1841,21 +1828,6 @@ shiny::shinyServer(function(input, output, session) {
       )
 
       return(plotly_sca_plot)
-    }
-  })
-
-
-  # Graph for model fitting (date and non-date data)
-  output$i_refresh <- renderUI({
-    if (
-      !is.null(input$data_type) &&
-      input$data_type >= 1
-    ) {
-      actionButton(
-        "refresh_pred_data",
-        "Show/Refresh results",
-        icon = icon("signal")
-      )
     }
   })
 

@@ -433,32 +433,34 @@ dashboardPage(
         column(
           width = 9,
           fluidRow(
-
             # Box for calculating new models or prediction
-            box(
-              title = "Calculation",
-              width = 3,
-              height = 215,
-              status = "primary",
-              solidHeader = TRUE,
-              div(
-                style = "display:inline-block;
-                         vertical-align:top;
-                         width: 55px;",
-                uiOutput("iBuild")
-              ),
-              htmlOutput(outputId = NULL, container = tags$h5),
-              div(
-                style = "display:inline-block;
-                         vertical-align:top;
-                         width: 55px;",
-                uiOutput("iDownload1")
-              ),
-              valueBoxOutput(outputId = "i_prediction_box", width = 12),
-              div(
-                style = "display:inline-block;
-                         vertical-align:top;
-                         width: 73px;"
+            conditionalPanel(
+              condition = "input.data_type == 1 || input.data_type == 2",
+              box(
+                title = "Calculation",
+                width = 3,
+                height = 215,
+                status = "primary",
+                solidHeader = TRUE,
+                div(
+                  style = "display:inline-block;
+                          vertical-align:top;
+                          width: 55px;",
+                  actionButton("build", label = "Calculate", icon = icon("cog"))
+                ),
+                htmlOutput(outputId = NULL, container = tags$h5),
+                div(
+                  style = "display:inline-block;
+                          vertical-align:top;
+                          width: 55px;",
+                  uiOutput("iDownload1")
+                ),
+                valueBoxOutput(outputId = "i_prediction_box", width = 12),
+                div(
+                  style = "display:inline-block;
+                          vertical-align:top;
+                          width: 73px;"
+                )
               )
             ),
 
@@ -481,20 +483,29 @@ dashboardPage(
             )
           ),
           fluidRow(
-
             # Bottom row for plotting model fit for date-data
-            tabBox(
-              title = NULL,
-              width = 12,
-              tabPanel(
-                "Model fitting",
-                uiOutput("i_refresh"),
-                plotly::plotlyOutput(outputId = "pred_graph", height = "540px")
-              ),
-              tabPanel(
-                "Out-of-bag estimation of the optimal number of boosting
-                 iterations",
-                plotOutput(outputId = "oobPlot", height = "568px")
+            conditionalPanel(
+              condition = "input.data_type == 1 || input.data_type == 2",
+              box(
+                width = 12,
+                tabBox(
+                  title = NULL,
+                  width = 12,
+                  tabPanel(
+                    "Model fitting",
+                    actionButton(
+                      "refresh_pred_data",
+                      "Show/Refresh results",
+                      icon = icon("signal")
+                    ),
+                    plotly::plotlyOutput(outputId = "pred_graph", height = "540px")
+                  ),
+                  tabPanel(
+                    "Out-of-bag estimation of the optimal number of boosting
+                    iterations",
+                    plotOutput(outputId = "oobPlot", height = "568px")
+                  )
+                )
               )
             )
           )

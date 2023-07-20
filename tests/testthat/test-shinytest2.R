@@ -1,11 +1,224 @@
 library(shinytest2)
 
-test_that("{shinytest2} recording: load_file", {
-  app <- AppDriver$new(name = "load_file", height = 943, width = 1577)
-  app$set_inputs(sidebarCollapsed = FALSE)
+
+test_that("{shinytest2} recording: test_read_time_series_file", {
+  app <- AppDriver$new(name = "test_read_time_series_file", height = 943, width = 1577)
   app$set_inputs(data_type = "1")
-  rlang::warn(paste0("`file_new_data` should be the path to the file, relative to the app's tests/testthat directory.\n", 
-      "Remove this warning when the file is in the correct location."))
   app$upload_file(file_new_data = "DummyData.xlsx")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_read_other_data_file", {
+  app <- AppDriver$new(name = "test_read_other_data_file", height = 943, width = 1577)
+  app$set_inputs(data_type = "2")
+  app$upload_file(file_new_data = "mympg.rds")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_scatter_plot_time_series", {
+  app <- AppDriver$new(name = "test_scatter_plot_time_series", height = 943, width = 1577)
+  app$set_inputs(data_type = "1")
+  app$upload_file(file_new_data = "DummyData.xlsx")
+  app$set_inputs(plotType = "2")
+  app$set_inputs(color = "Temp007")
+  Sys.sleep(0.5)
+  app$click("refresh6")
+  app$set_inputs(back_colour_scatter_plot = TRUE)
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_scatter_plot_4d_time_series", {
+  app <- AppDriver$new(name = "test_scatter_plot_4d_time_series", height = 943, width = 1577)
+  app$set_inputs(data_type = "1")
+  app$upload_file(file_new_data = "DummyData.xlsx")
+  app$set_inputs(plotType = "3")
+  app$set_inputs(z_scat4d = "Temp007")
+  app$set_inputs(color4d = "Rainfall")
+  Sys.sleep(0.5)
+  app$click("refresh3")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_time_series_plot", {
+  app <- AppDriver$new(name = "test_time_series_plot", height = 943, width = 1577)
+  app$set_inputs(data_type = "1")
+  app$upload_file(file_new_data = "DummyData.xlsx")
+  app$set_inputs(plotType = "1")
+  app$set_inputs(vars_left = "Disp01")
+  app$set_inputs(vars_left = c("Disp01", "Disp02"))
+  app$set_inputs(vars_right = "Temp007")
+  app$set_inputs(vars_right = c("Temp007", "Temp014"))
+  Sys.sleep(0.5)
+  app$click("refresh5")
+  app$set_inputs(colours2 = TRUE)
+  Sys.sleep(0.5)
+  app$click("refresh5")
+  app$set_inputs(colours2 = FALSE)
+  Sys.sleep(0.5)
+  app$click("refresh5")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_scatter_plot_other_data", {
+  app <- AppDriver$new(name = "test_scatter_plot_other_data", height = 943, width = 1577)
+  app$set_inputs(data_type = "2")
+  app$upload_file(file_new_data = "mympg.rds")
+  app$set_inputs(plotType = "2")
+  app$set_inputs(y_scat = "X2")
+  app$set_inputs(color = "X3")
+  Sys.sleep(0.5)
+  app$click("refresh6")
+  app$set_inputs(back_colour_scatter_plot = TRUE)
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_scatter_plot_4d_other_data", {
+  app <- AppDriver$new(name = "test_scatter_plot_4d_other_data", height = 943, width = 1577)
+  app$set_inputs(data_type = "2")
+  app$upload_file(file_new_data = "mympg.rds")
+  app$set_inputs(plotType = "3")
+  app$set_inputs(y_scat4d = "X2")
+  app$set_inputs(z_scat4d = "X3")
+  app$set_inputs(color4d = "X4")
+  Sys.sleep(0.5)
+  app$click("refresh3")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_predict_time_series", {
+  app <- AppDriver$new(name = "test_predict_time_series", height = 943, width = 1577)
+  app$set_inputs(data_type = "1")
+  app$upload_file(file_new_data = "DummyData.xlsx")
+  app$set_inputs(inputs = "Tem group")
+  app$set_inputs(inputs = c("Tem group", "Lev"))
+  app$set_inputs(inputs = c("Tem group", "Lev", "Year"))
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_predict_other_data", {
+  app <- AppDriver$new(name = "test_predict_other_data", height = 943, width = 1577)
+  app$set_inputs(data_type = "2")
+  app$upload_file(file_new_data = "mympg.rds")
+  app$set_inputs(inputs = c("X2", "X3", "X4", "X5", "X6", "X7", "X8"))
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_pdps_time_series", {
+  app <- AppDriver$new(name = "test_pdps_time_series", height = 943, width = 1577)
+  app$set_inputs(data_type = "1")
+  app$upload_file(file_new_data = "DummyData.xlsx")
+  app$set_inputs(inputs = "Tem group")
+  app$set_inputs(inputs = c("Tem group", "Lev"))
+  app$set_inputs(inputs = c("Tem group", "Lev", "Year"))
+  Sys.sleep(0.5)
+  app$click("build")
+  app$set_inputs(x_dp2 = "Lev")
+  app$set_inputs(x_dp3 = "Year")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_pdps_other_data", {
+  app <- AppDriver$new(name = "test_pdps_other_data", height = 943, width = 1577)
+  app$set_inputs(data_type = "2")
+  app$upload_file(file_new_data = "mympg.rds")
+  app$set_inputs(inputs = c("X2", "X3", "X4", "X5", "X6", "X7", "X8"))
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  app$set_inputs(x_dp2 = "X2")
+  app$set_inputs(x_dp3 = "X3")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_convex_hull", {
+  app <- AppDriver$new(name = "test_convex_hull", height = 943, width = 1577)
+  app$set_inputs(data_type = "1")
+  app$upload_file(file_new_data = "DummyData.xlsx")
+  app$set_inputs(inputs = "Tem group")
+  app$set_inputs(inputs = c("Tem group", "Lev"))
+  app$set_inputs(inputs = c("Tem group", "Lev", "Year"))
+  Sys.sleep(0.5)
+  app$click("build")
+  app$set_inputs(plotType = "2")
+  app$set_inputs(color = "Temp007")
+  Sys.sleep(0.5)
+  app$click("refresh6")
+  app$set_inputs(only_train_hull = TRUE)
+  Sys.sleep(0.5)
+  app$click("refresh6")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_train_test_range_time_series", {
+  app <- AppDriver$new(name = "test_train_test_range_time_series", height = 943, 
+      width = 1577)
+  app$set_inputs(data_type = "1")
+  app$upload_file(file_new_data = "DummyData.xlsx")
+  app$set_inputs(inputs = "Tem group")
+  app$set_inputs(inputs = c("Tem group", "Lev"))
+  app$set_inputs(inputs = c("Tem group", "Lev", "Year"))
+  app$set_inputs(train_years = c("2000-01-02", "2011-10-15"))
+  app$set_inputs(test_years = c("2011-10-16", "2015-12-27"))
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  app$set_inputs(train_test = "2")
+  app$set_inputs(test_perc = c(50, 100))
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  app$set_inputs(test_perc = c(19, 100))
+  app$set_inputs(test_perc = c(21, 100))
+  app$set_inputs(test_perc = c(20, 100))
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  app$expect_values()
+})
+
+
+test_that("{shinytest2} recording: test_train_test_range_other_data", {
+  app <- AppDriver$new(name = "test_train_test_range_other_data", height = 943, width = 1577)
+  app$set_inputs(data_type = "2")
+  app$upload_file(file_new_data = "mympg.rds")
+  app$set_inputs(inputs = c("X2", "X3", "X4", "X5", "X6", "X7", "X8"))
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  app$set_inputs(test_perc_2 = 45)
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  app$set_inputs(random_data = FALSE)
+  Sys.sleep(0.5)
+  app$click("build")
+  Sys.sleep(0.5)
+  app$click("refresh_pred_data")
   app$expect_values()
 })
