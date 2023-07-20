@@ -123,6 +123,9 @@ if (!require("openxlsx")) {
 if (!require("shinytest2")) {
   install.packages("shinytest2")
 }
+if (!require("testthat")) {
+  install.packages("testthat")
+}
 
 set.seed(1)
 
