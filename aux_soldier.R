@@ -103,10 +103,10 @@ column(
 
     if (is.null(input$train_test) || input$train_test == 2) {
       # Set test/train periods by percentage
-      if (is.null(input$test_perc)) {
+      if (is.null(input$train_perc)) {
         i_test_perc <- c(75, 100)
       } else {
-        i_test_perc <- c(input$test_perc, 100)
+        i_test_perc <- c(input$train_perc, 100)
       }
 
       min_date <- values$dat[, 1][1]
@@ -316,7 +316,7 @@ column(
       return(NULL)
     } # Adapt options to the user choices
     sliderInput(
-      "test_perc",
+      "train_perc",
       label = h5("Training period:"),
       min = 0,
       max = 100,
@@ -327,10 +327,10 @@ column(
   # Check train/test data
   if (aux_soldier == "check_train_test") {
     print("Checking train/test data")
-    if (is.null(input$test_perc)) {
+    if (is.null(input$train_perc)) {
       i_test_perc <- c(75, 100)
     } else {
-      i_test_perc <- c(input$test_perc, 100)
+      i_test_perc <- c(input$train_perc, 100)
     }
     if (!is.null(input$test_years[1])) { # Check if test/train periods overlap
       if ((input$train_years[1] < input$test_years[1]) &&

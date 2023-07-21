@@ -1541,7 +1541,7 @@ build_model <- function(
     train_y = c(min_train, max_train),
     test_y = c(min_test, max_test),
     data_in = dat,
-    test_perc = test_perc_2,
+    train_perc = test_perc_2,
     prediction = prediction,
     influ = influ$inf
   )

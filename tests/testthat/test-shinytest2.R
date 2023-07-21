@@ -11,7 +11,7 @@ test_that("{shinytest2} recording: test_read_time_series_file", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -25,7 +25,7 @@ test_that("{shinytest2} recording: test_read_other_data_file", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -53,7 +53,7 @@ test_that("{shinytest2} recording: test_scatter_plot_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -75,7 +75,7 @@ test_that("{shinytest2} recording: test_scatter_plot_4d_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -113,7 +113,7 @@ test_that("{shinytest2} recording: test_time_series_plot", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -137,7 +137,7 @@ test_that("{shinytest2} recording: test_scatter_plot_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -161,7 +161,7 @@ test_that("{shinytest2} recording: test_scatter_plot_4d_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -187,7 +187,7 @@ test_that("{shinytest2} recording: test_predict_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -209,7 +209,7 @@ test_that("{shinytest2} recording: test_predict_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -241,7 +241,7 @@ test_that("{shinytest2} recording: test_pdps_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -269,7 +269,7 @@ test_that("{shinytest2} recording: test_pdps_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -305,7 +305,7 @@ test_that("{shinytest2} recording: test_convex_hull", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -335,17 +335,13 @@ test_that("{shinytest2} recording: test_train_test_range_time_series", {
   Sys.sleep(0.5)
   app$set_inputs(train_test = "2")
   Sys.sleep(0.5)
-  app$set_inputs(test_perc = c(50, 100))
+  app$set_inputs(train_perc = 50)
   Sys.sleep(0.5)
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
   Sys.sleep(0.5)
-  app$set_inputs(test_perc = c(19, 100))
-  Sys.sleep(0.5)
-  app$set_inputs(test_perc = c(21, 100))
-  Sys.sleep(0.5)
-  app$set_inputs(test_perc = c(20, 100))
+  app$set_inputs(train_perc = 20)
   Sys.sleep(0.5)
   app$click("build")
   Sys.sleep(0.5)
@@ -353,7 +349,7 @@ test_that("{shinytest2} recording: test_train_test_range_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
 
 
@@ -387,5 +383,5 @@ test_that("{shinytest2} recording: test_train_test_range_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot(threshold = 50)
+  app$expect_screenshot(threshold = 25)
 })
