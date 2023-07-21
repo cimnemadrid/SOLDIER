@@ -126,15 +126,16 @@ shiny::shinyServer(function(input, output, session) {
 
       values$dat <- as.data.frame(values$dat)
 
-      if (input$data_type == 1) { ### Adapt options to the date based data
+      # If time series data
+      if ((is.null(input$data_type) || input$data_type != 2)) {
+        # Remove rows with NA or empty values in the first column
+        values$dat <- values$dat[!(values$dat[, 1] %in% c(NA, "", "N/A")), ]
+
         values$dat[, 1] <- as.POSIXct(
           values$dat[, 1],
-          tz = "UTC",
-          format = "%d/%m/%Y %H:%M"
+          tz = "UTC"
         )
-      }
 
-      if ((is.null(input$data_type) || input$data_type != 2)) {
         # Warning message
         aux_soldier <- "warning_msg"
         source("aux_soldier.R", local = TRUE)$value
@@ -157,7 +158,16 @@ shiny::shinyServer(function(input, output, session) {
 
       values$dat <- as.data.frame(values$dat)
 
+      # If time series data
       if ((is.null(input$data_type) || input$data_type != 2)) {
+        # Remove rows with NA or empty values in the first column
+        values$dat <- values$dat[!(values$dat[, 1] %in% c(NA, "", "N/A")), ]
+
+        values$dat[, 1] <- as.POSIXct(
+          values$dat[, 1],
+          tz = "UTC"
+        )
+
         # Warning message
         aux_soldier <- "warning_msg"
         source("aux_soldier.R", local = TRUE)$value
@@ -170,10 +180,25 @@ shiny::shinyServer(function(input, output, session) {
           guess_max = 20000000
         )
       )
+
+      # If time series data
+      if ((is.null(input$data_type) || input$data_type != 2)) {
+        # Remove rows with NA or empty values in the first column
+        values$dat <- values$dat[!(values$dat[, 1] %in% c(NA, "", "N/A")), ]
+
+        values$dat[, 1] <- as.POSIXct(
+          values$dat[, 1],
+          tz = "UTC"
+        )
+      }
+
+      # Identify columns class
       classes <- identify_classes(values$dat)
 
       # Search for wrongly classified columns
       values$dat <- search_wrong_class_columns(values$dat, classes)
+
+      # If time series data
       if ((is.null(input$data_type) || input$data_type != 2)) {
         # Warning message
         aux_soldier <- "warning_msg"
