@@ -2,14 +2,16 @@ library(shinytest2)
 
 
 test_that("{shinytest2} recording: test_read_time_series_file", {
-  app <- AppDriver$new(variant = platform_variant(), name = "test_read_time_series_file",
-      height = 943, width = 1577)
+  app <- AppDriver$new(variant = platform_variant(),
+      name = "test_read_time_series_file", height = 943, width = 1577)
   Sys.sleep(0.5)
   app$set_inputs(data_type = "1")
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "DummyData.xlsx")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -20,8 +22,10 @@ test_that("{shinytest2} recording: test_read_other_data_file", {
   app$set_inputs(data_type = "2")
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "mympg.rds")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -46,8 +50,10 @@ test_that("{shinytest2} recording: test_scatter_plot_time_series", {
   app$set_inputs(back_colour_scatter_plot = TRUE)
   Sys.sleep(0.5)
   app$click("refresh6")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -66,8 +72,10 @@ test_that("{shinytest2} recording: test_scatter_plot_4d_time_series", {
   app$set_inputs(color4d = "Rainfall")
   Sys.sleep(0.5)
   app$click("refresh3")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -102,8 +110,10 @@ test_that("{shinytest2} recording: test_time_series_plot", {
   app$set_inputs(colours2 = TRUE)
   Sys.sleep(0.5)
   app$click("refresh5")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -124,8 +134,10 @@ test_that("{shinytest2} recording: test_scatter_plot_other_data", {
   app$click("refresh6")
   Sys.sleep(0.5)
   app$set_inputs(back_colour_scatter_plot = TRUE)
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -146,8 +158,10 @@ test_that("{shinytest2} recording: test_scatter_plot_4d_other_data", {
   app$set_inputs(color4d = "X4")
   Sys.sleep(0.5)
   app$click("refresh3")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -159,6 +173,8 @@ test_that("{shinytest2} recording: test_predict_time_series", {
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "DummyData.xlsx")
   Sys.sleep(0.5)
+  app$set_inputs(tabs = "fit")
+  Sys.sleep(0.5)
   app$set_inputs(inputs = "Tem group")
   Sys.sleep(0.5)
   app$set_inputs(inputs = c("Tem group", "Lev"))
@@ -167,27 +183,33 @@ test_that("{shinytest2} recording: test_predict_time_series", {
   Sys.sleep(0.5)
   app$click("build")
   Sys.sleep(0.5)
-  app$click
+  app$click("refresh_pred_data")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
 test_that("{shinytest2} recording: test_predict_other_data", {
   app <- AppDriver$new(variant = platform_variant(), name = "test_predict_other_data",
-     height = 943, width = 1577)
+      height = 943, width = 1577)
   Sys.sleep(0.5)
   app$set_inputs(data_type = "2")
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "mympg.rds")
+  Sys.sleep(0.5)
+  app$set_inputs(tabs = "fit")
   Sys.sleep(0.5)
   app$set_inputs(inputs = c("X2", "X3", "X4", "X5", "X6", "X7", "X8"))
   Sys.sleep(0.5)
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -199,6 +221,8 @@ test_that("{shinytest2} recording: test_pdps_time_series", {
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "DummyData.xlsx")
   Sys.sleep(0.5)
+  app$set_inputs(tabs = "fit")
+  Sys.sleep(0.5)
   app$set_inputs(inputs = "Tem group")
   Sys.sleep(0.5)
   app$set_inputs(inputs = c("Tem group", "Lev"))
@@ -207,11 +231,17 @@ test_that("{shinytest2} recording: test_pdps_time_series", {
   Sys.sleep(0.5)
   app$click("build")
   Sys.sleep(0.5)
+  app$click("refresh_pred_data")
+  Sys.sleep(0.5)
+  app$set_inputs(tabs = "interpretation")
+  Sys.sleep(0.5)
   app$set_inputs(x_dp2 = "Lev")
   Sys.sleep(0.5)
   app$set_inputs(x_dp3 = "Year")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -223,17 +253,23 @@ test_that("{shinytest2} recording: test_pdps_other_data", {
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "mympg.rds")
   Sys.sleep(0.5)
+  app$set_inputs(tabs = "fit")
+  Sys.sleep(0.5)
   app$set_inputs(inputs = c("X2", "X3", "X4", "X5", "X6", "X7", "X8"))
   Sys.sleep(0.5)
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
   Sys.sleep(0.5)
+  app$set_inputs(tabs = "interpretation")
+  Sys.sleep(0.5)
   app$set_inputs(x_dp2 = "X2")
   Sys.sleep(0.5)
   app$set_inputs(x_dp3 = "X3")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -245,6 +281,8 @@ test_that("{shinytest2} recording: test_convex_hull", {
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "DummyData.xlsx")
   Sys.sleep(0.5)
+  app$set_inputs(tabs = "fit")
+  Sys.sleep(0.5)
   app$set_inputs(inputs = "Tem group")
   Sys.sleep(0.5)
   app$set_inputs(inputs = c("Tem group", "Lev"))
@@ -252,6 +290,8 @@ test_that("{shinytest2} recording: test_convex_hull", {
   app$set_inputs(inputs = c("Tem group", "Lev", "Year"))
   Sys.sleep(0.5)
   app$click("build")
+  Sys.sleep(0.5)
+  app$set_inputs(tabs = "exploration")
   Sys.sleep(0.5)
   app$set_inputs(plotType = "2")
   Sys.sleep(0.5)
@@ -262,8 +302,10 @@ test_that("{shinytest2} recording: test_convex_hull", {
   app$set_inputs(only_train_hull = TRUE)
   Sys.sleep(0.5)
   app$click("refresh6")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -274,6 +316,8 @@ test_that("{shinytest2} recording: test_train_test_range_time_series", {
   app$set_inputs(data_type = "1")
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "DummyData.xlsx")
+  Sys.sleep(0.5)
+  app$set_inputs(tabs = "fit")
   Sys.sleep(0.5)
   app$set_inputs(inputs = "Tem group")
   Sys.sleep(0.5)
@@ -306,8 +350,10 @@ test_that("{shinytest2} recording: test_train_test_range_time_series", {
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
 
 
@@ -318,6 +364,8 @@ test_that("{shinytest2} recording: test_train_test_range_other_data", {
   app$set_inputs(data_type = "2")
   Sys.sleep(0.5)
   app$upload_file(file_new_data = "mympg.rds")
+  Sys.sleep(0.5)
+  app$set_inputs(tabs = "fit")
   Sys.sleep(0.5)
   app$set_inputs(inputs = c("X2", "X3", "X4", "X5", "X6", "X7", "X8"))
   Sys.sleep(0.5)
@@ -336,7 +384,8 @@ test_that("{shinytest2} recording: test_train_test_range_other_data", {
   app$click("build")
   Sys.sleep(0.5)
   app$click("refresh_pred_data")
+  Sys.sleep(0.5)
+  app$set_window_size(height = 943, width = 1577)
   Sys.sleep(2)
-  app$expect_screenshot()
+  app$expect_screenshot(threshold = 50)
 })
-

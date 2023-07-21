@@ -151,7 +151,7 @@ dashboardPage(
   # Menus in sidebar
   dashboardSidebar(
     width = 220,
-    sidebarMenu(style = "white-space: normal;",
+    sidebarMenu(id = "tabs", style = "white-space: normal;",
 
       # TabPanel 1
       menuItem("Data exploration",
