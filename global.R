@@ -1436,9 +1436,8 @@ build_model <- function(
   dat,
   test_perc_2
 ) {
-  if ((is.null(data_type) || data_type != 2)) {
-    set.seed(iter)
-  }
+  # If more than one model, change seed
+  set.seed(iter)
 
   # Save brt_model out of the eventReactive
   brt_model <- gbm::gbm(

@@ -1344,6 +1344,8 @@ shiny::shinyServer(function(input, output, session) {
     # Check train/test data
     datum <- values$dat
 
+    set.seed(1)
+
     if ((is.null(input$data_type) || input$data_type != 2)) {
       aux_soldier <- "check_train_test"
       source("aux_soldier.R", local = TRUE)$value
