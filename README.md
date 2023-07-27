@@ -2,7 +2,7 @@
 
 SOLDIER is an interactive application based on R-Shiny that facilitates the generation of machine-learning-based predictive models, their accuracy evaluation, and the analysis of predictor variables' effect on dam behavior. This tool is designed to aid dam engineers in identifying changes in dam response, detecting potential anomalies, and gaining a better understanding of the effect of loads on the dam structure.
 
-SOLDIER aims to facilitate the development and interpretation of machine learning models for users who are not specialized in them. Although it is focused on the dam engineering sector their functionalities can be extended to structural health monitoring for other civil infrastructures and other engineering problems.
+SOLDIER aims to facilitate the application and interpretation of machine learning models for users who are not specialized in them. Although it is focused on the dam engineering sector their functionalities can be extended to structural health monitoring for other civil infrastructures and other engineering problems.
 
 ## Table of Contents
 <!-- Add a table of contents if the README is lengthy -->
@@ -71,4 +71,11 @@ SOLDIER is distributed under the GNU Affero General Public License v3.0 (AGPL-3.
 For more details about the rights and restrictions imposed by the AGPL-3.0 license, please refer to the [LICENSE](https://github.com/cimnemadrid/SOLDIER/blob/main/LICENSE) file in this repository.
 ---
 
-**Disclaimer:** SOLDIER is provided as-is and without any warranty. The authors and contributors of this software shall not be liable for any damages or consequences arising from the use or misuse of SOLDIER. Use the application responsibly and exercise engineering judgment in critical decisions.
+**Disclaimer:**
+SOLDIER is provided "as-is" and without any warranty. The developers make no guarantees regarding the accuracy, reliability, or suitability of the software for any particular purpose.
+
+In no event shall the developers of SOLDIER be liable for any direct, indirect, incidental, special, exemplary, or consequential damages, including but not limited to loss of data, profits, or business interruption, resulting from the use or inability to use the SOLDIER software.
+
+The user assumes full responsibility for the use of materials or information obtained from this application. Any service, repair, or correction of equipment or data required as a result of using SOLDIER is the sole responsibility of the user.
+
+For assistance or support, please feel free to open an issue in this repository or contact us at cimnemadrid@cimne.upc.edu. However, please note that response times and support availability may vary.
