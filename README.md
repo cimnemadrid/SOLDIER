@@ -7,7 +7,7 @@ SOLDIER is an interactive application based on R-Shiny that facilitates the gene
 
 1. [Introduction](#introduction)
 2. [Features](#features)
-3. [Installation](#installation)
+3. [Installation and Launch Guide](#installationandlaunchguide)
 4. [Usage](#usage)
 5. [Contributing](#contributing)
 6. [License](#license)
@@ -24,7 +24,7 @@ The behavior and safety evaluation of dams are crucial aspects of dam engineerin
 - **Anomaly Detection:** Engineers can use the application to detect potential anomalies in dam behavior, aiding in early identification of issues.
 - **Structural Health Monitoring:** SOLDIER's capabilities extend beyond dams, offering the potential for application in monitoring the health of other civil infrastructures.
 
-## Installation and Launch
+## Installation and Launch Guide
 
 SOLDIER operates just like any other R-Shiny application. To run it on your local machine, consider following these recommended steps:
 
