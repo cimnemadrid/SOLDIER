@@ -1,8 +1,8 @@
 # SOLDIER: SOLution for Dam Behavior Interpretation and Safety Evaluation
 
-SOLDIER is an interactive application based on R-Shiny that facilitates the generation of machine-learning-based predictive models, their accuracy evaluation, and the analysis of predictor variables' effect on dam behavior. This tool is designed to aid dam engineers in identifying changes in dam response, detecting potential anomalies, and gaining a better understanding of the effect of loads on the dam structure.
+SOLDIER is an interactive application based on R-Shiny that facilitates the generation of machine-learning-based predictive models, their accuracy evaluation, and the analysis of the effect of predictor variables on dam behavior. This tool is designed to support dam engineers in identifying changes in dam response, detecting potential anomalies and better understanding the effect of loads on the dam structure.
 
-SOLDIER aims to facilitate the application and interpretation of machine learning models for users who are not specialized in them. Although it is focused on the dam engineering sector their functionalities can be extended to structural health monitoring for other civil infrastructures and other engineering problems.
+SOLDIER aims to facilitate the application and interpretation of machine learning models for users who are not specialized in them. Although it is focused on the dam engineering, their functionalities can be extended to structural health monitoring for other civil infrastructures and other engineering problems.
 
 ## Table of Contents
 <!-- Add a table of contents if the README is lengthy -->
@@ -40,7 +40,7 @@ The application is structured into three main sections:
 
 ## Installation and Launch Guide
 
-SOLDIER operates just like any other R-Shiny application. To run it on your local machine, consider following these recommended steps:
+SOLDIER operates just like any other R-Shiny application. To run it on a local machine, consider following these recommended steps:
 
 1. **Clone the Repository:**
    ```
