@@ -2,7 +2,7 @@
 
 SOLDIER is an interactive application based on R-Shiny that facilitates the generation of machine-learning-based predictive models, their accuracy evaluation, and the analysis of the effect of predictor variables on dam behavior. This tool is designed to support dam engineers in identifying changes in dam response, detecting potential anomalies and better understanding the effect of loads on the dam structure.
 
-SOLDIER aims to facilitate the application and interpretation of machine learning models for users who are not specialized in them. Although it is focused on the dam engineering, their functionalities can be extended to structural health monitoring for other civil infrastructures and other engineering problems.
+SOLDIER aims to facilitate the application and interpretation of machine learning models. Although it is focused on the dam engineering, their functionalities can be extended to structural health monitoring for other civil infrastructures and other problems that can be solved with data-driven models.
 
 ## Table of Contents
 <!-- Add a table of contents if the README is lengthy -->
@@ -14,7 +14,7 @@ SOLDIER aims to facilitate the application and interpretation of machine learnin
 
 ## Introduction
 
-The behavior and safety evaluation of dams are crucial aspects of dam engineering. SOLDIER, which stands for SOLution for Dam behavior Interpretation and safety Evaluation with boosted Regression trees, is an application that allows engineers to easily harness the power of machine learning in the dam engineering domain. This interactive tool is built using R-Shiny and offers the capability to create predictive models, assess their accuracy, and gain valuable insights into the influence of predictor variables on the dam's response.
+SOLDIER, which stands for SOLution for Dam behavior Interpretation and safety Evaluation with boosted Regression trees, is an application that allows engineers to harness the power of machine learning in to analyze dam monitoring data, build predictive models and support decicion-making in dam safety assessments. This interactive tool is built using R-Shiny and offers the capability to create predictive models, assess their accuracy, and gain valuable insights into the influence of predictor variables on the dam behavior.
 
 ## Features
 
@@ -40,7 +40,7 @@ The application is structured into three main sections:
 
 ## Installation and Launch Guide
 
-SOLDIER operates just like any other R-Shiny application. To run it on a local machine, consider following these recommended steps:
+SOLDIER operates like any R-Shiny application. To run it on a local machine, these steps shall be followed:
 
 1. **Clone the Repository:**
    ```
@@ -48,21 +48,21 @@ SOLDIER operates just like any other R-Shiny application. To run it on a local m
    ```
 
 2. **Install R:**
-   Ensure you have R version 4.3.1 or a later version installed on your system. If you haven't installed R yet, you can download it from the official R website: [https://cran.rstudio.com/](https://cran.rstudio.com/).
+   R version 4.3.1 or later is required. It can be downloaded from the official R website: [https://cran.rstudio.com/](https://cran.rstudio.com/).
 
 3. **Install RStudio:**
-   RStudio provides an integrated development environment for working with R. You can download the latest version of RStudio from their official website: [https://www.rstudio.com/products/rstudio/](https://www.rstudio.com/products/rstudio/).
+   RStudio provides an integrated development environment for working with R. The latest version of RStudio can be downloaded from their official website: [https://www.rstudio.com/products/rstudio/](https://www.rstudio.com/products/rstudio/).
 
 4. **Run the Application:**
    - Open RStudio on your machine.
    - Navigate to the cloned `soldier` directory and open `ui.R` file.
    - Press the "Run App" button within RStudio.
-   - The first time you run the application, it will install the necessary packages, which may take some time.
+   - The first time the application is run, the necessary packages are installed, which may take some time.
 
 5. **Access the Application:**
-   The application will open in your default web browser window, and you can start using SOLDIER.
+   The application will open in the default web browser.
 
-If you encounter any issues during the installation process, refer to the project's [documentation](https://github.com/cimnemadrid/SOLDIER/tree/main/manual) or seek support from the community.
+More information and support for the installation process is available in the project's [documentation](https://github.com/cimnemadrid/SOLDIER/tree/main/manual).
 
 ## License
 
