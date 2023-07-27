@@ -14,7 +14,7 @@ SOLDIER aims to facilitate the application and interpretation of machine learnin
 
 ## Introduction
 
-The behavior and safety evaluation of dams is crucial aspects of dam engineering. SOLDIER, which stands for SOLution for Dam behavior Interpretation and safety Evaluation with boosted Regression trees, is an application that allows engineers to easily harness the power of machine learning in the dam engineering domain. This interactive tool is built using R-Shiny and offers the capability to create predictive models, assess their accuracy, and gain valuable insights into the influence of predictor variables on the dam's response.
+The behavior and safety evaluation of dams are crucial aspects of dam engineering. SOLDIER, which stands for SOLution for Dam behavior Interpretation and safety Evaluation with boosted Regression trees, is an application that allows engineers to easily harness the power of machine learning in the dam engineering domain. This interactive tool is built using R-Shiny and offers the capability to create predictive models, assess their accuracy, and gain valuable insights into the influence of predictor variables on the dam's response.
 
 ## Features
 
@@ -55,14 +55,14 @@ SOLDIER operates just like any other R-Shiny application. To run it on your loca
 
 4. **Run the Application:**
    - Open RStudio on your machine.
-   - Navigate to the cloned `soldier` directory.
+   - Navigate to the cloned `soldier` directory and open `ui.R` file.
    - Press the "Run App" button within RStudio.
    - The first time you run the application, it will install the necessary packages, which may take some time.
 
 5. **Access the Application:**
    The application will open in your default web browser window, and you can start using SOLDIER.
 
-If you encounter any issues during the installation process, refer to the project's documentation or seek support from the community.
+If you encounter any issues during the installation process, refer to the project's [documentation](https://github.com/cimnemadrid/SOLDIER/tree/main/manual) or seek support from the community.
 
 ## License
 
