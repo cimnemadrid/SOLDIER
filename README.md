@@ -7,7 +7,7 @@ SOLDIER is an interactive application based on R-Shiny that facilitates the gene
 
 1. [Introduction](#introduction)
 2. [Features](#features)
-3. [Installation and Launch Guide](#installationandlaunchguide)
+3. [Installation and Launch Guide](#installation-and-launch-guide)
 4. [Usage](#usage)
 5. [Contributing](#contributing)
 6. [License](#license)
