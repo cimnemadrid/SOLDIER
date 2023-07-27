@@ -69,6 +69,7 @@ If you encounter any issues during the installation process, refer to the projec
 SOLDIER is distributed under the GNU Affero General Public License v3.0 (AGPL-3.0). This license is designed to ensure that users who interact with the software over a network, such as through a web application, also have access to the source code. It grants you the freedom to use, modify, and distribute SOLDIER under the terms and conditions outlined in the AGPL-3.0 license.
 
 For more details about the rights and restrictions imposed by the AGPL-3.0 license, please refer to the [LICENSE](https://github.com/cimnemadrid/SOLDIER/blob/main/LICENSE) file in this repository.
+
 ---
 
 **Disclaimer:**
