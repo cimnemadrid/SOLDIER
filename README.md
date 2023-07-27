@@ -1,6 +1,6 @@
 # SOLDIER: SOLution for Dam Behavior Interpretation and Safety Evaluation
 
-SOLDIER is an interactive application based on R-Shiny that facilitates the generation of machine-learning-based predictive models, their accuracy evaluation, and the analysis of predictor variables' effect on dam behavior. This tool is designed to aid dam engineers in identifying changes in dam behavior, detecting potential anomalies, and gaining a better understanding of the effect of loads on the dam structure.
+SOLDIER is an interactive application based on R-Shiny that facilitates the generation of machine-learning-based predictive models, their accuracy evaluation, and the analysis of predictor variables' effect on dam behavior. This tool is designed to aid dam engineers in identifying changes in dam response, detecting potential anomalies, and gaining a better understanding of the effect of loads on the dam structure.
 
 SOLDIER aims to facilitate the development and interpretation of machine learning models for users who are not specialized in them. Although it is focused on the dam engineering sector their functionalities can be extended to structural health monitoring for other civil infrastructures and other engineering problems.
 
