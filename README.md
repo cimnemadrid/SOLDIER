@@ -80,4 +80,4 @@ In no event shall the developers of SOLDIER be liable for any direct, indirect, 
 
 The user assumes full responsibility for the use of materials or information obtained from this application. Any service, repair, or correction of equipment or data required as a result of using SOLDIER is the sole responsibility of the user.
 
-For assistance or support, please feel free to open an issue in this repository or contact us at [cimnemadrid@cimne.upc.edu]. However, please note that response times and support availability may vary.
+For assistance or support, please feel free to open an issue in this repository or contact us at <cimnemadrid@cimne.upc.edu>. However, please note that response times and support availability may vary.
