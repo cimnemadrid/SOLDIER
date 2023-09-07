@@ -209,7 +209,7 @@ column(
       return(NULL)
     }
 
-    dates <- as.Date(format(datum[, 1], "%Y-%m-%d"), origin = lubridate::origin)
+    dates <- as.POSIXct(datum[, 1], format = "%Y-%m-%d")
 
     # Initial testing size
     base_test <- 0.25 * (max(dates, na.rm = TRUE) - min(dates, na.rm = TRUE))
@@ -225,25 +225,11 @@ column(
     }
 
     train_start_date <- reactive({
-      if (
-        is.null(
-          input$train_years[1]
-        ) || !lubridate::is.Date(
-          input$train_years[1]
-        ) || input$train_years[1] < initial_date_train
-      ) {
         initial_date_train
-      } else {
-        input$train_years[1]
-      }
     })
 
     train_end_date <- reactive({
-      if (is.null(input$train_years[2]) || !lubridate::is.Date(input$train_years[2])) {
         end_date_train
-      } else {
-        input$train_years[2]
-      }
     })
 
     dateRangeInput(
@@ -270,31 +256,18 @@ column(
       return(NULL)
     }
 
-    dates <- as.Date(format(datum[, 1], "%Y-%m-%d"), origin = lubridate::origin)
+    dates <- as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
 
     # Initial testing size
     base_test <- 0.25 * (max(dates, na.rm = TRUE) - min(dates, na.rm = TRUE))
     initial_date_test <- max(dates, na.rm = TRUE) - base_test + 1
 
     test_start_date <- reactive({
-      if (is.null(input$test_years[1]) || !is.Date(input$test_years[1])) {
-        initial_date_test
-      } else {
-        input$test_years[1]
-      }
+      initial_date_test
     })
 
     test_end_date <- reactive({
-      if (
-        is.null(
-          input$test_years[2]
-        ) || !lubridate::is.Date(
-          input$test_years[2]
-        ) || input$test_years[2] > max(dates)) {
-        max(dates)
-      } else {
-        input$test_years[2]
-      }
+      max(dates)
     })
 
     dateRangeInput(
@@ -376,13 +349,8 @@ column(
 
         row1 <- which(
           as.Date(
-            min_date + first_days,
-            origin = lubridate::origin
-          ) <= as.Date(
-            format(datum[, 1]),
-            "%Y-%m-%d",
-            origin = lubridate::origin
-          )
+            min_date + first_days, origin = lubridate::origin
+          ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
         )[1]
 
         max_train <- datum[row1, 1]
@@ -390,26 +358,17 @@ column(
 
         row2 <- which(
           as.Date(
-            min_date + first_days + second_days,
-            origin = lubridate::origin
-          ) <= as.Date(
-            format(datum[, 1]),
-            "%Y-%m-%d",
-            origin = lubridate::origin
-          )
+            min_date + first_days + second_days, origin = lubridate::origin
+          ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
         )[1]
 
         max_test <- datum[row2, 1]
       } else {
         row1 <- which(
           as.Date(
-            min_date + first_days + second_days,
-            origin = lubridate::origin
-          ) <= as.Date(
-            format(datum[, 1]),
-            "%Y-%m-%d",
-            origin = lubridate::origin
-          ))[1] + 1
+            min_date + first_days + second_days, origin = lubridate::origin
+          ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+        )[1] + 1
 
         min_train <- datum[row1, 1]
 
@@ -417,30 +376,26 @@ column(
 
         row2 <- which(
           as.Date(
-            min_date + first_days,
-            origin = lubridate::origin
-          ) <= as.Date(
-            format(datum[, 1]),
-            "%Y-%m-%d",
-            origin = lubridate::origin
-          ))[1]
+            min_date + first_days, origin = lubridate::origin
+          ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+        )[1]
 
         min_test <- datum[row2, 1]
         max_test <- datum[row1 - 1, 1]
       }
     } else { # Set test/train periods by selected dates
       row1 <- which(
-        as.Date(input$train_years[1]) <= as.Date(format(datum[, 1]),
-        "%Y-%m-%d",
-        origin = lubridate::origin)
+        as.Date(
+          input$train_years[1]
+        ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
       )[1]
 
       min_train <- datum[row1, 1]
 
       row2 <- which(
-        as.Date(input$train_years[2]) >= as.Date(format(datum[, 1]),
-        "%Y-%m-%d",
-        origin = lubridate::origin)
+        as.Date(
+          input$train_years[2]
+        ) >= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
       )[1]
 
       row2 <- row2[length(row2)]
@@ -448,17 +403,17 @@ column(
       max_train <- datum[row2, 1]
 
       row1 <- which(
-        as.Date(input$test_years[1]) <= as.Date(format(datum[, 1]),
-        "%Y-%m-%d",
-        origin = lubridate::origin)
+        as.Date(
+          input$test_years[1]
+        ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
       )[1]
 
       min_test <- datum[row1, 1]
 
       row2 <- which(
-        as.Date(input$test_years[2]) <= as.Date(format(datum[, 1]),
-        "%Y-%m-%d",
-        origin = lubridate::origin)
+        as.Date(
+          input$test_years[2]
+        ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
       )[1]
 
       max_test <- datum[row2, 1]

@@ -24,7 +24,7 @@ The application is structured into three main sections:
    - Load data from RDS or XLSX files.
    - Visualize data in different formats: scatterplots and time series.
 
-3. **Model Fitting:**
+2. **Model Fitting:**
    - Select target and predictor variables from the loaded data.
    - Control training and testing data split.
    - Generate predictive models using the Boosted Regression Trees (BRT) algorithm.
@@ -32,7 +32,7 @@ The application is structured into three main sections:
    - Interactive graphical representation of predictions and observations.
    - Download fitted models in RDS format for integration or further analysis.
 
-5. **Interpretation:**
+3. **Interpretation:**
    - Analyze the relative importance of variables in the fitted models.
    - Group variables and analyze their combined influence on the response.
    - Explore the partial dependence of the target variable on selected predictors.
@@ -43,7 +43,8 @@ The application is structured into three main sections:
 SOLDIER operates like any R-Shiny application. To run it on a local machine, these steps shall be followed:
 
 1. **Clone the Repository:**
-   ```
+
+   ```text
    git clone https://github.com/your-username/soldier.git
    ```
 
@@ -79,4 +80,4 @@ In no event shall the developers of SOLDIER be liable for any direct, indirect, 
 
 The user assumes full responsibility for the use of materials or information obtained from this application. Any service, repair, or correction of equipment or data required as a result of using SOLDIER is the sole responsibility of the user.
 
-For assistance or support, please feel free to open an issue in this repository or contact us at cimnemadrid@cimne.upc.edu. However, please note that response times and support availability may vary.
+For assistance or support, please feel free to open an issue in this repository or contact us at [cimnemadrid@cimne.upc.edu]. However, please note that response times and support availability may vary.

@@ -108,6 +108,25 @@ shiny::shinyServer(function(input, output, session) {
 
     print("Loading file")
 
+    allowed_date_formats <- c("%d-%m-%Y %H:%M:%OS",
+                             "%d/%m/%Y %H:%M:%OS",
+                             "%m-%d-%Y %H:%M:%OS",
+                             "%m/%d/%Y %H:%M:%OS",
+                             "%Y-%m-%d %H:%M:%OS",
+                             "%Y/%m/%d %H:%M:%OS",
+                             "%d-%m-%Y %H:%M",
+                             "%d/%m/%Y %H:%M",
+                             "%m-%d-%Y %H:%M",
+                             "%m/%d/%Y %H:%M",
+                             "%Y-%m-%d %H:%M",
+                             "%Y/%m/%d %H:%M",
+                             "%d-%m-%Y",
+                             "%d/%m/%Y",
+                             "%m-%d-%Y",
+                             "%m/%d/%Y",
+                             "%Y-%m-%d",
+                             "%Y/%m/%d")
+
     if (csv_ext == 1) { # Check if the file is CSV
       values$dat <- read.csv(in_file$datapath)
 
@@ -133,14 +152,15 @@ shiny::shinyServer(function(input, output, session) {
 
         values$dat[, 1] <- as.POSIXct(
           values$dat[, 1],
-          tz = "UTC"
+          tz = "UTC",
+          tryFormats = allowed_date_formats
         )
 
         # Warning message
         aux_soldier <- "warning_msg"
         source("aux_soldier.R", local = TRUE)$value
       }
-    }else if (rds_ext == 1) { # Check if the file is RDS
+    } else if (rds_ext == 1) { # Check if the file is RDS
       values$dat <- readRDS(in_file$datapath)
 
       # Check if the RDS file has the adequate class
@@ -165,7 +185,8 @@ shiny::shinyServer(function(input, output, session) {
 
         values$dat[, 1] <- as.POSIXct(
           values$dat[, 1],
-          tz = "UTC"
+          tz = "UTC",
+          tryFormats = allowed_date_formats
         )
 
         # Warning message
@@ -188,7 +209,8 @@ shiny::shinyServer(function(input, output, session) {
 
         values$dat[, 1] <- as.POSIXct(
           values$dat[, 1],
-          tz = "UTC"
+          tz = "UTC",
+          tryFormats = allowed_date_formats
         )
       }
 
