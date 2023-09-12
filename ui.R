@@ -243,17 +243,17 @@ dashboardPage(
 
             # Box for initial image
             conditionalPanel(
-              condition = "input.plotType != 1 &&
-                           input.plotType != 2 &&
-                           input.plotType != 3 &&
-                           input.plotType != 4",
+              condition = "input.plot_type != 1 &&
+                           input.plot_type != 2 &&
+                           input.plot_type != 3 &&
+                           input.plot_type != 4",
               imageOutput("frontImage")
             ),
 
             # Box for drawing time series plot
             conditionalPanel(
               condition = "(input.data_type == 1 || input.data_type == 2) &&
-                           input.plotType == 1",
+                           input.plot_type == 1",
               tabBox(
                 width = 12,
                 tabPanel(
@@ -273,7 +273,7 @@ dashboardPage(
             # Box for drawing scatterplot
             conditionalPanel(
               condition = "(input.data_type == 1 || input.data_type == 2) &&
-                           input.plotType == 2",
+                           input.plot_type == 2",
               tabBox(
                 width = 12,
                 tabPanel(
@@ -296,7 +296,7 @@ dashboardPage(
             # Box for drawing scatterplot 4D
             conditionalPanel(
               condition = "(input.data_type == 1 || input.data_type == 2) &&
-                           input.plotType == 3",
+                           input.plot_type == 3",
               tabBox(
                 width = 12,
                 tabPanel(
@@ -335,7 +335,7 @@ dashboardPage(
           # Box for choosing variables to show on time series plot
           conditionalPanel(
             condition = "(input.data_type == 1 || input.data_type == 2) &&
-                         input.plotType == 1",
+                         input.plot_type == 1",
             box(
               title = "Variables to plot",
               width = NULL,
@@ -353,7 +353,7 @@ dashboardPage(
           # Box for choosing variables to show on scatterplot
           conditionalPanel(
             condition = "(input.data_type == 1 || input.data_type == 2) &&
-                         input.plotType == 2",
+                         input.plot_type == 2",
             box(
               title = "Variables to plot",
               width = NULL,
@@ -371,7 +371,7 @@ dashboardPage(
           # Box for choosing variables to show on scatterplot 4D
           conditionalPanel(
             condition = "(input.data_type == 1 || input.data_type == 2) &&
-                         input.plotType == 3",
+                         input.plot_type == 3",
             box(
               title = "Variables to plot",
               width = NULL,

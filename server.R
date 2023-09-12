@@ -79,7 +79,7 @@ shiny::shinyServer(function(input, output, session) {
       source("aux_soldier.R", local = TRUE)$value
     } else {
       radioButtons(
-        inputId = "plotType",
+        inputId = "plot_type",
         label = NULL,
         choices = list("Show scatterplot" = 2, "Show scatterplot 4D" = 3),
         selected = 0
@@ -366,7 +366,7 @@ shiny::shinyServer(function(input, output, session) {
   output$i_variables_left <- renderUI({
     datum <- values$dat
     # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
+    if (is.null(datum) || is.null(input$plot_type)) {
       return(HTML("Please load some data file and select plot"))
     }
     if (aux_soldier) {
@@ -398,10 +398,10 @@ shiny::shinyServer(function(input, output, session) {
 
   # Menus for selecting right and colour variables
   output$i_back_colour_time_plot <- renderUI({
-    if (is.null(values$dat) || is.null(input$plotType)) {
+    if (is.null(values$dat) || is.null(input$plot_type)) {
       return(NULL)
     } # Check if there is any data
-    if (input$plotType != 1) {
+    if (input$plot_type != 1) {
       return(NULL)
     }
     if (aux_soldier) {
@@ -516,7 +516,7 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if there is any data
     if (
-      is.null(datum) || is.null(input$plotType)
+      is.null(datum) || is.null(input$plot_type)
     ) {
       return(HTML("Please load some data file and select plot"))
     }
@@ -537,7 +537,7 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if there is any data
     if (
-      is.null(datum) || is.null(input$plotType) || (input$plotType == 4)
+      is.null(datum) || is.null(input$plot_type) || (input$plot_type == 4)
     ) {
       return(NULL)
     }
@@ -560,11 +560,11 @@ shiny::shinyServer(function(input, output, session) {
     datum <- values$dat
 
     # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
+    if (is.null(datum) || is.null(input$plot_type)) {
       return(NULL)
     }
 
-    if (input$plotType == 4) {
+    if (input$plot_type == 4) {
       return(NULL)
     }
 
@@ -589,7 +589,7 @@ shiny::shinyServer(function(input, output, session) {
     datum <- values$dat
 
     ## Check if there is any data
-    if (is.null(datum) || is.null(input$plotType) || input$plotType != 2) {
+    if (is.null(datum) || is.null(input$plot_type) || input$plot_type != 2) {
       return(NULL)
     }
 
@@ -612,11 +612,11 @@ shiny::shinyServer(function(input, output, session) {
   # Background colour of the scatter plot
   output$i_back_colour_scatter_plot <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat) || is.null(input$plotType)) {
+    if (is.null(values$dat) || is.null(input$plot_type)) {
       return(NULL)
     }
 
-    if (input$plotType != 2) {
+    if (input$plot_type != 2) {
       return(NULL)
     }
 
@@ -654,7 +654,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    if (is.null(input$plotType) || (input$plotType != 2)) {
+    if (is.null(input$plot_type) || (input$plot_type != 2)) {
       return(NULL)
     }
 
@@ -814,7 +814,7 @@ shiny::shinyServer(function(input, output, session) {
      datum <- values$dat # "values": dataframe with new data
 
     # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
+    if (is.null(datum) || is.null(input$plot_type)) {
       return(HTML("Please load some data file and select plot"))
     }
 
@@ -839,8 +839,8 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if there is any data
     if (is.null(datum) ||
-        is.null(input$plotType) ||
-        (input$plotType == 4)) {
+        is.null(input$plot_type) ||
+        (input$plot_type == 4)) {
       return(NULL)
     }
 
@@ -867,8 +867,8 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if there is any data
     if (is.null(datum) ||
-        is.null(input$plotType) ||
-        (input$plotType == 4)) {
+        is.null(input$plot_type) ||
+        (input$plot_type == 4)) {
       return(NULL)
     }
 
@@ -893,11 +893,11 @@ shiny::shinyServer(function(input, output, session) {
     datum <- values$dat
 
     # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
+    if (is.null(datum) || is.null(input$plot_type)) {
       return(NULL)
     }
 
-    if (input$plotType == 4) {
+    if (input$plot_type == 4) {
       return(NULL)
     }
 
@@ -936,7 +936,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    if (is.null(input$plotType) || (input$plotType != 3)) {
+    if (is.null(input$plot_type) || (input$plot_type != 3)) {
       return(NULL)
     }
 
@@ -1268,7 +1268,7 @@ shiny::shinyServer(function(input, output, session) {
       val <- 500
 
       numericInput(
-        "numTree",
+        "num_tree",
         label = "Number of trees",
         min = 250,
         max = 10000,
@@ -1466,10 +1466,10 @@ shiny::shinyServer(function(input, output, session) {
       }
     }
 
-    if (is.null(input$numTree)) { # Set value for number of trees
+    if (is.null(input$num_tree)) { # Set value for number of trees
       i_num_trees <- 500
     } else {
-      i_num_trees <- input$numTree
+      i_num_trees <- input$num_tree
       # Check value for number of trees
       if (
         !is.numeric(i_num_trees) || i_num_trees < 250 || i_num_trees > 10000

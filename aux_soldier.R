@@ -68,7 +68,7 @@ column(
     )
 
     radioButtons(
-      inputId = "plotType",
+      inputId = "plot_type",
       label = NULL,
       choices = option,
       selected = 0
@@ -336,7 +336,7 @@ column(
     }
 
     # Set test/train periods by percentage
-    if (is.null(input$trainTest) || input$trainTest == 2) {
+    if (is.null(input$train_test) || input$train_test == 2) {
       min_date <- datum[, 1][1]
       max_date <- datum[, 1][length(datum[, 1])]
       date_range <- max_date - min_date
@@ -395,10 +395,8 @@ column(
       row2 <- which(
         as.Date(
           input$train_years[2]
-        ) >= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+        ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
       )[1]
-
-      row2 <- row2[length(row2)]
 
       max_train <- datum[row2, 1]
 
