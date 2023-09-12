@@ -254,6 +254,7 @@ shiny::shinyServer(function(input, output, session) {
     results$residual <- vector("numeric", length = nrow(datum))
 
     values$dat <- datum
+    values$train_test_data <- datum
   })
 
   # Load front image and help image (for both kinds of plots)
@@ -458,12 +459,12 @@ shiny::shinyServer(function(input, output, session) {
 
   # Generate graph output for time series
   output$time_graph <- renderPlotly({
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     } # Check if there is any data
     if (aux_soldier) {
       input$refresh5
-      datum <- cbind(values$dat, as.data.frame(results$residual))
+      datum <- cbind(values$train_test_data, as.data.frame(results$residual))
       names(datum)[ncol(datum)] <- "Residual"
 
       # Sort selected data by first variable
@@ -475,7 +476,7 @@ shiny::shinyServer(function(input, output, session) {
       }
       isolate({
         # Search groups of variables
-        vars_left <- select_variables(values$dat, input$vars_left)
+        vars_left <- select_variables(values$train_test_data, input$vars_left)
         unique_vars <- unique(c(vars_left, input$vars_right))
         if (length(vars_left) < 1) {
           showModal(
@@ -672,7 +673,7 @@ shiny::shinyServer(function(input, output, session) {
   # Plotting scatterplot
   output$scatter_plot <- renderPlotly({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
@@ -682,7 +683,7 @@ shiny::shinyServer(function(input, output, session) {
       back_color <- "darkgrey"
     }
 
-    datum <- cbind(values$dat, as.data.frame(results$residual))
+    datum <- cbind(values$train_test_data, as.data.frame(results$residual))
     names(datum)[ncol(datum)] <- "Residual"
 
     ini <- 1
@@ -698,13 +699,15 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if it is the same dataset than for the last scatterplot
     if (!is.null(old_names)) {
-      if (old_names[length(old_names)] != names(values$dat[ncol(values$dat)])) {
-        old_names <<- names(values$dat)
+      if (
+        old_names[length(old_names)] != names(values$train_test_data[ncol(values$train_test_data)])
+      ) {
+        old_names <<- names(values$train_test_data)
         return(NULL)
       }
     }
 
-    old_names <<- names(values$dat)
+    old_names <<- names(values$train_test_data)
 
     x <- datum[, match(input$x_scat, col_nam)]
     y <- datum[, match(input$y_scat, col_nam)]
@@ -954,11 +957,11 @@ shiny::shinyServer(function(input, output, session) {
   # Plotting scatterplot 4D
   output$scatter_plot4d <- renderPlotly({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
-    datum <- cbind(values$dat, as.data.frame(results$residual))
+    datum <- cbind(values$train_test_data, as.data.frame(results$residual))
     names(datum)[ncol(datum)] <- "Residual"
     refresh <- ref_plot3()
     col_nam <- colnames(datum)
@@ -970,12 +973,12 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if it is the same dataset than the last time a scatterplot was drawn
     if (!is.null(old_names)) {
-      if (old_names[length(old_names)] != names(values$dat[ncol(values$dat)])) {
-        old_names <<- names(values$dat)
+      if (old_names[length(old_names)] != names(values$train_test_data[ncol(values$train_test_data)])) {
+        old_names <<- names(values$train_test_data)
         return(NULL)
       }
     }
-    old_names <<- names(values$dat)
+    old_names <<- names(values$train_test_data)
 
     # Draw plot
     isolate({
@@ -1657,6 +1660,7 @@ shiny::shinyServer(function(input, output, session) {
     values$dat <- datum
     values$train_data <- train_data
     values$test_data <- test_data
+    values$train_test_data <- rbind(train_data, test_data)
 
     showModal(modalDialog(title = title, text, size = c("s"), easyClose = TRUE))
     model_res_fit
