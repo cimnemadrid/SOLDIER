@@ -419,7 +419,7 @@ column(
 
     positions <- NULL
     train_data <- datum[datum[, 1] >= min_train & datum[, 1] <= max_train, ]
-    test_data <- datum[datum[, 1] >= min_test & datum[, 1] <= max_test, ]
+    test_data <- datum[datum[, 1] > max_train & datum[, 1] <= max_test, ]
     scat$ini <- which(datum[, 1] == min_train)
     scat$end <- which(datum[, 1] == max_train)
 

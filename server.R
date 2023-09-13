@@ -513,7 +513,7 @@ shiny::shinyServer(function(input, output, session) {
   # Let select horizontal, vertical and color variables for scatterplot
   output$x_var_scat <- renderUI({
     # "values": dataframe with new data
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (
@@ -534,7 +534,7 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   output$y_var_scat <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (
@@ -558,7 +558,7 @@ shiny::shinyServer(function(input, output, session) {
 
   # Variable to colour the scatter plot
   output$i_color_scat <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (is.null(datum) || is.null(input$plot_type)) {
@@ -587,7 +587,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    datum <- values$dat
+    datum <- values$train_test_data
 
     ## Check if there is any data
     if (is.null(datum) || is.null(input$plot_type) || input$plot_type != 2) {
@@ -613,7 +613,7 @@ shiny::shinyServer(function(input, output, session) {
   # Background colour of the scatter plot
   output$i_back_colour_scatter_plot <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat) || is.null(input$plot_type)) {
+    if (is.null(values$train_test_data) || is.null(input$plot_type)) {
       return(NULL)
     }
 
@@ -639,11 +639,11 @@ shiny::shinyServer(function(input, output, session) {
   # Write message for scatterplot
   output$i_scat_message <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
-    scat_message <- mess_fun(input$color, values$dat)
+    scat_message <- mess_fun(input$color, values$train_test_data)
     scat_message
   })
 
@@ -651,7 +651,7 @@ shiny::shinyServer(function(input, output, session) {
   # Drawing buttons
   output$i_draw_scat <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
@@ -814,7 +814,7 @@ shiny::shinyServer(function(input, output, session) {
 
   # Let select horizontal, vertical and color variables for scatterplot
   output$x_var_scat4d <- renderUI({
-     datum <- values$dat # "values": dataframe with new data
+     datum <- values$train_test_data # "values": dataframe with new data
 
     # Check if there is any data
     if (is.null(datum) || is.null(input$plot_type)) {
@@ -838,7 +838,7 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   output$y_var_scat4d <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (is.null(datum) ||
@@ -866,7 +866,7 @@ shiny::shinyServer(function(input, output, session) {
 
   # Let select z axis variables for scatterplot 4D
   output$z_var_scat4d <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (is.null(datum) ||
@@ -893,7 +893,7 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   output$i_color_scat4d <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (is.null(datum) || is.null(input$plot_type)) {
@@ -924,18 +924,18 @@ shiny::shinyServer(function(input, output, session) {
   # Write message for scatterplot 4D
   output$i_scat_message <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
-    scat_message <- mess_fun(input$color4d, values$dat)
+    scat_message <- mess_fun(input$color4d, values$train_test_data)
     scat_message
   })
 
   # Drawing buttons
   output$i_draw_scat4d <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
