@@ -578,7 +578,7 @@ shiny::shinyServer(function(input, output, session) {
       items <- c(items, "Residual")
     }
 
-    selectInput("color", "Colors", items)
+    selectInput("color_scat", "Colors", items)
   })
 
   # Only train option
@@ -643,7 +643,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    scat_message <- mess_fun(input$color, values$train_test_data)
+    scat_message <- mess_fun(input$color_scat, values$train_test_data)
     scat_message
   })
 
@@ -686,9 +686,6 @@ shiny::shinyServer(function(input, output, session) {
     datum <- cbind(values$train_test_data, as.data.frame(results$residual))
     names(datum)[ncol(datum)] <- "Residual"
 
-    ini <- 1
-    end <- nrow(datum)
-
     refresh <- ref_plot6()
     col_nam <- colnames(datum)
     point_size <- 8
@@ -711,6 +708,14 @@ shiny::shinyServer(function(input, output, session) {
 
     x <- datum[, match(input$x_scat, col_nam)]
     y <- datum[, match(input$y_scat, col_nam)]
+    color <- datum[, match(input$color_scat, col_nam)]
+
+    # Remove rows with NaN values in x and y
+    valid_indices <- complete.cases(x, y)
+    x_valid <- x[valid_indices]
+    y_valid <- y[valid_indices]
+    color_valid <- color[valid_indices]
+    data_df <- data.frame(x = x_valid, y = y_valid, color = color_valid)
 
     # Draw plot
     isolate({
@@ -749,17 +754,16 @@ shiny::shinyServer(function(input, output, session) {
       }
 
       plot <- add_trace(
-        data = datum[ini:end, ],
-        x = x,
-        y = y,
+        x = ~x_valid,
+        y = ~y_valid,
         p = plot,
         type = "scatter",
         mode = "markers",
         marker = list(
           size = point_size,
-          color = datum[, match(input$color, col_nam)],
+          color = ~color_valid,
           colorbar = list(
-            title = paste(input$color),
+            title = paste(input$color_scat),
             titlefont = list(size = 18),
             tickfont = list(size = 14)
           ),
@@ -769,8 +773,8 @@ shiny::shinyServer(function(input, output, session) {
         hovertemplate = paste(
           input$x_scat, ": %{x}<br>",
           input$y_scat, ": %{y}<br>",
-          input$color, ": ", datum[, match(input$color, col_nam)],
-          "<extra></extra>"
+          input$color_scat, ": %{marker.color:,}",
+          "<extra></extra>" # Removes trace0
         )
       )
 
@@ -913,11 +917,11 @@ shiny::shinyServer(function(input, output, session) {
       items <- c(items, "Residual")
     }
 
-    selectInput("color4d", "Colors", items)
+    selectInput("color_scat4d", "Colors", items)
   })
 
   col_var <- eventReactive(input$refresh3, {
-    col_var <- input$color4d
+    col_var <- input$color_scat4d
     col_var
   })
 
@@ -928,7 +932,7 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    scat_message <- mess_fun(input$color4d, values$train_test_data)
+    scat_message <- mess_fun(input$color_scat4d, values$train_test_data)
     scat_message
   })
 
@@ -973,27 +977,42 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if it is the same dataset than the last time a scatterplot was drawn
     if (!is.null(old_names)) {
-      if (old_names[length(old_names)] != names(values$train_test_data[ncol(values$train_test_data)])) {
+      if (
+        old_names[length(old_names)] != names(values$train_test_data[ncol(values$train_test_data)])
+      ) {
         old_names <<- names(values$train_test_data)
         return(NULL)
       }
     }
     old_names <<- names(values$train_test_data)
 
+    x <- datum[, match(input$x_scat4d, col_nam)]
+    y <- datum[, match(input$y_scat4d, col_nam)]
+    z <- datum[, match(input$z_scat4d, col_nam)]
+    color <- datum[, match(input$color_scat4d, col_nam)]
+
+    # Remove rows with NaN values in x and y
+    valid_indices <- complete.cases(x, y, z)
+    x_valid <- x[valid_indices]
+    y_valid <- y[valid_indices]
+    z_valid <- z[valid_indices]
+    color_valid <- color[valid_indices]
+    data_df <- data.frame(x = x_valid, y = y_valid, z = z_valid, color = color_valid)
+
     # Draw plot
     isolate({
       plot4d <- plot_ly(
         data = datum,
-        x = datum[, match(input$x_scat4d, col_nam)],
-        y = datum[, match(input$y_scat4d, col_nam)],
-        z = datum[, match(input$z_scat4d, col_nam)],
+        x = ~x_valid,
+        y = ~y_valid,
+        z = ~z_valid,
         type = "scatter3d",
         mode = "markers",
         marker = list(
           size = point_size,
-          color = datum[, match(input$color4d, col_nam)],
+          color = ~color_valid,
           colorbar = list(
-            title = paste(title = paste(input$color4d)),
+            title = paste(title = paste(input$color_scat4d)),
             titlefont = list(size = 18),
             tickfont = list(size = 14)
           ),
@@ -1001,10 +1020,10 @@ shiny::shinyServer(function(input, output, session) {
           showscale = TRUE
         ),
         hovertemplate = paste(
-          input$x_scat4d, ": ", datum[, match(input$x_scat4d, col_nam)], "<br>",
-          input$y_scat4d, ": ", datum[, match(input$y_scat4d, col_nam)], "<br>",
-          input$z_scat4d, ": ", datum[, match(input$z_scat4d, col_nam)], "<br>",
-          input$color, ": ", datum[, match(input$color4d, col_nam)],
+          input$x_scat4d, ": %{x}<br>",
+          input$y_scat4d, ": %{y}<br>",
+          input$z_scat4d, ": %{z}<br>",
+          input$color_scat4d, ": %{marker.color:,}",
           "<extra></extra>" # Removes trace0
         )
       )
@@ -1028,7 +1047,7 @@ shiny::shinyServer(function(input, output, session) {
           )
         )
       )
-      if (class(datum[, match(input$i_color_scat, col_nam)]) == "factor") {
+      if (class(datum[, match(input$i_color_scat4d, col_nam)]) == "factor") {
         showModal(modalDialog(
           title = "Colors doesn't work with factor variables",
           NULL,
