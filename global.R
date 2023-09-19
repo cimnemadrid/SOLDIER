@@ -245,14 +245,17 @@ generate_time_plot_prediction <- function(
 
   # Calculate the upper and lower bounds of the confidence interval
   sd_train_error <- sd(results$residual_train)
-  upper_bound <- graph_data$Prediction + 2 * sd_train_error
-  lower_bound <- graph_data$Prediction - 2 * sd_train_error
+  upper_bound_2 <- graph_data$Prediction + 2 * sd_train_error
+  lower_bound_2 <- graph_data$Prediction - 2 * sd_train_error
 
-  # Add the transparent confidence interval trace
+  upper_bound_3 <- graph_data$Prediction + 3 * sd_train_error
+  lower_bound_3 <- graph_data$Prediction - 3 * sd_train_error
+
+  # Add the transparent confidence interval traces
   time_plot_pred <- plotly::add_trace(
     data = graph_data,
     x = date,
-    y = upper_bound,
+    y = upper_bound_2,
     type = "scatter",
     mode = "lines",
     connectgaps = FALSE,
@@ -264,7 +267,33 @@ generate_time_plot_prediction <- function(
   time_plot_pred <- plotly::add_trace(
     data = graph_data,
     x = date,
-    y = lower_bound,
+    y = lower_bound_2,
+    type = "scatter",
+    mode = "lines",
+    connectgaps = FALSE,
+    p = time_plot_pred,
+    line = list(color = set_color[2], width = 0),
+    fill = "tonexty",  # Fill the area between the lines
+    fillcolor = "rgba(0,0,0,0.2)",  # Transparent fill color
+    showlegend = FALSE
+  )
+
+  time_plot_pred <- plotly::add_trace(
+    data = graph_data,
+    x = date,
+    y = upper_bound_3,
+    type = "scatter",
+    mode = "lines",
+    connectgaps = FALSE,
+    p = time_plot_pred,
+    line = list(color = set_color[2], width = 0),
+    showlegend = FALSE
+  )
+
+  time_plot_pred <- plotly::add_trace(
+    data = graph_data,
+    x = date,
+    y = lower_bound_3,
     type = "scatter",
     mode = "lines",
     connectgaps = FALSE,
@@ -312,14 +341,17 @@ generate_time_plot_prediction <- function(
   )
 
   # Calculate the upper and lower bounds of the confidence interval
-  upper_bound_err <- + (2 * sd(graph_data$Error))
-  lower_bound_err <- - (2 * sd(graph_data$Error))
+  upper_bound_err_2 <- + (2 * sd(graph_data$Error))
+  lower_bound_err_2 <- - (2 * sd(graph_data$Error))
+
+  upper_bound_err_3 <- + (3 * sd(graph_data$Error))
+  lower_bound_err_3 <- - (3 * sd(graph_data$Error))
 
   # Add the transparent confidence interval trace
   time_plot_err <- plotly::add_trace(
     data = graph_data,
     x = date,
-    y = upper_bound_err,
+    y = upper_bound_err_2,
     type = "scatter",
     mode = "lines",
     connectgaps = FALSE,
@@ -331,7 +363,7 @@ generate_time_plot_prediction <- function(
   time_plot_err <- plotly::add_trace(
     data = graph_data,
     x = date,
-    y = lower_bound_err,
+    y = lower_bound_err_2,
     type = "scatter",
     mode = "lines",
     connectgaps = FALSE,
@@ -341,6 +373,33 @@ generate_time_plot_prediction <- function(
     fillcolor = "rgba(0,0,0,0.2)",  # Transparent fill color
     showlegend = FALSE
   )
+
+  time_plot_err <- plotly::add_trace(
+    data = graph_data,
+    x = date,
+    y = upper_bound_err_3,
+    type = "scatter",
+    mode = "lines",
+    connectgaps = FALSE,
+    p = time_plot_err,
+    line = list(color = set_color[2], width = 0),
+    showlegend = FALSE
+  )
+
+  time_plot_err <- plotly::add_trace(
+    data = graph_data,
+    x = date,
+    y = lower_bound_err_3,
+    type = "scatter",
+    mode = "lines",
+    connectgaps = FALSE,
+    p = time_plot_err,
+    line = list(color = set_color[2], width = 0),
+    fill = "tonexty",  # Fill the area between the lines
+    fillcolor = "rgba(0,0,0,0.2)",  # Transparent fill color
+    showlegend = FALSE
+  )
+
 
   time_plot_err <- time_plot_err %>%
   plotly::layout(
