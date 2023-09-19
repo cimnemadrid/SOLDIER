@@ -341,11 +341,11 @@ generate_time_plot_prediction <- function(
   )
 
   # Calculate the upper and lower bounds of the confidence interval
-  upper_bound_err_2 <- + (2 * sd(graph_data$Error))
-  lower_bound_err_2 <- - (2 * sd(graph_data$Error))
+  upper_bound_err_2 <- + 2 * sd_train_error
+  lower_bound_err_2 <- - 2 * sd_train_error
 
-  upper_bound_err_3 <- + (3 * sd(graph_data$Error))
-  lower_bound_err_3 <- - (3 * sd(graph_data$Error))
+  upper_bound_err_3 <- + 3 * sd_train_error
+  lower_bound_err_3 <- - 3 * sd_train_error
 
   # Add the transparent confidence interval trace
   time_plot_err <- plotly::add_trace(
