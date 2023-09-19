@@ -79,7 +79,7 @@ shiny::shinyServer(function(input, output, session) {
       source("aux_soldier.R", local = TRUE)$value
     } else {
       radioButtons(
-        inputId = "plotType",
+        inputId = "plot_type",
         label = NULL,
         choices = list("Show scatterplot" = 2, "Show scatterplot 4D" = 3),
         selected = 0
@@ -108,6 +108,25 @@ shiny::shinyServer(function(input, output, session) {
 
     print("Loading file")
 
+    allowed_date_formats <- c("%d-%m-%Y %H:%M:%OS",
+                             "%d/%m/%Y %H:%M:%OS",
+                             "%m-%d-%Y %H:%M:%OS",
+                             "%m/%d/%Y %H:%M:%OS",
+                             "%Y-%m-%d %H:%M:%OS",
+                             "%Y/%m/%d %H:%M:%OS",
+                             "%d-%m-%Y %H:%M",
+                             "%d/%m/%Y %H:%M",
+                             "%m-%d-%Y %H:%M",
+                             "%m/%d/%Y %H:%M",
+                             "%Y-%m-%d %H:%M",
+                             "%Y/%m/%d %H:%M",
+                             "%d-%m-%Y",
+                             "%d/%m/%Y",
+                             "%m-%d-%Y",
+                             "%m/%d/%Y",
+                             "%Y-%m-%d",
+                             "%Y/%m/%d")
+
     if (csv_ext == 1) { # Check if the file is CSV
       values$dat <- read.csv(in_file$datapath)
 
@@ -133,14 +152,15 @@ shiny::shinyServer(function(input, output, session) {
 
         values$dat[, 1] <- as.POSIXct(
           values$dat[, 1],
-          tz = "UTC"
+          tz = "UTC",
+          tryFormats = allowed_date_formats
         )
 
         # Warning message
         aux_soldier <- "warning_msg"
         source("aux_soldier.R", local = TRUE)$value
       }
-    }else if (rds_ext == 1) { # Check if the file is RDS
+    } else if (rds_ext == 1) { # Check if the file is RDS
       values$dat <- readRDS(in_file$datapath)
 
       # Check if the RDS file has the adequate class
@@ -165,7 +185,8 @@ shiny::shinyServer(function(input, output, session) {
 
         values$dat[, 1] <- as.POSIXct(
           values$dat[, 1],
-          tz = "UTC"
+          tz = "UTC",
+          tryFormats = allowed_date_formats
         )
 
         # Warning message
@@ -188,7 +209,8 @@ shiny::shinyServer(function(input, output, session) {
 
         values$dat[, 1] <- as.POSIXct(
           values$dat[, 1],
-          tz = "UTC"
+          tz = "UTC",
+          tryFormats = allowed_date_formats
         )
       }
 
@@ -232,6 +254,7 @@ shiny::shinyServer(function(input, output, session) {
     results$residual <- vector("numeric", length = nrow(datum))
 
     values$dat <- datum
+    values$train_test_data <- datum
   })
 
   # Load front image and help image (for both kinds of plots)
@@ -344,7 +367,7 @@ shiny::shinyServer(function(input, output, session) {
   output$i_variables_left <- renderUI({
     datum <- values$dat
     # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
+    if (is.null(datum) || is.null(input$plot_type)) {
       return(HTML("Please load some data file and select plot"))
     }
     if (aux_soldier) {
@@ -376,10 +399,10 @@ shiny::shinyServer(function(input, output, session) {
 
   # Menus for selecting right and colour variables
   output$i_back_colour_time_plot <- renderUI({
-    if (is.null(values$dat) || is.null(input$plotType)) {
+    if (is.null(values$dat) || is.null(input$plot_type)) {
       return(NULL)
     } # Check if there is any data
-    if (input$plotType != 1) {
+    if (input$plot_type != 1) {
       return(NULL)
     }
     if (aux_soldier) {
@@ -436,12 +459,12 @@ shiny::shinyServer(function(input, output, session) {
 
   # Generate graph output for time series
   output$time_graph <- renderPlotly({
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     } # Check if there is any data
     if (aux_soldier) {
       input$refresh5
-      datum <- cbind(values$dat, as.data.frame(results$residual))
+      datum <- cbind(values$train_test_data, as.data.frame(results$residual))
       names(datum)[ncol(datum)] <- "Residual"
 
       # Sort selected data by first variable
@@ -453,7 +476,7 @@ shiny::shinyServer(function(input, output, session) {
       }
       isolate({
         # Search groups of variables
-        vars_left <- select_variables(values$dat, input$vars_left)
+        vars_left <- select_variables(values$train_test_data, input$vars_left)
         unique_vars <- unique(c(vars_left, input$vars_right))
         if (length(vars_left) < 1) {
           showModal(
@@ -490,11 +513,11 @@ shiny::shinyServer(function(input, output, session) {
   # Let select horizontal, vertical and color variables for scatterplot
   output$x_var_scat <- renderUI({
     # "values": dataframe with new data
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (
-      is.null(datum) || is.null(input$plotType)
+      is.null(datum) || is.null(input$plot_type)
     ) {
       return(HTML("Please load some data file and select plot"))
     }
@@ -511,11 +534,11 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   output$y_var_scat <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (
-      is.null(datum) || is.null(input$plotType) || (input$plotType == 4)
+      is.null(datum) || is.null(input$plot_type) || (input$plot_type == 4)
     ) {
       return(NULL)
     }
@@ -535,14 +558,14 @@ shiny::shinyServer(function(input, output, session) {
 
   # Variable to colour the scatter plot
   output$i_color_scat <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
+    if (is.null(datum) || is.null(input$plot_type)) {
       return(NULL)
     }
 
-    if (input$plotType == 4) {
+    if (input$plot_type == 4) {
       return(NULL)
     }
 
@@ -555,7 +578,7 @@ shiny::shinyServer(function(input, output, session) {
       items <- c(items, "Residual")
     }
 
-    selectInput("color", "Colors", items)
+    selectInput("color_scat", "Colors", items)
   })
 
   # Only train option
@@ -564,10 +587,10 @@ shiny::shinyServer(function(input, output, session) {
       return(NULL)
     }
 
-    datum <- values$dat
+    datum <- values$train_test_data
 
     ## Check if there is any data
-    if (is.null(datum) || is.null(input$plotType) || input$plotType != 2) {
+    if (is.null(datum) || is.null(input$plot_type) || input$plot_type != 2) {
       return(NULL)
     }
 
@@ -590,11 +613,11 @@ shiny::shinyServer(function(input, output, session) {
   # Background colour of the scatter plot
   output$i_back_colour_scatter_plot <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat) || is.null(input$plotType)) {
+    if (is.null(values$train_test_data) || is.null(input$plot_type)) {
       return(NULL)
     }
 
-    if (input$plotType != 2) {
+    if (input$plot_type != 2) {
       return(NULL)
     }
 
@@ -616,11 +639,11 @@ shiny::shinyServer(function(input, output, session) {
   # Write message for scatterplot
   output$i_scat_message <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
-    scat_message <- mess_fun(input$color, values$dat)
+    scat_message <- mess_fun(input$color_scat, values$train_test_data)
     scat_message
   })
 
@@ -628,11 +651,11 @@ shiny::shinyServer(function(input, output, session) {
   # Drawing buttons
   output$i_draw_scat <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
-    if (is.null(input$plotType) || (input$plotType != 2)) {
+    if (is.null(input$plot_type) || (input$plot_type != 2)) {
       return(NULL)
     }
 
@@ -650,7 +673,7 @@ shiny::shinyServer(function(input, output, session) {
   # Plotting scatterplot
   output$scatter_plot <- renderPlotly({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
@@ -660,11 +683,8 @@ shiny::shinyServer(function(input, output, session) {
       back_color <- "darkgrey"
     }
 
-    datum <- cbind(values$dat, as.data.frame(results$residual))
+    datum <- cbind(values$train_test_data, as.data.frame(results$residual))
     names(datum)[ncol(datum)] <- "Residual"
-
-    ini <- 1
-    end <- nrow(datum)
 
     refresh <- ref_plot6()
     col_nam <- colnames(datum)
@@ -676,16 +696,26 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if it is the same dataset than for the last scatterplot
     if (!is.null(old_names)) {
-      if (old_names[length(old_names)] != names(values$dat[ncol(values$dat)])) {
-        old_names <<- names(values$dat)
+      if (
+        old_names[length(old_names)] != names(values$train_test_data[ncol(values$train_test_data)])
+      ) {
+        old_names <<- names(values$train_test_data)
         return(NULL)
       }
     }
 
-    old_names <<- names(values$dat)
+    old_names <<- names(values$train_test_data)
 
     x <- datum[, match(input$x_scat, col_nam)]
     y <- datum[, match(input$y_scat, col_nam)]
+    color <- datum[, match(input$color_scat, col_nam)]
+
+    # Remove rows with NaN values in x and y
+    valid_indices <- complete.cases(x, y)
+    x_valid <- x[valid_indices]
+    y_valid <- y[valid_indices]
+    color_valid <- color[valid_indices]
+    data_df <- data.frame(x = x_valid, y = y_valid, color = color_valid)
 
     # Draw plot
     isolate({
@@ -724,17 +754,16 @@ shiny::shinyServer(function(input, output, session) {
       }
 
       plot <- add_trace(
-        data = datum[ini:end, ],
-        x = x,
-        y = y,
+        x = ~x_valid,
+        y = ~y_valid,
         p = plot,
         type = "scatter",
         mode = "markers",
         marker = list(
           size = point_size,
-          color = datum[, match(input$color, col_nam)],
+          color = ~color_valid,
           colorbar = list(
-            title = paste(input$color),
+            title = paste(input$color_scat),
             titlefont = list(size = 18),
             tickfont = list(size = 14)
           ),
@@ -744,8 +773,8 @@ shiny::shinyServer(function(input, output, session) {
         hovertemplate = paste(
           input$x_scat, ": %{x}<br>",
           input$y_scat, ": %{y}<br>",
-          input$color, ": ", datum[, match(input$color, col_nam)],
-          "<extra></extra>"
+          input$color_scat, ": %{marker.color:,}",
+          "<extra></extra>" # Removes trace0
         )
       )
 
@@ -789,10 +818,10 @@ shiny::shinyServer(function(input, output, session) {
 
   # Let select horizontal, vertical and color variables for scatterplot
   output$x_var_scat4d <- renderUI({
-     datum <- values$dat # "values": dataframe with new data
+     datum <- values$train_test_data # "values": dataframe with new data
 
     # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
+    if (is.null(datum) || is.null(input$plot_type)) {
       return(HTML("Please load some data file and select plot"))
     }
 
@@ -813,12 +842,12 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   output$y_var_scat4d <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (is.null(datum) ||
-        is.null(input$plotType) ||
-        (input$plotType == 4)) {
+        is.null(input$plot_type) ||
+        (input$plot_type == 4)) {
       return(NULL)
     }
 
@@ -841,12 +870,12 @@ shiny::shinyServer(function(input, output, session) {
 
   # Let select z axis variables for scatterplot 4D
   output$z_var_scat4d <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
     if (is.null(datum) ||
-        is.null(input$plotType) ||
-        (input$plotType == 4)) {
+        is.null(input$plot_type) ||
+        (input$plot_type == 4)) {
       return(NULL)
     }
 
@@ -868,14 +897,14 @@ shiny::shinyServer(function(input, output, session) {
   })
 
   output$i_color_scat4d <- renderUI({
-    datum <- values$dat
+    datum <- values$train_test_data
 
     # Check if there is any data
-    if (is.null(datum) || is.null(input$plotType)) {
+    if (is.null(datum) || is.null(input$plot_type)) {
       return(NULL)
     }
 
-    if (input$plotType == 4) {
+    if (input$plot_type == 4) {
       return(NULL)
     }
 
@@ -888,33 +917,33 @@ shiny::shinyServer(function(input, output, session) {
       items <- c(items, "Residual")
     }
 
-    selectInput("color4d", "Colors", items)
+    selectInput("color_scat4d", "Colors", items)
   })
 
   col_var <- eventReactive(input$refresh3, {
-    col_var <- input$color4d
+    col_var <- input$color_scat4d
     col_var
   })
 
   # Write message for scatterplot 4D
   output$i_scat_message <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
-    scat_message <- mess_fun(input$color4d, values$dat)
+    scat_message <- mess_fun(input$color_scat4d, values$train_test_data)
     scat_message
   })
 
   # Drawing buttons
   output$i_draw_scat4d <- renderUI({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
-    if (is.null(input$plotType) || (input$plotType != 3)) {
+    if (is.null(input$plot_type) || (input$plot_type != 3)) {
       return(NULL)
     }
 
@@ -932,11 +961,11 @@ shiny::shinyServer(function(input, output, session) {
   # Plotting scatterplot 4D
   output$scatter_plot4d <- renderPlotly({
     # Check if there is any data
-    if (is.null(values$dat)) {
+    if (is.null(values$train_test_data)) {
       return(NULL)
     }
 
-    datum <- cbind(values$dat, as.data.frame(results$residual))
+    datum <- cbind(values$train_test_data, as.data.frame(results$residual))
     names(datum)[ncol(datum)] <- "Residual"
     refresh <- ref_plot3()
     col_nam <- colnames(datum)
@@ -948,27 +977,42 @@ shiny::shinyServer(function(input, output, session) {
 
     # Check if it is the same dataset than the last time a scatterplot was drawn
     if (!is.null(old_names)) {
-      if (old_names[length(old_names)] != names(values$dat[ncol(values$dat)])) {
-        old_names <<- names(values$dat)
+      if (
+        old_names[length(old_names)] != names(values$train_test_data[ncol(values$train_test_data)])
+      ) {
+        old_names <<- names(values$train_test_data)
         return(NULL)
       }
     }
-    old_names <<- names(values$dat)
+    old_names <<- names(values$train_test_data)
+
+    x <- datum[, match(input$x_scat4d, col_nam)]
+    y <- datum[, match(input$y_scat4d, col_nam)]
+    z <- datum[, match(input$z_scat4d, col_nam)]
+    color <- datum[, match(input$color_scat4d, col_nam)]
+
+    # Remove rows with NaN values in x and y
+    valid_indices <- complete.cases(x, y, z)
+    x_valid <- x[valid_indices]
+    y_valid <- y[valid_indices]
+    z_valid <- z[valid_indices]
+    color_valid <- color[valid_indices]
+    data_df <- data.frame(x = x_valid, y = y_valid, z = z_valid, color = color_valid)
 
     # Draw plot
     isolate({
       plot4d <- plot_ly(
         data = datum,
-        x = datum[, match(input$x_scat4d, col_nam)],
-        y = datum[, match(input$y_scat4d, col_nam)],
-        z = datum[, match(input$z_scat4d, col_nam)],
+        x = ~x_valid,
+        y = ~y_valid,
+        z = ~z_valid,
         type = "scatter3d",
         mode = "markers",
         marker = list(
           size = point_size,
-          color = datum[, match(input$color4d, col_nam)],
+          color = ~color_valid,
           colorbar = list(
-            title = paste(title = paste(input$color4d)),
+            title = paste(title = paste(input$color_scat4d)),
             titlefont = list(size = 18),
             tickfont = list(size = 14)
           ),
@@ -976,10 +1020,10 @@ shiny::shinyServer(function(input, output, session) {
           showscale = TRUE
         ),
         hovertemplate = paste(
-          input$x_scat4d, ": ", datum[, match(input$x_scat4d, col_nam)], "<br>",
-          input$y_scat4d, ": ", datum[, match(input$y_scat4d, col_nam)], "<br>",
-          input$z_scat4d, ": ", datum[, match(input$z_scat4d, col_nam)], "<br>",
-          input$color, ": ", datum[, match(input$color4d, col_nam)],
+          input$x_scat4d, ": %{x}<br>",
+          input$y_scat4d, ": %{y}<br>",
+          input$z_scat4d, ": %{z}<br>",
+          input$color_scat4d, ": %{marker.color:,}",
           "<extra></extra>" # Removes trace0
         )
       )
@@ -1003,7 +1047,7 @@ shiny::shinyServer(function(input, output, session) {
           )
         )
       )
-      if (class(datum[, match(input$i_color_scat, col_nam)]) == "factor") {
+      if (class(datum[, match(input$i_color_scat4d, col_nam)]) == "factor") {
         showModal(modalDialog(
           title = "Colors doesn't work with factor variables",
           NULL,
@@ -1246,7 +1290,7 @@ shiny::shinyServer(function(input, output, session) {
       val <- 500
 
       numericInput(
-        "numTree",
+        "num_tree",
         label = "Number of trees",
         min = 250,
         max = 10000,
@@ -1444,10 +1488,10 @@ shiny::shinyServer(function(input, output, session) {
       }
     }
 
-    if (is.null(input$numTree)) { # Set value for number of trees
+    if (is.null(input$num_tree)) { # Set value for number of trees
       i_num_trees <- 500
     } else {
-      i_num_trees <- input$numTree
+      i_num_trees <- input$num_tree
       # Check value for number of trees
       if (
         !is.numeric(i_num_trees) || i_num_trees < 250 || i_num_trees > 10000
@@ -1635,6 +1679,7 @@ shiny::shinyServer(function(input, output, session) {
     values$dat <- datum
     values$train_data <- train_data
     values$test_data <- test_data
+    values$train_test_data <- rbind(train_data, test_data)
 
     showModal(modalDialog(title = title, text, size = c("s"), easyClose = TRUE))
     model_res_fit

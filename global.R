@@ -1659,7 +1659,7 @@ generate_month_year <- function(datum, n_columns) {
     datum[, 3:n_columns] <- datum[, 2:(n_columns - 1)]
     names(datum)[2:(n_columns + 1)] <- names(datum)[1:n_columns]
     names(datum)[2] <- c("Month")
-    datum[, 2] <- as.numeric(format(datum[, 1], "%m", tz = "GMT"))
+    datum[, 2] <- as.numeric(datum[, 1], format = "%m", tz = "GMT")
   }
 
   return(datum)
