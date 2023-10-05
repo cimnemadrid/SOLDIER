@@ -1530,6 +1530,30 @@ shiny::shinyServer(function(input, output, session) {
     train_data <- train_data[!is.na(train_data[, target_num]), ]
     test_data <- test_data[!is.na(test_data[, target_num]), ]
 
+    # Check if there are data in the target variable for train and test periods
+    if (nrow(train_data) < 1) {
+      showModal(
+        modalDialog(
+          title = "Warning",
+          "The target variable does not have data in the selected train period.",
+          size = c("s"),
+          easyClose = TRUE
+        )
+      )
+      return(NULL)
+    }
+    if (nrow(test_data) < 1) {
+      showModal(
+        modalDialog(
+          title = "Warning",
+          "The target variable does not have data in the selected test period.",
+          size = c("s"),
+          easyClose = TRUE
+        )
+      )
+      return(NULL)
+    }
+
     # Remove columns without values
     all_miss_cols <- sapply(train_data, function(x) all(is.na(x)))
     if (any(all_miss_cols)) {
@@ -1657,30 +1681,17 @@ shiny::shinyServer(function(input, output, session) {
       rows <- scat$ini:scat$end
     }
 
-    # Check if there are more than 4 elements in the target variable
-    if (sum(!is.na(values$dat[rows, target_num])) < 4) {
-      showModal(
-        modalDialog(
-          title = "Warning",
-          "The target variable has less than 4 non NA values.",
-          size = c("s"),
-          easyClose = FALSE
-        )
+    # Check if there are NA in target variable
+    if (any(is.na(values$dat[rows, target_num]))) {
+      perc <- 100 * sum(is.na(values$dat[rows, target_num])) / (length(rows))
+      title <- paste(
+        "Warning: there are ",
+        round(perc),
+        "% of NA on target variable"
       )
     }
-    else {
-      # Check if there are NA in target variable
-      if (any(is.na(values$dat[rows, target_num]))) {
-        perc <- 100 * sum(is.na(values$dat[rows, target_num])) / (length(rows))
-        title <- paste(
-          "Warning: there are ",
-          round(perc),
-          "% of NA on target variable"
-        )
-      }
 
-      showModal(modalDialog(title = title, text, size = c("s"), easyClose = TRUE))
-    }
+    showModal(modalDialog(title = title, text, size = c("s"), easyClose = TRUE))
 
     values$dat <- datum
     values$train_data <- train_data
