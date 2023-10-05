@@ -1152,19 +1152,11 @@ shiny::shinyServer(function(input, output, session) {
     source("aux_soldier.R", local = TRUE)$value
   })
 
-  output$iTrainYears <- renderUI({
+  output$iTrainTestYears <- renderUI({
     if ((!is.null(input$data_type) && input$data_type == 2)) {
       return(NULL)
     }
-    aux_soldier <- "train_periods"
-    source("aux_soldier.R", local = TRUE)$value
-  })
-
-  output$iTestYears <- renderUI({
-    if ((!is.null(input$data_type) && input$data_type == 2)) {
-      return(NULL)
-    }
-    aux_soldier <- "test_period"
+    aux_soldier <- "train_test_periods"
     source("aux_soldier.R", local = TRUE)$value
   })
 
@@ -1665,15 +1657,29 @@ shiny::shinyServer(function(input, output, session) {
       rows <- scat$ini:scat$end
     }
 
-    # Check if there are NA in traget variable
-    if (any(is.na(values$dat[rows, target_num]))) {
-      perc <- 100 * sum(is.na(values$dat[rows, target_num])) / (length(rows))
-      title <- paste(
-        "Warning",
-        "There are",
-        round(perc),
-        "% of NA on target variable"
+    # Check if there are more than 4 elements in the target variable
+    if (sum(!is.na(values$dat[rows, target_num])) < 4) {
+      showModal(
+        modalDialog(
+          title = "Warning",
+          "The target variable has less than 4 non NA values.",
+          size = c("s"),
+          easyClose = FALSE
+        )
       )
+    }
+    else {
+      # Check if there are NA in target variable
+      if (any(is.na(values$dat[rows, target_num]))) {
+        perc <- 100 * sum(is.na(values$dat[rows, target_num])) / (length(rows))
+        title <- paste(
+          "Warning: there are ",
+          round(perc),
+          "% of NA on target variable"
+        )
+      }
+
+      showModal(modalDialog(title = title, text, size = c("s"), easyClose = TRUE))
     }
 
     values$dat <- datum
@@ -1681,7 +1687,6 @@ shiny::shinyServer(function(input, output, session) {
     values$test_data <- test_data
     values$train_test_data <- rbind(train_data, test_data)
 
-    showModal(modalDialog(title = title, text, size = c("s"), easyClose = TRUE))
     model_res_fit
   })
 
