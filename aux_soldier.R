@@ -252,7 +252,7 @@ column(
         label = h5("Training and testing period"),
         start = train_start_date(),
         end = train_end_date(),
-        min = initial_date_train,
+        min = min(dates),
         max = max(dates)
       ),
       dateRangeInput(
@@ -260,7 +260,7 @@ column(
         label = NULL,
         start = test_start_date(),
         end = test_end_date(),
-        min = initial_date_train,
+        min = min(dates) + days(1),
         max = max(dates)
       )
     )

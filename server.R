@@ -1152,6 +1152,24 @@ shiny::shinyServer(function(input, output, session) {
     source("aux_soldier.R", local = TRUE)$value
   })
 
+  # Observe changes in train_end_date and update initial_date_test accordingly
+  observe({
+    update_end_date <- input$train_years[2]  # Get the user-selected end date for training
+    if (!is.null(update_end_date)) {
+      initial_date_test <- update_end_date + days(1)
+      updateDateRangeInput(session, "test_years", start = initial_date_test)
+    }
+  })
+
+  # Observe changes in test_start_date and update end_date_train accordingly
+  observe({
+    update_start_date <- input$test_years[1]  # Get the user-selected start date for testing
+    if (!is.null(update_start_date)) {
+      end_date_train <- update_start_date - days(1)
+      updateDateRangeInput(session, "train_years", end = end_date_train)
+    }
+  })
+
   output$iTrainTestYears <- renderUI({
     if ((!is.null(input$data_type) && input$data_type == 2)) {
       return(NULL)
