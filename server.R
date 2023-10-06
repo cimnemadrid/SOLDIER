@@ -108,19 +108,19 @@ shiny::shinyServer(function(input, output, session) {
 
     print("Loading file")
 
-    allowed_date_formats <- c("%d-%m-%Y %H:%M:%OS",
+    allowed_date_formats <- c("%Y-%m-%d %H:%M:%OS",
                              "%d/%m/%Y %H:%M:%OS",
                              "%m-%d-%Y %H:%M:%OS",
                              "%m/%d/%Y %H:%M:%OS",
                              "%Y-%m-%d %H:%M:%OS",
                              "%Y/%m/%d %H:%M:%OS",
-                             "%d-%m-%Y %H:%M",
+                             "%Y-%m-%d %H:%M",
                              "%d/%m/%Y %H:%M",
                              "%m-%d-%Y %H:%M",
                              "%m/%d/%Y %H:%M",
                              "%Y-%m-%d %H:%M",
                              "%Y/%m/%d %H:%M",
-                             "%d-%m-%Y",
+                             "%Y-%m-%d",
                              "%d/%m/%Y",
                              "%m-%d-%Y",
                              "%m/%d/%Y",

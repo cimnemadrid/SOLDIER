@@ -334,26 +334,26 @@ column(
         min_train <- datum[1, 1]
 
         row1 <- which(
-          as.Date(
-            min_date + first_days, origin = lubridate::origin
-          ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+          format(
+            min_date + first_days
+          ) <= format(datum[, 1], format = "%Y-%m-%d %H:%M:%OS")
         )[1]
 
         max_train <- datum[row1, 1]
         min_test <- datum[row1 + 1, 1]
 
         row2 <- which(
-          as.Date(
-            min_date + first_days + second_days, origin = lubridate::origin
-          ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+          format(
+            min_date + first_days + second_days
+          ) <= format(datum[, 1], format = "%Y-%m-%d %H:%M:%OS")
         )[1]
 
         max_test <- datum[row2, 1]
       } else {
         row1 <- which(
-          as.Date(
-            min_date + first_days + second_days, origin = lubridate::origin
-          ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+          format(
+            min_date + first_days + second_days
+          ) <= format(datum[, 1], format = "%Y-%m-%d %H:%M:%OS")
         )[1] + 1
 
         min_train <- datum[row1, 1]
@@ -361,9 +361,9 @@ column(
         max_train <- datum[length(datum[, 1]), 1]
 
         row2 <- which(
-          as.Date(
-            min_date + first_days, origin = lubridate::origin
-          ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+          format(
+            min_date + first_days
+          ) <= format(datum[, 1], format = "%Y-%m-%d %H:%M:%OS")
         )[1]
 
         min_test <- datum[row2, 1]
@@ -371,33 +371,33 @@ column(
       }
     } else { # Set test/train periods by selected dates
       row1 <- which(
-        as.Date(
+        format(
           input$train_years[1]
-        ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+        ) <= format(datum[, 1], format = "%Y-%m-%d %H:%M:%OS")
       )[1]
 
       min_train <- datum[row1, 1]
 
       row2 <- which(
-        as.Date(
+        format(
           input$train_years[2]
-        ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+        ) <= format(datum[, 1], format = "%Y-%m-%d %H:%M:%OS")
       )[1]
 
       max_train <- datum[row2, 1]
 
       row1 <- which(
-        as.Date(
+        format(
           input$test_years[1]
-        ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+        ) <= format(datum[, 1], format = "%Y-%m-%d %H:%M:%OS")
       )[1]
 
       min_test <- datum[row1, 1]
 
       row2 <- which(
-        as.Date(
+        format(
           input$test_years[2]
-        ) <= as.Date(datum[, 1], format = "%Y-%m-%d", origin = lubridate::origin)
+        ) <= format(datum[, 1], format = "%Y-%m-%d %H:%M:%OS")
       )[1]
 
       max_test <- datum[row2, 1]

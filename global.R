@@ -46,7 +46,7 @@ generate_time_plot <- function(
     back_color <- "darkgrey"
   }
 
-  date <- as.Date(zoo::index(data_sort))
+  date <- format(zoo::index(data_sort), format = "%Y-%m-%d %H:%M:%OS")
   graph_data <- as.data.frame(data_sort)
 
   time_plot <- plotly::plot_ly()
@@ -207,7 +207,7 @@ generate_time_plot_prediction <- function(
     back_color <- "darkgrey"
   }
 
-  date <- as.Date(zoo::index(data_sort))
+  date <- format(zoo::index(data_sort), format = "%Y-%m-%d %H:%M:%OS")
   graph_data <- as.data.frame(data_sort)
 
   min_y <- min(
@@ -307,14 +307,16 @@ generate_time_plot_prediction <- function(
   time_plot_pred <- time_plot_pred %>%
   plotly::layout(
     shapes = list(
-      vline(x = as.Date(start_train)),
-      vline(x = as.Date(end_train)),
-      vline(x = as.Date(end_test))
+      vline(x = format(start_train, format = "%Y-%m-%d %H:%M:%OS")),
+      vline(x = format(end_train, format = "%Y-%m-%d %H:%M:%OS")),
+      vline(x = format(end_test, format = "%Y-%m-%d %H:%M:%OS"))
     )
   ) %>%
   plotly::add_annotations(
     showlegend = FALSE,
-    x = c(as.Date(start_train), as.Date(end_train), as.Date(end_test)),
+    x = c(format(start_train, format = "%Y-%m-%d %H:%M:%OS"),
+          format(end_train, format = "%Y-%m-%d %H:%M:%OS"),
+          format(end_test, format = "%Y-%m-%d %H:%M:%OS")),
     y = c(min_y, min_y),
     xref = "x",
     yref = "y",
@@ -404,14 +406,16 @@ generate_time_plot_prediction <- function(
   time_plot_err <- time_plot_err %>%
   plotly::layout(
     shapes = list(
-      vline(x = as.Date(start_train)),
-      vline(x = as.Date(end_train)),
-      vline(x = as.Date(end_test))
+      vline(x = format(start_train, format = "%Y-%m-%d %H:%M:%OS")),
+      vline(x = format(end_train, format = "%Y-%m-%d %H:%M:%OS")),
+      vline(x = format(end_test, format = "%Y-%m-%d %H:%M:%OS"))
     )
   ) %>%
   plotly::add_annotations(
     showlegend = FALSE,
-    x = c(as.Date(start_train), as.Date(end_train), as.Date(end_test)),
+    x = c(format(start_train, format = "%Y-%m-%d %H:%M:%OS"),
+          format(end_train, format = "%Y-%m-%d %H:%M:%OS"),
+          format(end_test, format = "%Y-%m-%d %H:%M:%OS")),
     y = c(min_y_err, min_y_err),
     xref = "x",
     yref = "y",
