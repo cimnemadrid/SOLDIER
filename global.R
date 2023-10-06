@@ -165,7 +165,6 @@ generate_time_plot <- function(
       xaxis = list(
         title = "Date",
         type = "date",
-        tickformat = "%Y-%m-%d",
         rangeslider = list(type = "date"),
         zeroline = FALSE,
         showgrid = TRUE,
@@ -407,7 +406,7 @@ generate_time_plot_prediction <- function(
 
   time_plot_err <- time_plot_err %>%
   plotly::layout(
-    xaxis = list(type = "date", tickformat = "%Y-%m-%d"),
+    xaxis = list(type = "date"),
     shapes = list(
       vline(x = format(start_train, format = "%Y-%m-%d %H:%M:%OS")),
       vline(x = format(end_train, format = "%Y-%m-%d %H:%M:%OS")),
