@@ -504,13 +504,15 @@ dashboardPage(
                           icon = icon("signal")
                         )
                       ),
-                      column(
-                        width = 3,
-                        align = "right",
-                        checkboxInput(
-                          "confidence_interval",
-                          label = "Draw confidence interval",
-                          value = FALSE
+                      conditionalPanel(
+                        column(
+                          width = 3,
+                          align = "right",
+                          checkboxInput(
+                            "confidence_interval",
+                            label = "Draw confidence interval",
+                            value = FALSE
+                          )
                         )
                       )
                     ),
