@@ -505,6 +505,7 @@ dashboardPage(
                         )
                       ),
                       conditionalPanel(
+                        condition = "input.data_type == 1",
                         column(
                           width = 3,
                           align = "right",
