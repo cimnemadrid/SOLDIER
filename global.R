@@ -139,6 +139,7 @@ generate_time_plot <- function(
       yaxis2 = secondary_y,
       xaxis = list(
         title = "Date",
+        type = "date",
         rangeslider = list(type = "date"),
         zeroline = FALSE,
         showgrid = TRUE,
