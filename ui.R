@@ -495,16 +495,29 @@ dashboardPage(
                   width = 12,
                   tabPanel(
                     "Model fitting",
-                    actionButton(
-                      "refresh_pred_data",
-                      "Show/Refresh results",
-                      icon = icon("signal")
+                    fluidRow(
+                      column(
+                        width = 9,
+                        actionButton(
+                          "refresh_pred_data",
+                          "Show/Refresh results",
+                          icon = icon("signal")
+                        )
+                      ),
+                      column(
+                        width = 3,
+                        align = "right",
+                        checkboxInput(
+                          "confidence_interval",
+                          label = "Draw confidence interval",
+                          value = FALSE
+                        )
+                      )
                     ),
                     plotly::plotlyOutput(outputId = "pred_graph", height = "540px")
                   ),
                   tabPanel(
-                    "Out-of-bag estimation of the optimal number of boosting
-                    iterations",
+                    "Out-of-bag estimation of the optimal number of boosting iterations",
                     plotOutput(outputId = "oobPlot", height = "568px")
                   )
                 )

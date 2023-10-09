@@ -177,7 +177,8 @@ column(
       end_train,
       end_test,
       400,
-      FALSE
+      FALSE,
+      input$confidence_interval
     )
   },
 
