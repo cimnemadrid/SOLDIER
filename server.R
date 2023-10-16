@@ -765,7 +765,7 @@ shiny::shinyServer(function(input, output, session) {
           colorbar = list(
             title = paste(input$color_scat),
             titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            tickfont = list(size = 14)
           ),
           colorscale = "Rainbow",
           showscale = TRUE
@@ -793,14 +793,14 @@ shiny::shinyServer(function(input, output, session) {
             zeroline = FALSE,
             showgrid = TRUE,
             titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            tickfont = list(size = 14)
           ),
           yaxis = list(
             title = input$y_scat,
             zeroline = FALSE,
             showgrid = TRUE,
             titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            tickfont = list(size = 14)
           ),
           margin = list(l = 50, r = 50, b = 50, t = 50, pad = 2),
           plot_bgcolor = back_color,
@@ -1014,7 +1014,7 @@ shiny::shinyServer(function(input, output, session) {
           colorbar = list(
             title = paste(title = paste(input$color_scat4d)),
             titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            tickfont = list(size = 14)
           ),
           colorscale = "Rainbow",
           showscale = TRUE
@@ -1033,17 +1033,17 @@ shiny::shinyServer(function(input, output, session) {
           xaxis = list(
             title = input$x_scat4d,
             titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            tickfont = list(size = 14)
           ),
           yaxis = list(
             title = input$y_scat4d,
             titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            tickfont = list(size = 14)
           ),
           zaxis = list(
             title = input$z_scat4d,
             titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            tickfont = list(size = 14)
           )
         )
       )

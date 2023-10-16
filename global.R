@@ -153,7 +153,7 @@ generate_time_plot <- function(
         tickfont = list(size = 16)
       ),
       legend = list(
-        font = list(size = 16),
+        font = list(size = 14),
         x = 0.95,
         y = 0.95
       )
@@ -179,7 +179,7 @@ generate_time_plot <- function(
         tickfont = list(size = 16)
       ),
       legend = list(
-        font = list(size = 16),
+        font = list(size = 14),
         x = 0.95,
         y = 0.95
     )
