@@ -765,7 +765,7 @@ shiny::shinyServer(function(input, output, session) {
           colorbar = list(
             title = paste(input$color_scat),
             titlefont = list(size = 18),
-            tickfont = list(size = 14)
+            tickfont = list(size = 16)
           ),
           colorscale = "Rainbow",
           showscale = TRUE
@@ -1014,7 +1014,7 @@ shiny::shinyServer(function(input, output, session) {
           colorbar = list(
             title = paste(title = paste(input$color_scat4d)),
             titlefont = list(size = 18),
-            tickfont = list(size = 14)
+            tickfont = list(size = 16)
           ),
           colorscale = "Rainbow",
           showscale = TRUE
@@ -1033,17 +1033,17 @@ shiny::shinyServer(function(input, output, session) {
           xaxis = list(
             title = input$x_scat4d,
             titlefont = list(size = 18),
-            tickfont = list(size = 14)
+            tickfont = list(size = 16)
           ),
           yaxis = list(
             title = input$y_scat4d,
             titlefont = list(size = 18),
-            tickfont = list(size = 14)
+            tickfont = list(size = 16)
           ),
           zaxis = list(
             title = input$z_scat4d,
             titlefont = list(size = 18),
-            tickfont = list(size = 14)
+            tickfont = list(size = 16)
           )
         )
       )
@@ -1896,13 +1896,23 @@ shiny::shinyServer(function(input, output, session) {
       ini_train <- 1
       end_train <- nrow(model_res$data_out) - length(model_res$positions)
       text_train <- "Training observation"
-      sca_plot_train <- generate_fitting_plot_ggplot2(
+
+      graph_data <- model_res$data_out[ini_train:end_train, ]
+
+      # Calculate the absolute error for each observation
+      absolute_errors <- abs(graph_data$error)
+
+      # Calculate the mean absolute error (MAE)
+      mae <- mean(absolute_errors)
+
+      sca_plot_train <- generate_fitting_plot(
         model_res$data_out,
         n_model,
         predict,
         ini_train,
         end_train,
-        text_train
+        text_train,
+        mae
       )
 
       # Calculate test fitting plot
@@ -1910,31 +1920,36 @@ shiny::shinyServer(function(input, output, session) {
       end_test <- nrow(model_res$data_out)
       text_test <- "Testing observation"
 
-      sca_plot_test <- generate_fitting_plot_ggplot2(
+      sca_plot_test <- generate_fitting_plot(
         model_res$data_out,
         n_model,
         predict,
         ini_test,
         end_test,
-        text_test
+        text_test,
+        mae
       )
 
-      plotly_sca_plot_train <- plotly::ggplotly(sca_plot_train) %>%
-      plotly::layout(xaxis = list(title = list(text = text_train)),
-                     yaxis = list(title = list(text = "Prediction")))
+      sca_plot_train <- sca_plot_train %>%
+        layout(
+          xaxis = list(title = text_train),
+          yaxis = list(title = "Prediction")
+        )
 
-      plotly_sca_plot_test <- plotly::ggplotly(sca_plot_test) %>%
-      plotly::layout(xaxis = list(title = list(text = text_test)),
-                     yaxis = list(title = list(text = "Prediction")))
+      sca_plot_test <- sca_plot_test %>%
+        layout(
+          xaxis = list(title = text_test),
+          yaxis = list(title = "Prediction")
+        )
 
-      plotly_sca_plot <- subplot(
-        plotly_sca_plot_train,
-        plotly_sca_plot_test,
+      sca_plot <- subplot(
+        sca_plot_train,
+        sca_plot_test,
         titleX = TRUE,
         shareY = TRUE
       )
 
-      return(plotly_sca_plot)
+      return(sca_plot)
     }
   })
 
@@ -1985,8 +2000,6 @@ shiny::shinyServer(function(input, output, session) {
 
     # Calculate bars plots
     rel_influence_plot <- generate_bar_plot(var_inf, min_var, max_var)
-    rel_influence_plot <- rel_influence_plot +
-      geom_bar(stat = "identity", fill = "steelblue1", colour = "black")
 
     return(rel_influence_plot)
     dev.off()
@@ -2066,7 +2079,7 @@ shiny::shinyServer(function(input, output, session) {
       label = NULL,
       value = 10,
       min = 5,
-      max = 40,
+      max = 100,
       step = NA
     )
   })

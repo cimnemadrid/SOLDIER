@@ -1,5 +1,4 @@
 library(magrittr)
-library(ggplot2)
 
 relative_influence <- NULL
 prediction <- NULL
@@ -154,10 +153,10 @@ generate_time_plot <- function(
         tickfont = list(size = 16)
       ),
       legend = list(
-        font = list(size = 14),
-      x = 0.95,
-      y = 0.95
-    )
+        font = list(size = 16),
+        x = 0.95,
+        y = 0.95
+      )
     )
   } else {
     time_plot <- time_plot %>%
@@ -180,7 +179,7 @@ generate_time_plot <- function(
         tickfont = list(size = 16)
       ),
       legend = list(
-        font = list(size = 14),
+        font = list(size = 16),
         x = 0.95,
         y = 0.95
     )
@@ -461,7 +460,7 @@ generate_time_plot_prediction <- function(
 }
 
 # Function to calculate fitting plot
-generate_fitting_plot_ggplot2 <- function(graph_data, n_model, predict, ini, end, text) {
+generate_fitting_plot <- function(graph_data, n_model, predict, ini, end, text, mae) {
   graph_data[, 3] <- 0
 
   # Calculate mean of predictions for all the models
@@ -470,66 +469,148 @@ generate_fitting_plot_ggplot2 <- function(graph_data, n_model, predict, ini, end
   }
   graph_data[, 3] <- graph_data[, 3] / n_model
 
-  min2 <- min(graph_data[, 2], na.rm = TRUE)
-  max2 <- max(graph_data[, 2], na.rm = TRUE)
-  min3 <- min(graph_data[, 3], na.rm = TRUE)
-  max3 <- max(graph_data[, 3], na.rm = TRUE)
+  min_x <- min(graph_data[, 2], na.rm = TRUE)
+  max_x <- max(graph_data[, 2], na.rm = TRUE)
+  min_y <- min(graph_data[, 3], na.rm = TRUE)
+  max_y <- max(graph_data[, 3], na.rm = TRUE)
+
+  x0 <- min_x - 0.02 * (max_x - min_x)
+  x1 <- max_x + 0.02 * (max_x - min_x)
+  y0 <- min_y - 0.02 * (max_y - min_y)
+  y1 <- max_y + 0.02 * (max_y - min_y)
 
   graph_data <- graph_data[ini:end, ]
-  y_points <- ggplot2::aes(y = prediction)
 
-  sca_plot <- generate_line_plot_ggplot2(
-    graph_data[, 2:3],
-    text,
-    "Prediction",
-    graph_data[, 2],
-    y_points,
-    c(min2, max2),
-    c(min3, max3)
-  )
+  # Create a Plotly scatter plot
+  sca_plot <- plotly::plot_ly(data = graph_data[, 2:3],
+                              x = ~graph_data[, 2],
+                              y = ~graph_data[, 3],
+                              type = "scatter",
+                              mode = "markers",
+                              marker = list(
+                                symbol = "circle",
+                                color = "rgb(99,184,255)",
+                                line = list(color = "black", width = 1),
+                                size = 8
+                              ),
+                              hovertemplate = paste(
+                                "Observation: %{x}<br>",
+                                "Prediction: %{y}",
+                                "<extra></extra>" # Removes trace0
+                              ),
+                              showlegend = FALSE)
 
-  sca_plot <- sca_plot +
-    ggplot2::geom_abline(linetype = "dashed", color = "royalblue")
+  # Customize the layout
+  sca_plot <- sca_plot %>%
+    plotly::layout(
+      xaxis = list(
+        title = text,
+        titlefont = list(size = 18),
+        standoff = 50,
+        tickfont = list(size = 16),
+        range = c(x0, x1)
+      ),
+      yaxis = list(
+        title = "Prediction",
+        titlefont = list(size = 18),
+        standoff = 50,
+        tickfont = list(size = 16),
+        range = c(y0, y1)
+      ),
+      # Add a border (box) around the plot
+      shapes = list(
+        list(
+          type = "rect",
+          x0 = x0,
+          x1 = x1,
+          y0 = y0,
+          y1 = y1,
+          line = list(color = "black", width = 2)
+        )
+      )
+    )
+
+  # Create a dashed line (abline) on the Plotly plot
+  sca_plot <- plotly::add_trace(
+      x = c(x0, x1),
+      y = c(x0, x1),
+      p = sca_plot,
+      type = "scatter",
+      mode = "lines",
+      line = list(color = "royalblue"),
+      marker = NULL,
+      showlegend = FALSE
+    )
+
+  sca_plot <- plotly::add_trace(
+      x = c(x0 - mae, x1 - mae),
+      y = c(x0, x1),
+      p = sca_plot,
+      type = "scatter",
+      mode = "lines",
+      line = list(dash = "dash", color = "royalblue"),
+      marker = NULL,
+      showlegend = FALSE
+    )
+
+  sca_plot <- plotly::add_trace(
+      x = c(x0 + mae, x1 + mae),
+      y = c(x0, x1),
+      p = sca_plot,
+      type = "scatter",
+      mode = "lines",
+      line = list(dash = "dash", color = "royalblue"),
+      marker = NULL,
+      showlegend = FALSE
+    )
 
   return(sca_plot)
 }
 
-# Function to calculate line plot
-generate_line_plot_ggplot2 <- function(
-  base_plot,
-  x_dp2,
-  response_name,
-  x_var_scat,
-  y_points,
-  lim_x,
-  lim_y
-) {
-  pd_plot <- ggplot2::ggplot(
-    data = base_plot,
-    ggplot2::aes(x = x_var_scat, y = NULL)
-  ) +
-  ggplot2::geom_point(y_points, shape = 21, fill = "steelblue1") +
-  ggplot2::theme(axis.title.x = ggplot2::element_text(size = 20, vjust = 3)) +
-  ggplot2::labs(x = x_dp2, y = response_name) +
-  ggplot2::coord_cartesian(xlim = lim_x, ylim = lim_y) +
-  pre_theme()
-
-  return(pd_plot)
-}
-
 # Funtion to generate bar plot
 generate_bar_plot <- function(var_inf, min_var, max_var) {
-  rel_influence_plot <- ggplot2::ggplot(
-    var_inf[min_var:max_var, ],
-    ggplot2::aes(x = var, y = relative_influence)
+# Create a Plotly bar plot
+rel_influence_plot <- plotly::plot_ly(
+  data = var_inf[min_var:max_var, ],
+  x = ~relative_influence,
+  y = ~var,
+  type = "bar",
+  marker = list(
+    color = "rgb(99,184,255)",
+    line = list(color = "black", width = 1)
+  ),
+  hovertemplate = paste(
+    "Variable: %{y}<br>",
+    "Influence: %{x}",
+    "<extra></extra>" # Removes trace0
+  )
+)
+
+# Customize the layout
+rel_influence_plot <- rel_influence_plot %>%
+  plotly::layout(
+    xaxis = list(
+      title = "Relative Influence %",
+      titlefont = list(size = 18),
+      standoff = 50,
+      tickfont = list(size = 16)
+    ),
+    yaxis = list(
+      title = "",
+      titlefont = list(size = 18),
+      standoff = 3,
+      autorange = "reversed",
+      tickfont = list(size = 16)
+    ),
+    font = list(family = "Arial"),  # Set the font family
+    showlegend = FALSE  # To hide the legend
   )
 
-  rel_influence_plot <- rel_influence_plot +
-    ggplot2::coord_flip() +
-    ggplot2::theme(axis.title.x = ggplot2::element_text(size = 20, vjust = 3)) +
-    ggplot2::labs(x = NULL, y = "Relative Influence %") +
-    pre_theme() +
-    theme(text = element_text(family = "Arial"))
+  rel_influence_plot <- plotly::config(
+    p = rel_influence_plot,
+    displayModeBar = FALSE  # To hide the mode bar
+  )
+
   return(rel_influence_plot)
 }
 
@@ -582,8 +663,6 @@ generate_bar_plot_new_model <- function(influmean) {
 
   # Generate and customize bar plot
   rel_influence_plot <- generate_bar_plot(var_inf_grouped, min_var, max_var)
-  rel_influence_plot <- rel_influence_plot +
-    ggplot2::geom_bar(stat = "identity", fill = "steelblue1", colour = "black")
 
   return(rel_influence_plot)
 }
@@ -644,14 +723,26 @@ generate_pdp1d_plot <- function(
 
     pd_plot <- pd_plot %>%
     plotly::layout(
-      xaxis = list(title = x_dp2, zeroline = FALSE),
+      xaxis = list(
+        title = x_dp2,
+        titlefont = list(size = 18),
+        tickfont = list(size = 16),
+        zeroline = FALSE
+      ),
       yaxis = list(
         title = target,
+        titlefont = list(size = 18),
+        tickfont = list(size = 16),
         zeroline = FALSE
       ),
       showlegend = TRUE,
-      legend = list(orientation = "h", x = 0.25, y = -0.2),
-      font = list(family = "Arial", size = 20),
+      legend = list(
+        orientation = "h",
+        x = 0.35,
+        y = -0.2,
+        font = list(size = 16)
+      ),
+      font = list(family = "Arial"),
       margin = list(l = 100, r = 30, t = 70, b = 70)
     )
   } else { # Draw 2 one-variable PDP
@@ -724,17 +815,23 @@ generate_pdp1d_plot <- function(
     plotly::layout(
       xaxis = list(
         title = x_dp2,
+        titlefont = list(size = 18),
+        tickfont = list(size = 16),
         zeroline = FALSE,
         showgrid = FALSE
       ),
       yaxis = list(
         title = target,
+        titlefont = list(size = 18),
+        tickfont = list(size = 16),
         zeroline = FALSE
       ),
       xaxis2 = list(
         title = x_dp3,
         overlaying = "x",
         side = "top",
+        titlefont = list(size = 18),
+        tickfont = list(size = 16),
         zeroline = FALSE,
         showgrid = FALSE
       ),
@@ -743,8 +840,13 @@ generate_pdp1d_plot <- function(
         zeroline = FALSE
       ),
       showlegend = TRUE,
-      legend = list(orientation = "h", x = 0.33, y = -0.2),
-      font = list(family = "Arial", size = 20),
+      legend = list(
+        orientation = "h",
+        x = 0.35,
+        y = -0.2,
+        font = list(size = 20)
+      ),
+      font = list(family = "Arial"),
       margin = list(l = 100, r = 30, t = 70, b = 70)
     )
   }
@@ -810,7 +912,7 @@ create_data_pdp_plot <- function(columns, heat_p, heat_data_1, heat_data_3) {
     heat_data_3[1:end, j] <- heat_p[columns[j]:(end + columns[j] - 1), 3]
   }
 
-  min_row <- apply(heat_data_1, 1, min, na.rm = TRUE)
+  min_row <- apply(heat_data_1, 1, FUN = min, na.rm = TRUE)
   heat_data_1[heat_data_1 > min_row] <- NA
   heat_data_3[heat_data_1 > min_row] <- NA
 
@@ -834,7 +936,7 @@ generate_pdp2d_plotly_plot <- function(
     z = plot_data,
     showscale = TRUE,
     hoverinfo = "z",
-    hoverlabel = list(bgcolor = "white", font = list(size = 10)),
+    hoverlabel = list(font = list(size = 12)),
     colorbar = list(title = paste(target)),
     type = "contour"
   )
@@ -925,7 +1027,7 @@ generate_pdp3d_plotly_plot <- function(
     z = plot_data,
     showscale = FALSE,
     hoverinfo = "z",
-    hoverlabel = list(bgcolor = "white", font = list(size = 10))
+    hoverlabel = list(font = list(size = 12)),
   )
   plot_3d <- plot_3d %>%
     plotly::add_surface(
@@ -1056,117 +1158,6 @@ generate_pdp3d_plot <- function(
   )
 
   return(plot_3d)
-}
-
-# Function for ggplot2 plots pre-loaded theme
-pre_theme <- function() {
-
-  # Generate the colors for the chart procedurally with RColorBrewer
-  palette <- RColorBrewer::brewer.pal("Greys", n = 9)
-
-  color_background <- "white"
-  color_grid_major <- palette[3]
-  color_axis_text <- palette[6]
-  color_axis_title <- palette[7]
-  color_title <- palette[9]
-
-  # Start construction of chart
-  ggplot2::theme_bw(base_size = 9) +
-
-    # Set the entire chart region to a light gray color
-    ggplot2::theme(
-      panel.background = ggplot2::element_rect(
-        fill = color_background,
-        color = color_background
-      )
-    ) +
-    ggplot2::theme(
-      plot.background = ggplot2::element_rect(
-        fill = color_background,
-        color = color_background
-      )
-    ) +
-    ggplot2::theme(
-      panel.border = ggplot2::element_rect(
-        color = color_background
-      )
-    ) +
-
-    # Format the grid
-    ggplot2::theme(
-      panel.grid.major = ggplot2::element_line(
-        color = color_grid_major,
-        size = .25
-      )
-    ) +
-    ggplot2::theme(
-      panel.grid.minor = ggplot2::element_blank()
-    ) +
-    ggplot2::theme(
-      axis.ticks = element_blank()
-    ) +
-
-    # Format the legend, but hide by default
-    ggplot2::theme(
-      legend.background = ggplot2::element_rect(
-        fill = color_background
-      )
-    ) +
-    ggplot2::theme(
-      legend.text = ggplot2::element_text(
-        size = 16,
-        color = color_axis_title
-      )
-    ) +
-    ggplot2::theme(
-      legend.title = ggplot2::element_text(
-        size = 16,
-        color = color_axis_title
-      )
-    ) +
-    ggplot2::theme(
-      legend.key.height = unit(2, "cm")
-    ) +
-
-    # Set title and axis labels, and format these and tick marks
-    ggplot2::theme(
-      plot.title = ggplot2::element_text(
-        color = color_title,
-        size = 10,
-        vjust = 1.25
-      )
-    ) +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(
-        size = 16,
-        color = color_axis_text
-      )
-    ) +
-    ggplot2::theme(
-      axis.text.y = ggplot2::element_text(
-        size = 16,
-        color = color_axis_text
-      )
-    ) +
-    ggplot2::theme(
-      axis.title.x = ggplot2::element_text(
-        size = 20,
-        color = color_axis_title,
-        vjust = 0
-      )
-    ) +
-    ggplot2::theme(
-      axis.title.y = ggplot2::element_text(
-        size = 20,
-        color = color_axis_title,
-        vjust = 1.25
-      )
-    ) +
-
-    # Plot margins
-    ggplot2::theme(
-      plot.margin = unit(c(0.35, 1, 0.3, 0.35), "cm")
-    )
 }
 
 #------------------------------------------------------------------------------#
