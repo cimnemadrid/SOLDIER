@@ -748,35 +748,63 @@ shiny::shinyServer(function(input, output, session) {
             mode = "none",
             fill = "toself",
             fillcolor = "blue, 0.5",
-            hovertemplate = "none"
+            hoverinfo = "none"
           )
         }
       }
 
-      plot <- add_trace(
-        x = ~x_valid,
-        y = ~y_valid,
-        p = plot,
-        type = "scatter",
-        mode = "markers",
-        marker = list(
-          size = point_size,
-          color = ~color_valid,
-          colorbar = list(
-            title = paste(input$color_scat),
-            titlefont = list(size = 18),
-            tickfont = list(size = 14)
+      # This is needed for printing properly the hover info in case there is a date
+      if (inherits(x_valid[1], "POSIXct") || inherits(x_valid[1], "POSIXlt")) {
+        plot <- add_trace(
+          x = ~x_valid,
+          y = ~y_valid,
+          p = plot,
+          type = "scatter",
+          mode = "markers",
+          marker = list(
+            size = point_size,
+            color = ~color_valid,
+            colorbar = list(
+              title = paste(input$color_scat),
+              titlefont = list(size = 18),
+              tickfont = list(size = 14)
+            ),
+            colorscale = "Rainbow",
+            showscale = TRUE
           ),
-          colorscale = "Rainbow",
-          showscale = TRUE
-        ),
-        hovertemplate = paste(
-          input$x_scat, ": %{x}<br>",
-          input$y_scat, ": %{y}<br>",
-          input$color_scat, ": %{marker.color:,}",
-          "<extra></extra>" # Removes trace0
+          hovertemplate = paste(
+            input$x_scat, ": %{x}<br>",
+            input$y_scat, ": %{y:.2f}<br>",
+            input$color_scat, ": %{marker.color:.2f}",
+            "<extra></extra>" # Removes trace0
+          )
         )
-      )
+      } else {
+        plot <- add_trace(
+          x = ~x_valid,
+          y = ~y_valid,
+          p = plot,
+          type = "scatter",
+          mode = "markers",
+          marker = list(
+            size = point_size,
+            color = ~color_valid,
+            colorbar = list(
+              title = paste(input$color_scat),
+              titlefont = list(size = 18),
+              tickfont = list(size = 14)
+            ),
+            colorscale = "Rainbow",
+            showscale = TRUE
+          ),
+          hovertemplate = paste(
+            input$x_scat, ": %{x:.2f}<br>",
+            input$y_scat, ": %{y:.2f}<br>",
+            input$color_scat, ": %{marker.color:.2f}",
+            "<extra></extra>" # Removes trace0
+          )
+        )
+      }
 
       if (class(datum[, match(input$i_color_scat, col_nam)]) == "factor") {
         showModal(modalDialog(
@@ -1001,32 +1029,66 @@ shiny::shinyServer(function(input, output, session) {
 
     # Draw plot
     isolate({
-      plot4d <- plot_ly(
-        data = datum,
-        x = ~x_valid,
-        y = ~y_valid,
-        z = ~z_valid,
-        type = "scatter3d",
-        mode = "markers",
-        marker = list(
-          size = point_size,
-          color = ~color_valid,
-          colorbar = list(
-            title = paste(title = paste(input$color_scat4d)),
-            titlefont = list(size = 18),
-            tickfont = list(size = 14)
+      plot4d <- plot_ly()
+
+      # This is needed for printing properly the hover info in case there is a date
+      if (inherits(x_valid[1], "POSIXct") || inherits(x_valid[1], "POSIXlt")) {
+        plot4d <- add_trace(
+          data = datum,
+          x = ~x_valid,
+          y = ~y_valid,
+          z = ~z_valid,
+          p = plot4d,
+          type = "scatter3d",
+          mode = "markers",
+          marker = list(
+            size = point_size,
+            color = ~color_valid,
+            colorbar = list(
+              title = paste(title = paste(input$color_scat4d)),
+              titlefont = list(size = 18),
+              tickfont = list(size = 14)
+            ),
+            colorscale = "Rainbow",
+            showscale = TRUE
           ),
-          colorscale = "Rainbow",
-          showscale = TRUE
-        ),
-        hovertemplate = paste(
-          input$x_scat4d, ": %{x}<br>",
-          input$y_scat4d, ": %{y}<br>",
-          input$z_scat4d, ": %{z}<br>",
-          input$color_scat4d, ": %{marker.color:,}",
-          "<extra></extra>" # Removes trace0
+          hovertemplate = paste(
+            input$x_scat4d, ": %{x}<br>",
+            input$y_scat4d, ": %{y:.2f}<br>",
+            input$z_scat4d, ": %{z:.2f}<br>",
+            input$color_scat4d, ": %{marker.color:.2f}",
+            "<extra></extra>" # Removes trace0
+          )
         )
-      )
+      } else {
+        plot4d <- add_trace(
+          data = datum,
+          x = ~x_valid,
+          y = ~y_valid,
+          z = ~z_valid,
+          p = plot4d,
+          type = "scatter3d",
+          mode = "markers",
+          marker = list(
+            size = point_size,
+            color = ~color_valid,
+            colorbar = list(
+              title = paste(title = paste(input$color_scat4d)),
+              titlefont = list(size = 18),
+              tickfont = list(size = 14)
+            ),
+            colorscale = "Rainbow",
+            showscale = TRUE
+          ),
+          hovertemplate = paste(
+            input$x_scat4d, ": %{x:.2f}<br>",
+            input$y_scat4d, ": %{y:.2f}<br>",
+            input$z_scat4d, ": %{z:.2f}<br>",
+            input$color_scat4d, ": %{marker.color:.2f}",
+            "<extra></extra>" # Removes trace0
+          )
+        )
+      }
       plot4d <- plot4d %>%
       layout(
         scene = list(

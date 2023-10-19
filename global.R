@@ -61,7 +61,8 @@ generate_time_plot <- function(
       p = time_plot,
       line = list(color = set_color[1], width = 3),
       marker = list(color = set_color[1], symbol = "circle", size = 4),
-      name = vars
+      name = vars,
+      hovertemplate = "(%{x}, %{y:.2f})"
     )
   } else {
     for (i in seq_along(graph_data[, c(vars)])) {
@@ -75,7 +76,8 @@ generate_time_plot <- function(
         p = time_plot,
         line = list(color = set_color[i], width = 3),
         marker = list(color = set_color[i], symbol = "circle", size = 4),
-        name = vars[[i]]
+        name = vars[[i]],
+        hovertemplate = "(%{x}, %{y:.2f})"
       )
     }
   }
@@ -108,7 +110,8 @@ generate_time_plot <- function(
           symbol = "circle",
           size = 4
         ),
-        name = vars2
+        name = vars2,
+        hovertemplate = "(%{x}, %{y:.2f})"
       )
     } else {
       for (j in seq_along(vars2)) {
@@ -127,7 +130,8 @@ generate_time_plot <- function(
             symbol = "circle",
             size = 4
           ),
-          name = vars2[[j]]
+          name = vars2[[j]],
+          hovertemplate = "(%{x}, %{y:.2f})"
         )
       }
     }
@@ -230,7 +234,8 @@ generate_time_plot_prediction <- function(
     line = list(color = set_color[1], width = 2),
     marker = list(color = set_color[1], size = 5),
     name = "Observation",
-    layout
+    layout,
+    hovertemplate = "(%{x}, %{y:.2f})"
   )
 
   time_plot_pred <- plotly::add_trace(
@@ -242,7 +247,8 @@ generate_time_plot_prediction <- function(
     connectgaps = FALSE,
     p = time_plot_pred,
     line = list(color = set_color[2], width = 2, dash = "dash"),
-    name = "Prediction"
+    name = "Prediction",
+    hovertemplate = "(%{x}, %{y:.2f})"
   )
 
   if (confidence_interval) {
@@ -264,7 +270,8 @@ generate_time_plot_prediction <- function(
       connectgaps = FALSE,
       p = time_plot_pred,
       line = list(color = set_color[2], width = 0),
-      showlegend = FALSE
+      showlegend = FALSE,
+      hovertemplate = "(%{x}, %{y:.2f}, <extra></extra>)"
     )
 
     time_plot_pred <- plotly::add_trace(
@@ -278,7 +285,8 @@ generate_time_plot_prediction <- function(
       line = list(color = set_color[2], width = 0),
       fill = "tonexty",  # Fill the area between the lines
       fillcolor = "rgba(0,0,0,0.2)",  # Transparent fill color
-      showlegend = FALSE
+      showlegend = FALSE,
+      hovertemplate = "(%{x}, %{y:.2f}, <extra></extra>)"
     )
 
     time_plot_pred <- plotly::add_trace(
@@ -290,7 +298,8 @@ generate_time_plot_prediction <- function(
       connectgaps = FALSE,
       p = time_plot_pred,
       line = list(color = set_color[2], width = 0),
-      showlegend = FALSE
+      showlegend = FALSE,
+      hovertemplate = "(%{x}, %{y:.2f}, <extra></extra>)"
     )
 
     time_plot_pred <- plotly::add_trace(
@@ -304,7 +313,8 @@ generate_time_plot_prediction <- function(
       line = list(color = set_color[2], width = 0),
       fill = "tonexty",  # Fill the area between the lines
       fillcolor = "rgba(0,0,0,0.2)",  # Transparent fill color
-      showlegend = FALSE
+      showlegend = FALSE,
+      hovertemplate = "(%{x}, %{y:.2f}, <extra></extra>)"
     )
   }
 
@@ -343,7 +353,8 @@ generate_time_plot_prediction <- function(
     connectgaps = FALSE,
     p = time_plot_err,
     line = list(color = set_color[3], width = 2),
-    name = "Error"
+    name = "Error",
+    hovertemplate = "(%{x}, %{y:.2f})"
   )
 
   if (confidence_interval) {
@@ -364,7 +375,8 @@ generate_time_plot_prediction <- function(
       connectgaps = FALSE,
       p = time_plot_err,
       line = list(color = set_color[2], width = 0),
-      showlegend = FALSE
+      showlegend = FALSE,
+      hovertemplate = "(%{x}, %{y:.2f}, <extra></extra>)"
     )
 
     time_plot_err <- plotly::add_trace(
@@ -378,7 +390,8 @@ generate_time_plot_prediction <- function(
       line = list(color = set_color[2], width = 0),
       fill = "tonexty",  # Fill the area between the lines
       fillcolor = "rgba(0,0,0,0.2)",  # Transparent fill color
-      showlegend = FALSE
+      showlegend = FALSE,
+      hovertemplate = "(%{x}, %{y:.2f}, <extra></extra>)"
     )
 
     time_plot_err <- plotly::add_trace(
@@ -390,7 +403,8 @@ generate_time_plot_prediction <- function(
       connectgaps = FALSE,
       p = time_plot_err,
       line = list(color = set_color[2], width = 0),
-      showlegend = FALSE
+      showlegend = FALSE,
+      hovertemplate = "(%{x}, %{y:.2f}, <extra></extra>)"
     )
 
     time_plot_err <- plotly::add_trace(
@@ -404,7 +418,8 @@ generate_time_plot_prediction <- function(
       line = list(color = set_color[2], width = 0),
       fill = "tonexty",  # Fill the area between the lines
       fillcolor = "rgba(0,0,0,0.2)",  # Transparent fill color
-      showlegend = FALSE
+      showlegend = FALSE,
+      hovertemplate = "(%{x}, %{y:.2f}, <extra></extra>)"
     )
   }
 
@@ -494,8 +509,8 @@ generate_fitting_plot <- function(graph_data, n_model, predict, ini, end, text, 
                                 size = 8
                               ),
                               hovertemplate = paste(
-                                "Observation: %{x}<br>",
-                                "Prediction: %{y}",
+                                "Observation: %{x:.2f}<br>",
+                                "Prediction: %{y:.2f}",
                                 "<extra></extra>" # Removes trace0
                               ),
                               showlegend = FALSE)
@@ -569,42 +584,56 @@ generate_fitting_plot <- function(graph_data, n_model, predict, ini, end, text, 
 
 # Funtion to generate bar plot
 generate_bar_plot <- function(var_inf, min_var, max_var) {
-# Create a Plotly bar plot
-rel_influence_plot <- plotly::plot_ly(
-  data = var_inf[min_var:max_var, ],
-  x = ~relative_influence,
-  y = ~var,
-  type = "bar",
-  marker = list(
-    color = "rgb(99,184,255)",
-    line = list(color = "black", width = 1)
-  ),
-  hovertemplate = paste(
-    "Variable: %{y}<br>",
-    "Influence: %{x}",
-    "<extra></extra>" # Removes trace0
+  # Create a Plotly bar plot
+  rel_influence_plot <- plotly::plot_ly(
+    data = var_inf[min_var:max_var, ],
+    x = ~relative_influence,
+    y = ~var,
+    type = "bar",
+    marker = list(
+      color = "rgb(99,184,255)",
+      line = list(color = "black", width = 1)
+    ),
+    hovertemplate = paste(
+      "Variable: %{y}<br>",
+      "Influence: %{x:.2f}",
+      "<extra></extra>" # Removes trace0
+    )
   )
-)
 
-# Customize the layout
-rel_influence_plot <- rel_influence_plot %>%
-  plotly::layout(
-    xaxis = list(
-      title = "Relative Influence %",
-      titlefont = list(size = 18),
-      standoff = 50,
-      tickfont = list(size = 16)
-    ),
-    yaxis = list(
-      title = "",
-      titlefont = list(size = 18),
-      standoff = 3,
-      autorange = "reversed",
-      tickfont = list(size = 16)
-    ),
-    font = list(family = "Arial"),  # Set the font family
-    showlegend = FALSE  # To hide the legend
-  )
+  # Customize the layout
+  rel_influence_plot <- rel_influence_plot %>%
+    plotly::layout(
+      xaxis = list(
+        title = "Relative Influence %",
+        titlefont = list(size = 18),
+        standoff = 50,
+        tickfont = list(size = 16),
+        zeroline = FALSE,
+        showgrid = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
+      ),
+      yaxis = list(
+        title = "",
+        titlefont = list(size = 18),
+        standoff = 3,
+        autorange = "reversed",
+        tickfont = list(size = 16),
+        zeroline = FALSE,
+        showgrid = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the y-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
+      ),
+      font = list(family = "Arial"),  # Set the font family
+      showlegend = FALSE  # To hide the legend
+    )
 
   rel_influence_plot <- plotly::config(
     p = rel_influence_plot,
@@ -715,8 +744,8 @@ generate_pdp1d_plot <- function(
       ),
       name = x_dp2,  # Set the legend label to x_dp2
       hovertemplate = paste(
-        x_dp2, ": %{x}<br>",
-        target, ": %{y}",
+        x_dp2, ": %{x:.2f}<br>",
+        target, ": %{y:.2f}",
         "<extra></extra>"
       )
     )
@@ -727,13 +756,24 @@ generate_pdp1d_plot <- function(
         title = x_dp2,
         titlefont = list(size = 18),
         tickfont = list(size = 16),
-        zeroline = FALSE
+        zeroline = FALSE,
+        showgrid = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
       ),
       yaxis = list(
         title = target,
         titlefont = list(size = 18),
         tickfont = list(size = 16),
-        zeroline = FALSE
+        zeroline = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the y-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
       ),
       showlegend = TRUE,
       legend = list(
@@ -781,8 +821,8 @@ generate_pdp1d_plot <- function(
       ),
       name = x_dp2,  # Set the legend label to x_dp2
       hovertemplate = paste(
-        x_dp2, ": %{x}<br>",
-        target, ": %{y}",
+        x_dp2, ": %{x:.2f}<br>",
+        target, ": %{y:.2f}",
         "<extra></extra>"
       )
     )
@@ -805,8 +845,8 @@ generate_pdp1d_plot <- function(
       ),
       name = x_dp3,  # Set the legend label to x_dp2
       hovertemplate = paste(
-        x_dp3, ": %{x}<br>",
-        target, ": %{y}",
+        x_dp3, ": %{x:.2f}<br>",
+        target, ": %{y:.2f}",
         "<extra></extra>"
       )
     )
@@ -818,13 +858,25 @@ generate_pdp1d_plot <- function(
         titlefont = list(size = 18),
         tickfont = list(size = 16),
         zeroline = FALSE,
-        showgrid = FALSE
+        showgrid = FALSE,
+        zeroline = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
       ),
       yaxis = list(
         title = target,
         titlefont = list(size = 18),
         tickfont = list(size = 16),
-        zeroline = FALSE
+        zeroline = FALSE,
+        showgrid = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the y-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
       ),
       xaxis2 = list(
         title = x_dp3,
@@ -833,11 +885,22 @@ generate_pdp1d_plot <- function(
         titlefont = list(size = 18),
         tickfont = list(size = 16),
         zeroline = FALSE,
-        showgrid = FALSE
+        showgrid = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
       ),
       yaxis2 = list(
         showticklabels = FALSE,
-        zeroline = FALSE
+        zeroline = FALSE,
+        showgrid = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the y-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
       ),
       showlegend = TRUE,
       legend = list(
@@ -935,7 +998,10 @@ generate_pdp2d_plotly_plot <- function(
   plot_2d <- plotly::plot_ly(
     z = plot_data,
     showscale = TRUE,
-    hoverinfo = "z",
+    hovertemplate = paste(
+      target, ": %{z:.2f}",
+      "<extra></extra>"
+    ),
     hoverlabel = list(font = list(size = 12)),
     colorbar = list(title = paste(target)),
     type = "contour"
@@ -951,7 +1017,14 @@ generate_pdp2d_plotly_plot <- function(
           (n_cols - 1) * 0.50,
           (n_cols - 1) * 0.75
         ),
-        ticktext = text_x
+        ticktext = text_x,
+        zeroline = FALSE,
+        showgrid = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
       ),
       yaxis = list(
         title = x_dp2,
@@ -960,7 +1033,14 @@ generate_pdp2d_plotly_plot <- function(
           (n_rows - 1) * 0.50,
           (n_rows - 1) * 0.75
         ),
-        ticktext = text_y
+        ticktext = text_y,
+        zeroline = FALSE,
+        showgrid = FALSE,
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the y-axis line
+        linewidth = 2,    # Line width
+        linecolor = "black"  # Line color
       )
     )
 
@@ -1026,7 +1106,10 @@ generate_pdp3d_plotly_plot <- function(
   plot_3d <- plotly::plot_ly(
     z = plot_data,
     showscale = FALSE,
-    hoverinfo = "z",
+    hovertemplate = paste(
+      target, ": %{z:.2f}",
+      "<extra></extra>"
+    ),
     hoverlabel = list(font = list(size = 12)),
   )
   plot_3d <- plot_3d %>%
