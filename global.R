@@ -143,7 +143,6 @@ generate_time_plot <- function(
       xaxis = list(
         title = "Date",
         type = "date",
-        rangeslider = list(type = "date"),
         zeroline = FALSE,
         showgrid = TRUE,
         titlefont = list(size = 18),
@@ -169,7 +168,6 @@ generate_time_plot <- function(
       xaxis = list(
         title = "Date",
         type = "date",
-        rangeslider = list(type = "date"),
         zeroline = FALSE,
         showgrid = TRUE,
         titlefont = list(size = 18),
@@ -456,7 +454,6 @@ generate_time_plot_prediction <- function(
     plot_bgcolor = back_color,
     xaxis = list(
       title = "Date",
-      rangeslider = list(type = "date"),
       zeroline = FALSE,
       showgrid = TRUE
     ),
