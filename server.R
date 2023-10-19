@@ -821,14 +821,24 @@ shiny::shinyServer(function(input, output, session) {
             zeroline = FALSE,
             showgrid = TRUE,
             titlefont = list(size = 18),
-            tickfont = list(size = 14)
+            tickfont = list(size = 14),
+            mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "outside",
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
           ),
           yaxis = list(
             title = input$y_scat,
             zeroline = FALSE,
             showgrid = TRUE,
             titlefont = list(size = 18),
-            tickfont = list(size = 14)
+            tickfont = list(size = 14),
+            mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "outside",
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
           ),
           margin = list(l = 50, r = 50, b = 50, t = 50, pad = 2),
           plot_bgcolor = back_color,

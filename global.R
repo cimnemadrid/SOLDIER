@@ -611,7 +611,7 @@ generate_bar_plot <- function(var_inf, min_var, max_var) {
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the x-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       yaxis = list(
@@ -625,7 +625,7 @@ generate_bar_plot <- function(var_inf, min_var, max_var) {
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the y-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       font = list(family = "Arial"),  # Set the font family
@@ -758,7 +758,7 @@ generate_pdp1d_plot <- function(
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the x-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       yaxis = list(
@@ -769,7 +769,7 @@ generate_pdp1d_plot <- function(
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the y-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       showlegend = TRUE,
@@ -856,11 +856,10 @@ generate_pdp1d_plot <- function(
         tickfont = list(size = 16),
         zeroline = FALSE,
         showgrid = FALSE,
-        zeroline = FALSE,
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the x-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       yaxis = list(
@@ -872,7 +871,7 @@ generate_pdp1d_plot <- function(
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the y-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       xaxis2 = list(
@@ -886,7 +885,7 @@ generate_pdp1d_plot <- function(
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the x-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       yaxis2 = list(
@@ -896,7 +895,7 @@ generate_pdp1d_plot <- function(
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the y-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       showlegend = TRUE,
@@ -1020,7 +1019,7 @@ generate_pdp2d_plotly_plot <- function(
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the x-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       ),
       yaxis = list(
@@ -1036,7 +1035,7 @@ generate_pdp2d_plotly_plot <- function(
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
         showline = TRUE,  # Show the y-axis line
-        linewidth = 2,    # Line width
+        linewidth = 1,    # Line width
         linecolor = "black"  # Line color
       )
     )
