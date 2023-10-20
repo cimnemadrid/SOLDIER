@@ -171,7 +171,8 @@ generate_time_plot <- function(
         linecolor = "black"  # Line color
       ),
       legend = list(
-        font = list(size = 14)
+        font = list(size = 14),
+        x = 1.05
       )
     )
   } else {
