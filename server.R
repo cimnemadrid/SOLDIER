@@ -766,7 +766,7 @@ shiny::shinyServer(function(input, output, session) {
             color = ~color_valid,
             colorbar = list(
               title = paste(input$color_scat),
-              titlefont = list(size = 18),
+              titlefont = list(size = 16),
               tickfont = list(size = 14)
             ),
             colorscale = "Rainbow",
@@ -791,7 +791,7 @@ shiny::shinyServer(function(input, output, session) {
             color = ~color_valid,
             colorbar = list(
               title = paste(input$color_scat),
-              titlefont = list(size = 18),
+              titlefont = list(size = 16),
               tickfont = list(size = 14)
             ),
             colorscale = "Rainbow",
@@ -820,7 +820,7 @@ shiny::shinyServer(function(input, output, session) {
             title = input$x_scat,
             zeroline = FALSE,
             showgrid = TRUE,
-            titlefont = list(size = 18),
+            titlefont = list(size = 16),
             tickfont = list(size = 14),
             mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
             ticks = "outside",
@@ -832,7 +832,7 @@ shiny::shinyServer(function(input, output, session) {
             title = input$y_scat,
             zeroline = FALSE,
             showgrid = TRUE,
-            titlefont = list(size = 18),
+            titlefont = list(size = 16),
             tickfont = list(size = 14),
             mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
             ticks = "outside",
@@ -1056,7 +1056,7 @@ shiny::shinyServer(function(input, output, session) {
             color = ~color_valid,
             colorbar = list(
               title = paste(title = paste(input$color_scat4d)),
-              titlefont = list(size = 18),
+              titlefont = list(size = 16),
               tickfont = list(size = 14)
             ),
             colorscale = "Rainbow",
@@ -1084,7 +1084,7 @@ shiny::shinyServer(function(input, output, session) {
             color = ~color_valid,
             colorbar = list(
               title = paste(title = paste(input$color_scat4d)),
-              titlefont = list(size = 18),
+              titlefont = list(size = 16),
               tickfont = list(size = 14)
             ),
             colorscale = "Rainbow",
@@ -1104,17 +1104,17 @@ shiny::shinyServer(function(input, output, session) {
         scene = list(
           xaxis = list(
             title = input$x_scat4d,
-            titlefont = list(size = 18),
+            titlefont = list(size = 16),
             tickfont = list(size = 14)
           ),
           yaxis = list(
             title = input$y_scat4d,
-            titlefont = list(size = 18),
+            titlefont = list(size = 16),
             tickfont = list(size = 14)
           ),
           zaxis = list(
             title = input$z_scat4d,
-            titlefont = list(size = 18),
+            titlefont = list(size = 16),
             tickfont = list(size = 14)
           )
         )

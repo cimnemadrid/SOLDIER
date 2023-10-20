@@ -90,8 +90,13 @@ generate_time_plot <- function(
       title = y_labels2,
       zeroline = FALSE,
       showgrid = TRUE,
-      titlefont = list(size = 18),
-      tickfont = list(size = 16)
+      titlefont = list(size = 16),
+      tickfont = list(size = 14),
+      mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+      ticks = "outside",
+      showline = TRUE,  # Show the x-axis line
+      linewidth = 1,    # Line width
+      linecolor = "black"  # Line color
     )
 
     if (length(vars2) == 1) {
@@ -145,20 +150,28 @@ generate_time_plot <- function(
         type = "date",
         zeroline = FALSE,
         showgrid = TRUE,
-        titlefont = list(size = 18),
-        tickfont = list(size = 16)
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 1,    # Line width
+        linecolor = "black"  # Line color
       ),
       yaxis = list(
         title = y_labels,
         zeroline = FALSE,
         showgrid = TRUE,
-        titlefont = list(size = 18),
-        tickfont = list(size = 16)
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 1,    # Line width
+        linecolor = "black"  # Line color
       ),
       legend = list(
-        font = list(size = 14),
-        x = 0.95,
-        y = 0.95
+        font = list(size = 14)
       )
     )
   } else {
@@ -170,21 +183,29 @@ generate_time_plot <- function(
         type = "date",
         zeroline = FALSE,
         showgrid = TRUE,
-        titlefont = list(size = 18),
-        tickfont = list(size = 16)
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 1,    # Line width
+        linecolor = "black"  # Line color
       ),
       yaxis = list(
         title = y_labels,
         zeroline = FALSE,
         showgrid = TRUE,
-        titlefont = list(size = 18),
-        tickfont = list(size = 16)
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
+        mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+        ticks = "outside",
+        showline = TRUE,  # Show the x-axis line
+        linewidth = 1,    # Line width
+        linecolor = "black"  # Line color
       ),
       legend = list(
-        font = list(size = 14),
-        x = 0.95,
-        y = 0.95
-    )
+        font = list(size = 14)
+      )
     )
   }
 
@@ -517,16 +538,16 @@ generate_fitting_plot <- function(graph_data, n_model, predict, ini, end, text, 
     plotly::layout(
       xaxis = list(
         title = text,
-        titlefont = list(size = 18),
+        titlefont = list(size = 16),
         standoff = 50,
-        tickfont = list(size = 16),
+        tickfont = list(size = 14),
         range = c(x0, x1)
       ),
       yaxis = list(
         title = "Prediction",
-        titlefont = list(size = 18),
+        titlefont = list(size = 16),
         standoff = 50,
-        tickfont = list(size = 16),
+        tickfont = list(size = 14),
         range = c(y0, y1)
       ),
       # Add a border (box) around the plot
@@ -603,9 +624,9 @@ generate_bar_plot <- function(var_inf, min_var, max_var) {
     plotly::layout(
       xaxis = list(
         title = "Relative Influence %",
-        titlefont = list(size = 18),
+        titlefont = list(size = 16),
         standoff = 50,
-        tickfont = list(size = 16),
+        tickfont = list(size = 14),
         zeroline = FALSE,
         showgrid = FALSE,
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
@@ -616,10 +637,10 @@ generate_bar_plot <- function(var_inf, min_var, max_var) {
       ),
       yaxis = list(
         title = "",
-        titlefont = list(size = 18),
+        titlefont = list(size = 16),
         standoff = 3,
         autorange = "reversed",
-        tickfont = list(size = 16),
+        tickfont = list(size = 14),
         zeroline = FALSE,
         showgrid = FALSE,
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
@@ -751,8 +772,8 @@ generate_pdp1d_plot <- function(
     plotly::layout(
       xaxis = list(
         title = x_dp2,
-        titlefont = list(size = 18),
-        tickfont = list(size = 16),
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
         zeroline = FALSE,
         showgrid = FALSE,
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
@@ -763,8 +784,8 @@ generate_pdp1d_plot <- function(
       ),
       yaxis = list(
         title = target,
-        titlefont = list(size = 18),
-        tickfont = list(size = 16),
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
         zeroline = FALSE,
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
         ticks = "outside",
@@ -777,7 +798,7 @@ generate_pdp1d_plot <- function(
         orientation = "h",
         x = 0.35,
         y = -0.2,
-        font = list(size = 16)
+        font = list(size = 14)
       ),
       font = list(family = "Arial"),
       margin = list(l = 100, r = 30, t = 70, b = 70)
@@ -838,7 +859,7 @@ generate_pdp1d_plot <- function(
         symbol = "circle",
         color = "rgb(99,184,255)",
         line = list(color = "black", width = 1),
-        size = 20
+        size = 16
       ),
       name = x_dp3,  # Set the legend label to x_dp2
       hovertemplate = paste(
@@ -852,8 +873,8 @@ generate_pdp1d_plot <- function(
     plotly::layout(
       xaxis = list(
         title = x_dp2,
-        titlefont = list(size = 18),
-        tickfont = list(size = 16),
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
         zeroline = FALSE,
         showgrid = FALSE,
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
@@ -864,8 +885,8 @@ generate_pdp1d_plot <- function(
       ),
       yaxis = list(
         title = target,
-        titlefont = list(size = 18),
-        tickfont = list(size = 16),
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
         zeroline = FALSE,
         showgrid = FALSE,
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
@@ -878,8 +899,8 @@ generate_pdp1d_plot <- function(
         title = x_dp3,
         overlaying = "x",
         side = "top",
-        titlefont = list(size = 18),
-        tickfont = list(size = 16),
+        titlefont = list(size = 16),
+        tickfont = list(size = 14),
         zeroline = FALSE,
         showgrid = FALSE,
         mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
@@ -903,7 +924,7 @@ generate_pdp1d_plot <- function(
         orientation = "h",
         x = 0.35,
         y = -0.2,
-        font = list(size = 20)
+        font = list(size = 14)
       ),
       font = list(family = "Arial"),
       margin = list(l = 100, r = 30, t = 70, b = 70)
