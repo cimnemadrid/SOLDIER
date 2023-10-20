@@ -477,19 +477,35 @@ generate_time_plot_prediction <- function(
     xaxis = list(
       title = "Date",
       zeroline = FALSE,
-      showgrid = TRUE
+      showgrid = TRUE,
+      mirror = "all",  # axis lines mirrored to the opposite side of the plotting area
+      ticks = "", # TODO: "outside". Now, it draws tick lines in secondary axis of plot 1
+      showline = TRUE,  # Show the x-axis line
+      linewidth = 1,    # Line width
+      linecolor = "black"  # Line color
     ),
     yaxis = list(
       title = "Observ. and Pred.",
       zeroline = FALSE,
-      showgrid = TRUE
+      showgrid = TRUE,
+      mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+      ticks = "outside",
+      showline = TRUE,  # Show the x-axis line
+      linewidth = 1,    # Line width
+      linecolor = "black"  # Line color
     ),
     yaxis2 = list(
       title = "Error",
       zeroline = FALSE,
-      showgrid = TRUE
+      showgrid = TRUE,
+      mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+      ticks = "outside",
+      showline = TRUE,  # Show the x-axis line
+      linewidth = 1,    # Line width
+      linecolor = "black"  # Line color
     )
   )
+
   return(time_plot)
 }
 
@@ -550,17 +566,6 @@ generate_fitting_plot <- function(graph_data, n_model, predict, ini, end, text, 
         standoff = 50,
         tickfont = list(size = 14),
         range = c(y0, y1)
-      ),
-      # Add a border (box) around the plot
-      shapes = list(
-        list(
-          type = "rect",
-          x0 = x0,
-          x1 = x1,
-          y0 = y0,
-          y1 = y1,
-          line = list(color = "black", width = 2)
-        )
       )
     )
 

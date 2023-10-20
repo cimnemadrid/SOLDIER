@@ -815,7 +815,7 @@ shiny::shinyServer(function(input, output, session) {
       }
 
       plot <- plot %>%
-        layout(
+        plotly::layout(
           xaxis = list(
             title = input$x_scat,
             zeroline = FALSE,
@@ -1100,25 +1100,25 @@ shiny::shinyServer(function(input, output, session) {
         )
       }
       plot4d <- plot4d %>%
-      layout(
-        scene = list(
-          xaxis = list(
-            title = input$x_scat4d,
-            titlefont = list(size = 16),
-            tickfont = list(size = 14)
-          ),
-          yaxis = list(
-            title = input$y_scat4d,
-            titlefont = list(size = 16),
-            tickfont = list(size = 14)
-          ),
-          zaxis = list(
-            title = input$z_scat4d,
-            titlefont = list(size = 16),
-            tickfont = list(size = 14)
+        plotly::layout(
+          scene = list(
+            xaxis = list(
+              title = input$x_scat4d,
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            ),
+            yaxis = list(
+              title = input$y_scat4d,
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            ),
+            zaxis = list(
+              title = input$z_scat4d,
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            )
           )
         )
-      )
       if (class(datum[, match(input$i_color_scat4d, col_nam)]) == "factor") {
         showModal(modalDialog(
           title = "Colors doesn't work with factor variables",
@@ -2002,24 +2002,45 @@ shiny::shinyServer(function(input, output, session) {
         mae
       )
 
-      sca_plot_train <- sca_plot_train %>%
-        layout(
-          xaxis = list(title = text_train),
-          yaxis = list(title = "Prediction")
-        )
-
-      sca_plot_test <- sca_plot_test %>%
-        layout(
-          xaxis = list(title = text_test),
-          yaxis = list(title = "Prediction")
-        )
-
       sca_plot <- subplot(
         sca_plot_train,
         sca_plot_test,
         titleX = TRUE,
         shareY = TRUE
       )
+
+      sca_plot <- sca_plot %>%
+        plotly::layout(
+          xaxis = list(
+            title = text_train,
+            titlefont = list(size = 16),
+            tickfont = list(size = 14),
+            mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "outside",
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
+          ),
+          xaxis2 = list(
+            title = text_train,
+            titlefont = list(size = 16),
+            tickfont = list(size = 14),
+            mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "outside",
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
+          ),
+          yaxis = list(
+            titlefont = list(size = 16),
+            tickfont = list(size = 14),
+            mirror = "all",  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "", # TODO: "outside". Now, it draws tick lines in secondary axis of plot 1
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
+          )
+        )
 
       return(sca_plot)
     }
