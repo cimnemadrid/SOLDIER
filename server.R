@@ -748,35 +748,63 @@ shiny::shinyServer(function(input, output, session) {
             mode = "none",
             fill = "toself",
             fillcolor = "blue, 0.5",
-            hovertemplate = "none"
+            hoverinfo = "none"
           )
         }
       }
 
-      plot <- add_trace(
-        x = ~x_valid,
-        y = ~y_valid,
-        p = plot,
-        type = "scatter",
-        mode = "markers",
-        marker = list(
-          size = point_size,
-          color = ~color_valid,
-          colorbar = list(
-            title = paste(input$color_scat),
-            titlefont = list(size = 18),
-            tickfont = list(size = 14)
+      # This is needed for printing properly the hover info in case there is a date
+      if (inherits(x_valid[1], "POSIXct") || inherits(x_valid[1], "POSIXlt")) {
+        plot <- add_trace(
+          x = ~x_valid,
+          y = ~y_valid,
+          p = plot,
+          type = "scatter",
+          mode = "markers",
+          marker = list(
+            size = point_size,
+            color = ~color_valid,
+            colorbar = list(
+              title = paste(input$color_scat),
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            ),
+            colorscale = "Rainbow",
+            showscale = TRUE
           ),
-          colorscale = "Rainbow",
-          showscale = TRUE
-        ),
-        hovertemplate = paste(
-          input$x_scat, ": %{x}<br>",
-          input$y_scat, ": %{y}<br>",
-          input$color_scat, ": %{marker.color:,}",
-          "<extra></extra>" # Removes trace0
+          hovertemplate = paste(
+            input$x_scat, ": %{x}<br>",
+            input$y_scat, ": %{y:.2f}<br>",
+            input$color_scat, ": %{marker.color:.2f}",
+            "<extra></extra>" # Removes trace0
+          )
         )
-      )
+      } else {
+        plot <- add_trace(
+          x = ~x_valid,
+          y = ~y_valid,
+          p = plot,
+          type = "scatter",
+          mode = "markers",
+          marker = list(
+            size = point_size,
+            color = ~color_valid,
+            colorbar = list(
+              title = paste(input$color_scat),
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            ),
+            colorscale = "Rainbow",
+            showscale = TRUE
+          ),
+          hovertemplate = paste(
+            input$x_scat, ": %{x:.2f}<br>",
+            input$y_scat, ": %{y:.2f}<br>",
+            input$color_scat, ": %{marker.color:.2f}",
+            "<extra></extra>" # Removes trace0
+          )
+        )
+      }
 
       if (class(datum[, match(input$i_color_scat, col_nam)]) == "factor") {
         showModal(modalDialog(
@@ -787,20 +815,30 @@ shiny::shinyServer(function(input, output, session) {
       }
 
       plot <- plot %>%
-        layout(
+        plotly::layout(
           xaxis = list(
             title = input$x_scat,
             zeroline = FALSE,
             showgrid = TRUE,
-            titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            titlefont = list(size = 16),
+            tickfont = list(size = 14),
+            mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "outside",
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
           ),
           yaxis = list(
             title = input$y_scat,
             zeroline = FALSE,
             showgrid = TRUE,
-            titlefont = list(size = 18),
-            tickfont = list(size = 16)
+            titlefont = list(size = 16),
+            tickfont = list(size = 14),
+            mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "outside",
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
           ),
           margin = list(l = 50, r = 50, b = 50, t = 50, pad = 2),
           plot_bgcolor = back_color,
@@ -1001,52 +1039,86 @@ shiny::shinyServer(function(input, output, session) {
 
     # Draw plot
     isolate({
-      plot4d <- plot_ly(
-        data = datum,
-        x = ~x_valid,
-        y = ~y_valid,
-        z = ~z_valid,
-        type = "scatter3d",
-        mode = "markers",
-        marker = list(
-          size = point_size,
-          color = ~color_valid,
-          colorbar = list(
-            title = paste(title = paste(input$color_scat4d)),
-            titlefont = list(size = 18),
-            tickfont = list(size = 14)
+      plot4d <- plot_ly()
+
+      # This is needed for printing properly the hover info in case there is a date
+      if (inherits(x_valid[1], "POSIXct") || inherits(x_valid[1], "POSIXlt")) {
+        plot4d <- add_trace(
+          data = datum,
+          x = ~x_valid,
+          y = ~y_valid,
+          z = ~z_valid,
+          p = plot4d,
+          type = "scatter3d",
+          mode = "markers",
+          marker = list(
+            size = point_size,
+            color = ~color_valid,
+            colorbar = list(
+              title = paste(title = paste(input$color_scat4d)),
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            ),
+            colorscale = "Rainbow",
+            showscale = TRUE
           ),
-          colorscale = "Rainbow",
-          showscale = TRUE
-        ),
-        hovertemplate = paste(
-          input$x_scat4d, ": %{x}<br>",
-          input$y_scat4d, ": %{y}<br>",
-          input$z_scat4d, ": %{z}<br>",
-          input$color_scat4d, ": %{marker.color:,}",
-          "<extra></extra>" # Removes trace0
-        )
-      )
-      plot4d <- plot4d %>%
-      layout(
-        scene = list(
-          xaxis = list(
-            title = input$x_scat4d,
-            titlefont = list(size = 18),
-            tickfont = list(size = 14)
-          ),
-          yaxis = list(
-            title = input$y_scat4d,
-            titlefont = list(size = 18),
-            tickfont = list(size = 14)
-          ),
-          zaxis = list(
-            title = input$z_scat4d,
-            titlefont = list(size = 18),
-            tickfont = list(size = 14)
+          hovertemplate = paste(
+            input$x_scat4d, ": %{x}<br>",
+            input$y_scat4d, ": %{y:.2f}<br>",
+            input$z_scat4d, ": %{z:.2f}<br>",
+            input$color_scat4d, ": %{marker.color:.2f}",
+            "<extra></extra>" # Removes trace0
           )
         )
-      )
+      } else {
+        plot4d <- add_trace(
+          data = datum,
+          x = ~x_valid,
+          y = ~y_valid,
+          z = ~z_valid,
+          p = plot4d,
+          type = "scatter3d",
+          mode = "markers",
+          marker = list(
+            size = point_size,
+            color = ~color_valid,
+            colorbar = list(
+              title = paste(title = paste(input$color_scat4d)),
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            ),
+            colorscale = "Rainbow",
+            showscale = TRUE
+          ),
+          hovertemplate = paste(
+            input$x_scat4d, ": %{x:.2f}<br>",
+            input$y_scat4d, ": %{y:.2f}<br>",
+            input$z_scat4d, ": %{z:.2f}<br>",
+            input$color_scat4d, ": %{marker.color:.2f}",
+            "<extra></extra>" # Removes trace0
+          )
+        )
+      }
+      plot4d <- plot4d %>%
+        plotly::layout(
+          scene = list(
+            xaxis = list(
+              title = input$x_scat4d,
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            ),
+            yaxis = list(
+              title = input$y_scat4d,
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            ),
+            zaxis = list(
+              title = input$z_scat4d,
+              titlefont = list(size = 16),
+              tickfont = list(size = 14)
+            )
+          )
+        )
       if (class(datum[, match(input$i_color_scat4d, col_nam)]) == "factor") {
         showModal(modalDialog(
           title = "Colors doesn't work with factor variables",
@@ -1152,19 +1224,29 @@ shiny::shinyServer(function(input, output, session) {
     source("aux_soldier.R", local = TRUE)$value
   })
 
-  output$iTrainYears <- renderUI({
-    if ((!is.null(input$data_type) && input$data_type == 2)) {
-      return(NULL)
+  # Observe changes in train_end_date and update initial_date_test accordingly
+  observe({
+    update_end_date <- input$train_years[2]  # Get the user-selected end date for training
+    if (!is.null(update_end_date)) {
+      initial_date_test <- update_end_date + days(1)
+      updateDateRangeInput(session, "test_years", start = initial_date_test)
     }
-    aux_soldier <- "train_periods"
-    source("aux_soldier.R", local = TRUE)$value
   })
 
-  output$iTestYears <- renderUI({
+  # Observe changes in test_start_date and update end_date_train accordingly
+  observe({
+    update_start_date <- input$test_years[1]  # Get the user-selected start date for testing
+    if (!is.null(update_start_date)) {
+      end_date_train <- update_start_date - days(1)
+      updateDateRangeInput(session, "train_years", end = end_date_train)
+    }
+  })
+
+  output$iTrainTestYears <- renderUI({
     if ((!is.null(input$data_type) && input$data_type == 2)) {
       return(NULL)
     }
-    aux_soldier <- "test_period"
+    aux_soldier <- "train_test_periods"
     source("aux_soldier.R", local = TRUE)$value
   })
 
@@ -1538,6 +1620,30 @@ shiny::shinyServer(function(input, output, session) {
     train_data <- train_data[!is.na(train_data[, target_num]), ]
     test_data <- test_data[!is.na(test_data[, target_num]), ]
 
+    # Check if there are data in the target variable for train and test periods
+    if (nrow(train_data) < 1) {
+      showModal(
+        modalDialog(
+          title = "Warning",
+          "The target variable does not have data in the selected train period.",
+          size = c("s"),
+          easyClose = TRUE
+        )
+      )
+      return(NULL)
+    }
+    if (nrow(test_data) < 1) {
+      showModal(
+        modalDialog(
+          title = "Warning",
+          "The target variable does not have data in the selected test period.",
+          size = c("s"),
+          easyClose = TRUE
+        )
+      )
+      return(NULL)
+    }
+
     # Remove columns without values
     all_miss_cols <- sapply(train_data, function(x) all(is.na(x)))
     if (any(all_miss_cols)) {
@@ -1665,23 +1771,23 @@ shiny::shinyServer(function(input, output, session) {
       rows <- scat$ini:scat$end
     }
 
-    # Check if there are NA in traget variable
+    # Check if there are NA in target variable
     if (any(is.na(values$dat[rows, target_num]))) {
       perc <- 100 * sum(is.na(values$dat[rows, target_num])) / (length(rows))
       title <- paste(
-        "Warning",
-        "There are",
+        "Warning: there are ",
         round(perc),
         "% of NA on target variable"
       )
     }
+
+    showModal(modalDialog(title = title, text, size = c("s"), easyClose = TRUE))
 
     values$dat <- datum
     values$train_data <- train_data
     values$test_data <- test_data
     values$train_test_data <- rbind(train_data, test_data)
 
-    showModal(modalDialog(title = title, text, size = c("s"), easyClose = TRUE))
     model_res_fit
   })
 
@@ -1862,13 +1968,23 @@ shiny::shinyServer(function(input, output, session) {
       ini_train <- 1
       end_train <- nrow(model_res$data_out) - length(model_res$positions)
       text_train <- "Training observation"
-      sca_plot_train <- generate_fitting_plot_ggplot2(
+
+      graph_data <- model_res$data_out[ini_train:end_train, ]
+
+      # Calculate the absolute error for each observation
+      absolute_errors <- abs(graph_data$error)
+
+      # Calculate the mean absolute error (MAE)
+      mae <- mean(absolute_errors)
+
+      sca_plot_train <- generate_fitting_plot(
         model_res$data_out,
         n_model,
         predict,
         ini_train,
         end_train,
-        text_train
+        text_train,
+        mae
       )
 
       # Calculate test fitting plot
@@ -1876,31 +1992,57 @@ shiny::shinyServer(function(input, output, session) {
       end_test <- nrow(model_res$data_out)
       text_test <- "Testing observation"
 
-      sca_plot_test <- generate_fitting_plot_ggplot2(
+      sca_plot_test <- generate_fitting_plot(
         model_res$data_out,
         n_model,
         predict,
         ini_test,
         end_test,
-        text_test
+        text_test,
+        mae
       )
 
-      plotly_sca_plot_train <- plotly::ggplotly(sca_plot_train) %>%
-      plotly::layout(xaxis = list(title = list(text = text_train)),
-                     yaxis = list(title = list(text = "Prediction")))
-
-      plotly_sca_plot_test <- plotly::ggplotly(sca_plot_test) %>%
-      plotly::layout(xaxis = list(title = list(text = text_test)),
-                     yaxis = list(title = list(text = "Prediction")))
-
-      plotly_sca_plot <- subplot(
-        plotly_sca_plot_train,
-        plotly_sca_plot_test,
+      sca_plot <- subplot(
+        sca_plot_train,
+        sca_plot_test,
         titleX = TRUE,
         shareY = TRUE
       )
 
-      return(plotly_sca_plot)
+      sca_plot <- sca_plot %>%
+        plotly::layout(
+          xaxis = list(
+            title = text_train,
+            titlefont = list(size = 16),
+            tickfont = list(size = 14),
+            mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "outside",
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
+          ),
+          xaxis2 = list(
+            title = text_train,
+            titlefont = list(size = 16),
+            tickfont = list(size = 14),
+            mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "outside",
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
+          ),
+          yaxis = list(
+            titlefont = list(size = 16),
+            tickfont = list(size = 14),
+            mirror = "all",  # axis lines mirrored to the opposite side of the plotting area
+            ticks = "", # TODO: "outside". Now, it draws tick lines in secondary axis of plot 1
+            showline = TRUE,  # Show the x-axis line
+            linewidth = 1,    # Line width
+            linecolor = "black"  # Line color
+          )
+        )
+
+      return(sca_plot)
     }
   })
 
@@ -1951,8 +2093,6 @@ shiny::shinyServer(function(input, output, session) {
 
     # Calculate bars plots
     rel_influence_plot <- generate_bar_plot(var_inf, min_var, max_var)
-    rel_influence_plot <- rel_influence_plot +
-      geom_bar(stat = "identity", fill = "steelblue1", colour = "black")
 
     return(rel_influence_plot)
     dev.off()
@@ -2032,7 +2172,7 @@ shiny::shinyServer(function(input, output, session) {
       label = NULL,
       value = 10,
       min = 5,
-      max = 40,
+      max = 100,
       step = NA
     )
   })
