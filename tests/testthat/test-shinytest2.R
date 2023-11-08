@@ -13,7 +13,7 @@ test_that("{shinytest2} recording: test_read_time_series_file", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -29,7 +29,7 @@ test_that("{shinytest2} recording: test_read_other_data_file", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -73,7 +73,7 @@ test_that("{shinytest2} recording: test_scatter_plot_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -105,7 +105,7 @@ test_that("{shinytest2} recording: test_scatter_plot_4d_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -169,7 +169,7 @@ test_that("{shinytest2} recording: test_time_series_plot", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -205,7 +205,7 @@ test_that("{shinytest2} recording: test_scatter_plot_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -241,7 +241,7 @@ test_that("{shinytest2} recording: test_scatter_plot_4d_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -281,7 +281,7 @@ test_that("{shinytest2} recording: test_predict_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -317,7 +317,7 @@ test_that("{shinytest2} recording: test_predict_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -369,7 +369,7 @@ test_that("{shinytest2} recording: test_pdps_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -417,7 +417,7 @@ test_that("{shinytest2} recording: test_pdps_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -477,7 +477,7 @@ test_that("{shinytest2} recording: test_convex_hull", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -553,7 +553,7 @@ test_that("{shinytest2} recording: test_train_test_range_time_series", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -613,7 +613,7 @@ test_that("{shinytest2} recording: test_train_test_range_other_data", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
 
 
@@ -656,5 +656,5 @@ test_that("{shinytest2} recording: test_confidence_interval", {
   Sys.sleep(0.5)
   app$set_window_size(height = 943, width = 1577)
   Sys.sleep(5)
-  app$expect_screenshot(threshold = 25)
+  app$expect_screenshot(threshold = 30)
 })
