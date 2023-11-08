@@ -2022,7 +2022,7 @@ shiny::shinyServer(function(input, output, session) {
             linecolor = "black"  # Line color
           ),
           xaxis2 = list(
-            title = text_train,
+            title = text_test,
             titlefont = list(size = 16),
             tickfont = list(size = 14),
             mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
