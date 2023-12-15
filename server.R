@@ -766,8 +766,8 @@ shiny::shinyServer(function(input, output, session) {
             color = ~color_valid,
             colorbar = list(
               title = paste(input$color_scat),
-              titlefont = list(size = 16),
-              tickfont = list(size = 14)
+              titlefont = list(size = 18),
+              tickfont = list(size = 18)
             ),
             colorscale = "Rainbow",
             showscale = TRUE
@@ -791,8 +791,8 @@ shiny::shinyServer(function(input, output, session) {
             color = ~color_valid,
             colorbar = list(
               title = paste(input$color_scat),
-              titlefont = list(size = 16),
-              tickfont = list(size = 14)
+              titlefont = list(size = 18),
+              tickfont = list(size = 18)
             ),
             colorscale = "Rainbow",
             showscale = TRUE
@@ -820,8 +820,8 @@ shiny::shinyServer(function(input, output, session) {
             title = input$x_scat,
             zeroline = FALSE,
             showgrid = TRUE,
-            titlefont = list(size = 16),
-            tickfont = list(size = 14),
+            titlefont = list(size = 18),
+            tickfont = list(size = 18),
             mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
             ticks = "outside",
             showline = TRUE,  # Show the x-axis line
@@ -832,8 +832,8 @@ shiny::shinyServer(function(input, output, session) {
             title = input$y_scat,
             zeroline = FALSE,
             showgrid = TRUE,
-            titlefont = list(size = 16),
-            tickfont = list(size = 14),
+            titlefont = list(size = 18),
+            tickfont = list(size = 18),
             mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
             ticks = "outside",
             showline = TRUE,  # Show the x-axis line
@@ -1056,8 +1056,8 @@ shiny::shinyServer(function(input, output, session) {
             color = ~color_valid,
             colorbar = list(
               title = paste(title = paste(input$color_scat4d)),
-              titlefont = list(size = 16),
-              tickfont = list(size = 14)
+              titlefont = list(size = 18),
+              tickfont = list(size = 18)
             ),
             colorscale = "Rainbow",
             showscale = TRUE
@@ -2013,8 +2013,8 @@ shiny::shinyServer(function(input, output, session) {
         plotly::layout(
           xaxis = list(
             title = text_train,
-            titlefont = list(size = 16),
-            tickfont = list(size = 14),
+            titlefont = list(size = 18),
+            tickfont = list(size = 18),
             mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
             ticks = "outside",
             showline = TRUE,  # Show the x-axis line
@@ -2023,8 +2023,8 @@ shiny::shinyServer(function(input, output, session) {
           ),
           xaxis2 = list(
             title = text_test,
-            titlefont = list(size = 16),
-            tickfont = list(size = 14),
+            titlefont = list(size = 18),
+            tickfont = list(size = 18),
             mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
             ticks = "outside",
             showline = TRUE,  # Show the x-axis line
@@ -2032,8 +2032,8 @@ shiny::shinyServer(function(input, output, session) {
             linecolor = "black"  # Line color
           ),
           yaxis = list(
-            titlefont = list(size = 16),
-            tickfont = list(size = 14),
+            titlefont = list(size = 18),
+            tickfont = list(size = 18),
             mirror = "all",  # axis lines mirrored to the opposite side of the plotting area
             ticks = "", # TODO: "outside". Now, it draws tick lines in secondary axis of plot 1
             showline = TRUE,  # Show the x-axis line
