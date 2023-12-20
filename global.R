@@ -340,6 +340,7 @@ generate_time_plot_prediction <- function(
 
   time_plot_pred <- time_plot_pred %>%
   plotly::layout(
+    xaxis = list(type = "date"),
     shapes = list(
       vline(x = format(start_train, format = "%Y-%m-%d %H:%M:%OS")),
       vline(x = format(end_train, format = "%Y-%m-%d %H:%M:%OS")),
@@ -467,8 +468,8 @@ generate_time_plot_prediction <- function(
   )
 
   time_plot <- plotly::subplot(
-    time_plot_pred,
     time_plot_err,
+    time_plot_pred,
     nrows = 2,
     shareX = TRUE
   ) %>%
@@ -485,7 +486,7 @@ generate_time_plot_prediction <- function(
       linecolor = "black"  # Line color
     ),
     yaxis = list(
-      title = "Observ. and Pred.",
+      title = "Error",
       zeroline = FALSE,
       showgrid = TRUE,
       mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
@@ -495,7 +496,7 @@ generate_time_plot_prediction <- function(
       linecolor = "black"  # Line color
     ),
     yaxis2 = list(
-      title = "Error",
+      title = "Observ. and Pred.",
       zeroline = FALSE,
       showgrid = TRUE,
       mirror = TRUE,  # axis lines mirrored to the opposite side of the plotting area
