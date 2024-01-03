@@ -374,7 +374,7 @@ generate_time_plot_prediction <- function(
     connectgaps = FALSE,
     p = time_plot_err,
     line = list(color = set_color[3], width = 2),
-    name = "Error",
+    showlegend = FALSE,
     hovertemplate = "(%{x}, %{y:.2f})"
   )
 
@@ -504,7 +504,11 @@ generate_time_plot_prediction <- function(
       showline = TRUE,  # Show the x-axis line
       linewidth = 1,    # Line width
       linecolor = "black"  # Line color
-    )
+    ),
+      legend = list(
+        font = list(size = 14),
+        y = 0.425
+      )
   )
 
   return(time_plot)
