@@ -506,8 +506,7 @@ generate_time_plot_prediction <- function(
       linecolor = "black"  # Line color
     ),
       legend = list(
-        font = list(size = 14),
-        y = 0.425
+        y = 0.43
       )
   )
 
