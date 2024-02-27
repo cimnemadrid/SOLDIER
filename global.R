@@ -1294,7 +1294,7 @@ select_prediction_variables <- function(classes, datum, target, groups) {
 
 # Function to form variable groups
 create_variables_groups <- function(classes, datum) {
-  num_class <- which("numeric" == classes)
+  num_class <- which(classes %in% c("numeric", "integer"))
   items <- sort(names(datum)[num_class])
   groups <- as.data.frame(matrix(
     data = NA,
@@ -1339,7 +1339,7 @@ create_variables_groups <- function(classes, datum) {
 # Function to match groups of variables
 select_variables <- function(datum, selected_vars) {
   classes <- identify_classes(datum)
-  pos_numeric_classes <- which("numeric" == classes)
+  pos_numeric_classes <- which(classes %in% c("numeric", "integer"))
   pos_factor_classes <- which("factor" == classes)
   sorted_vars <- sort(names(datum)[c(pos_numeric_classes, pos_factor_classes)])
 

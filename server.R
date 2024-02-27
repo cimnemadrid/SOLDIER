@@ -373,7 +373,7 @@ shiny::shinyServer(function(input, output, session) {
     if (aux_soldier) {
       # Calculate classes for columns
       classes <- identify_classes(datum)
-      num_class <- which("numeric" == classes)
+      num_class <- which(classes %in% c("numeric", "integer"))
       items <- sort(names(datum)[num_class])
 
       # Find groups of variables
@@ -545,7 +545,7 @@ shiny::shinyServer(function(input, output, session) {
 
     # Calculate classes for columns and only add factor and numeric classes
     classes <- identify_classes(datum)
-    num_class <- which("numeric" == classes)
+    num_class <- which(classes %in% c("numeric", "integer"))
     factor_class <- which("factor" == classes)
     items <- sort(names(datum)[c(num_class, factor_class)])
 
@@ -571,7 +571,7 @@ shiny::shinyServer(function(input, output, session) {
 
     # Calculate classes for columns and only add factor and numeric classes
     classes <- identify_classes(datum)
-    num_class <- which("numeric" == classes)
+    num_class <- which(classes %in% c("numeric", "integer"))
     items <- sort(names(datum)[num_class])
 
     if (sum(results$residual[!is.na(results$residual)]) != 0) {
@@ -891,7 +891,7 @@ shiny::shinyServer(function(input, output, session) {
 
     # Calculate classes for columns
     classes <- identify_classes(datum)
-    num_class <- which("numeric" == classes)
+    num_class <- which(classes %in% c("numeric", "integer"))
     items <- sort(names(datum)[num_class])
 
     if (sum(results$residual[!is.na(results$residual)]) != 0) {
@@ -919,7 +919,7 @@ shiny::shinyServer(function(input, output, session) {
 
     # Calculate classes for columns
     classes <- identify_classes(datum)
-    num_class <- which("numeric" == classes)
+    num_class <- which(classes %in% c("numeric", "integer"))
     items <- sort(names(datum)[num_class])
 
     if (sum(results$residual[!is.na(results$residual)]) != 0) {
@@ -948,7 +948,7 @@ shiny::shinyServer(function(input, output, session) {
 
     # Calculate classes for columns
     classes <- identify_classes(datum)
-    num_class <- which("numeric" == classes)
+    num_class <- which(classes %in% c("numeric", "integer"))
     items <- sort(names(datum)[num_class])
 
     if (sum(results$residual[!is.na(results$residual)]) != 0) {
@@ -1169,7 +1169,7 @@ shiny::shinyServer(function(input, output, session) {
       return(HTML("Please load some data file"))
     }
     classes <- identify_classes(datum) # Calculate classes for columns
-    num_class <- which("numeric" == classes)
+    num_class <- which(classes %in% c("numeric", "integer"))
     items <- sort(names(datum)[num_class])
     sele <- NULL
     if (!is.null(input$target)) {
