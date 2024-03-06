@@ -40,7 +40,9 @@ The application is structured into three main sections:
 
 ## Installation and Launch Guide
 
-SOLDIER operates like any R-Shiny application. To run it on a local machine, these steps shall be followed:
+SOLDIER operates like any R-Shiny application. Some users may prefer to clone the repository to have access to the source code for modification and further exploration, while others may simply want to run the application without cloning it. Below are instructions to run SOLDIER on a local machine for both approaches:
+
+### Cloning the Repository
 
 1. **Clone the Repository:**
 
@@ -62,6 +64,21 @@ SOLDIER operates like any R-Shiny application. To run it on a local machine, the
 
 5. **Access the Application:**
    The application will open in the default web browser.
+
+### Without cloning the Repository
+
+1. **Install R:**
+   R version 4.3.1 or later is required. It can be downloaded from the official R website: [https://cran.rstudio.com/](https://cran.rstudio.com/).
+
+2. **Install RStudio:**
+   RStudio provides an integrated development environment for working with R. The latest version of RStudio can be downloaded from their official website: [https://www.rstudio.com/products/rstudio/](https://www.rstudio.com/products/rstudio/).
+
+3. **Run the Application:**
+   Execute the command `shiny::runGitHub("SOLDIER", "cimnemadrid")`.
+
+4. **Access the Application:**
+   The application will open in the default web browser.
+
 
 More information and support for the installation process is available in the project's [documentation](https://github.com/cimnemadrid/SOLDIER/tree/main/manual).
 
