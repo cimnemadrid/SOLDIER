@@ -247,7 +247,19 @@ dashboardPage(
                            input.plot_type != 2 &&
                            input.plot_type != 3 &&
                            input.plot_type != 4",
-              imageOutput("frontImage")
+              div(
+                imageOutput("frontImage"),
+                div(
+                  # Adjust the margin as needed for spacing
+                  style = "margin-top: 130px;",
+                  HTML("<p>If you use the application and have any question,
+                        please contact us at cimnemadrid@cimne.upc.edu and do not
+                        forget to cite:<br>Salazar, F., Irazábal, J., & Conde, A.
+                        (2024). SOLDIER: SOLution for Dam behavior Interpretation
+                        and safety Evaluation with boosted Regression trees.
+                        SoftwareX, 25, 101598.</p>"),
+                )
+              )
             ),
 
             # Box for drawing time series plot

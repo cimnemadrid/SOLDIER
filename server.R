@@ -264,7 +264,7 @@ shiny::shinyServer(function(input, output, session) {
         src = "www/FrontImage.jpg",
         contentType = "image/jpg",
         alt = "frontImage",
-        width = 850,
+        width = 1000,
         height = 520
       ))
     },
